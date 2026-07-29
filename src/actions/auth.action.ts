@@ -22,13 +22,13 @@ export const login = async (data: TLoginFormData) => {
 
     const result = await res.json();
 
-    // if (!result.success) {
-    //   return {
-    //     success: false,
-    //     message: result.message || "Invalid credentials.",
-    //     errorDetails: result.errorDetails || [],
-    //   };
-    // }
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.message || "Invalid credentials.",
+        errorDetails: result.errorDetails || [],
+      };
+    }
 
     console.log("this block is running");
     if (result.success) {
@@ -58,8 +58,7 @@ export const login = async (data: TLoginFormData) => {
 
 export const register = async (data: TRegistrationFormData) => {
   try {
-    // confirmPassword is only for frontend validation.
-    // Do not send it to the backend.
+
     const { confirmPassword, ...registerData } = data;
 
     const res = await fetch(`${backendUrl}/api/auth/register`, {
