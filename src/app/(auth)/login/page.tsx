@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,26 +17,49 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email."),
-  password: z.string().min(6, "Password must be at least 6 characters."),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-
+import { LoginSchema, type TLoginFormData } from "@/schema/auth/auth.schema";
+import { login } from "@/actions/auth.action";
+import { toast } from "sonner"
 export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState("");
+
+  const form = useForm<TLoginFormData>({
+    resolver: zodResolver(LoginSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = async (values: LoginFormValues) => {
-    console.log(values);
+  const onSubmit = async (values: TLoginFormData) => {
+    setServerError("");
+
+    const result = await login(values);
+    console.log("result of login", result);
+
+    if (!result.success) {
+      toast.warning("Log in failed",)
+      setServerError(result.message);
+      return;
+    }
+
+    const user = result.data.user;
+
+    form.reset();
+    toast.success("Log in successfully")
+    router.replace("/");
+    // if (user.role === "ADMIN") {
+    //   router.push("/admin/dashboard");
+    // } else if (user.role === "TECHNICIAN") {
+    //   router.push("/technician/dashboard");
+    // } else {
+    //   router.push("/dashboard");
+    // }
+
+    router.refresh();
   };
 
   return (
@@ -45,23 +68,40 @@ export default function LoginPage() {
         <Card className="border shadow-sm">
           <CardHeader className="space-y-2 text-center">
             <CardTitle className="text-2xl">Welcome back</CardTitle>
-            <CardDescription>
-              Sign in to your FixItNow account.
-            </CardDescription>
+
+            <CardDescription>Sign in to your FixItNow account.</CardDescription>
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+              noValidate
+            >
+              {serverError && (
+                <div
+                  role="alert"
+                  className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                >
+                  {serverError}
+                </div>
+              )}
+
+              {/* Email */}
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium">
                   Email
                 </label>
+
                 <Input
                   id="email"
                   type="email"
                   placeholder="you@example.com"
+                  autoComplete="email"
+                  aria-invalid={!!form.formState.errors.email}
                   {...form.register("email")}
                 />
+
                 {form.formState.errors.email?.message && (
                   <p className="text-sm text-destructive">
                     {form.formState.errors.email.message}
@@ -69,22 +109,30 @@ export default function LoginPage() {
                 )}
               </div>
 
+              {/* Password */}
               <div className="space-y-2">
                 <label htmlFor="password" className="text-sm font-medium">
                   Password
                 </label>
+
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
+                    autoComplete="current-password"
                     className="pr-10"
+                    aria-invalid={!!form.formState.errors.password}
                     {...form.register("password")}
                   />
+
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute inset-y-0 right-3 flex items-center text-muted-foreground"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -93,6 +141,7 @@ export default function LoginPage() {
                     )}
                   </button>
                 </div>
+
                 {form.formState.errors.password?.message && (
                   <p className="text-sm text-destructive">
                     {form.formState.errors.password.message}
@@ -100,22 +149,29 @@ export default function LoginPage() {
                 )}
               </div>
 
-              <div className="flex items-center justify-end">
-                <Link
-                  href="/auth/forgot-password"
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-
-              <Button type="submit" className="w-full">
-                Login
+              {/* Submit */}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  "Login"
+                )}
               </Button>
 
+              {/* Register */}
               <p className="text-center text-sm text-muted-foreground">
                 Don&apos;t have an account?{" "}
-                <Link href="/auth/register" className="text-foreground underline-offset-4 hover:underline">
+                <Link
+                  href="/register"
+                  className="text-foreground underline-offset-4 hover:underline"
+                >
                   Register
                 </Link>
               </p>
