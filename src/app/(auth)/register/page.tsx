@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { z } from "zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,29 +19,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-const registerSchema = z
-  .object({
-    name: z.string().min(2, "Name is required."),
-    email: z.string().email("Please enter a valid email."),
-    role: z.enum(["CUSTOMER", "TECHNICIAN", "ADMIN"], {
-      required_error: "Please select a role.",
-    }),
-    password: z.string().min(6, "Password must be at least 6 characters."),
-    confirmPassword: z.string().min(6, "Please confirm your password."),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match.",
-    path: ["confirmPassword"],
-  });
+import {
+  RegisterSchema,
+  type TRegistrationFormData,
+} from "@/schema/auth/auth.schema";
 
-type RegisterFormValues = z.infer<typeof registerSchema>;
+import { register } from "@/actions/auth.action";
 
 export default function RegisterPage() {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
+
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const form = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
+  const [serverError, setServerError] = useState("");
+
+  const form = useForm<TRegistrationFormData>({
+    resolver: zodResolver(RegisterSchema),
+
     defaultValues: {
       name: "",
       email: "",
@@ -51,8 +47,19 @@ export default function RegisterPage() {
     },
   });
 
-  const onSubmit = async (values: RegisterFormValues) => {
-    console.log(values);
+  const onSubmit = async (values: TRegistrationFormData) => {
+    setServerError("");
+
+    const result = await register(values);
+
+    if (!result.success) {
+      setServerError(result.message);
+      return;
+    }
+
+    form.reset();
+
+    router.push("/login");
   };
 
   return (
@@ -61,16 +68,40 @@ export default function RegisterPage() {
         <Card className="border shadow-sm">
           <CardHeader className="space-y-2 text-center">
             <CardTitle className="text-2xl">Create account</CardTitle>
+
             <CardDescription>
               Join FixItNow and start booking trusted services.
             </CardDescription>
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+              noValidate
+            >
+              {/* Server Error */}
+              {serverError && (
+                <div
+                  role="alert"
+                  className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                >
+                  {serverError}
+                </div>
+              )}
+
+              {/* Name */}
               <div className="space-y-2">
                 <Label htmlFor="name">Full name</Label>
-                <Input id="name" placeholder="John Doe" {...form.register("name")} />
+
+                <Input
+                  id="name"
+                  placeholder="John Doe"
+                  autoComplete="name"
+                  aria-invalid={!!form.formState.errors.name}
+                  {...form.register("name")}
+                />
+
                 {form.formState.errors.name?.message && (
                   <p className="text-sm text-destructive">
                     {form.formState.errors.name.message}
@@ -78,14 +109,19 @@ export default function RegisterPage() {
                 )}
               </div>
 
+              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
+
                 <Input
                   id="email"
                   type="email"
                   placeholder="you@example.com"
+                  autoComplete="email"
+                  aria-invalid={!!form.formState.errors.email}
                   {...form.register("email")}
                 />
+
                 {form.formState.errors.email?.message && (
                   <p className="text-sm text-destructive">
                     {form.formState.errors.email.message}
@@ -93,24 +129,36 @@ export default function RegisterPage() {
                 )}
               </div>
 
+              {/* Role */}
               <div className="space-y-2">
-                <Label>Role</Label>
+                <Label>Account type</Label>
+
                 <RadioGroup
                   value={form.watch("role")}
                   onValueChange={(value) =>
-                    form.setValue("role", value as "CUSTOMER" | "TECHNICIAN" | "ADMIN")
+                    form.setValue("role", value as "CUSTOMER" | "TECHNICIAN", {
+                      shouldValidate: true,
+                    })
                   }
-                  className="grid grid-cols-3 gap-2"
+                  className="grid grid-cols-2 gap-3"
                 >
-                  {["customer", "technician", "admin"].map((role) => (
-                    <div key={role} className="flex items-center space-x-2 rounded-md border p-3">
-                      <RadioGroupItem value={role} id={role} />
-                      <Label htmlFor={role} className="capitalize">
-                        {role}
-                      </Label>
-                    </div>
-                  ))}
+                  <div className="flex items-center space-x-2 rounded-md border p-3">
+                    <RadioGroupItem value="CUSTOMER" id="customer" />
+
+                    <Label htmlFor="customer" className="cursor-pointer">
+                      Customer
+                    </Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2 rounded-md border p-3">
+                    <RadioGroupItem value="TECHNICIAN" id="technician" />
+
+                    <Label htmlFor="technician" className="cursor-pointer">
+                      Technician
+                    </Label>
+                  </div>
                 </RadioGroup>
+
                 {form.formState.errors.role?.message && (
                   <p className="text-sm text-destructive">
                     {form.formState.errors.role.message}
@@ -118,20 +166,28 @@ export default function RegisterPage() {
                 )}
               </div>
 
+              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
+
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
+                    autoComplete="new-password"
                     className="pr-10"
+                    aria-invalid={!!form.formState.errors.password}
                     {...form.register("password")}
                   />
+
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute inset-y-0 right-3 flex items-center text-muted-foreground"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -140,6 +196,7 @@ export default function RegisterPage() {
                     )}
                   </button>
                 </div>
+
                 {form.formState.errors.password?.message && (
                   <p className="text-sm text-destructive">
                     {form.formState.errors.password.message}
@@ -147,20 +204,28 @@ export default function RegisterPage() {
                 )}
               </div>
 
+              {/* Confirm Password */}
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm password</Label>
+
                 <div className="relative">
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm your password"
+                    autoComplete="new-password"
                     className="pr-10"
+                    aria-invalid={!!form.formState.errors.confirmPassword}
                     {...form.register("confirmPassword")}
                   />
+
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    className="absolute inset-y-0 right-3 flex items-center text-muted-foreground"
+                    aria-label={
+                      showConfirmPassword ? "Hide password" : "Show password"
+                    }
+                    className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground"
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -169,6 +234,7 @@ export default function RegisterPage() {
                     )}
                   </button>
                 </div>
+
                 {form.formState.errors.confirmPassword?.message && (
                   <p className="text-sm text-destructive">
                     {form.formState.errors.confirmPassword.message}
@@ -176,13 +242,29 @@ export default function RegisterPage() {
                 )}
               </div>
 
-              <Button type="submit" className="w-full">
-                Create account
+              {/* Submit */}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  "Create account"
+                )}
               </Button>
 
+              {/* Login */}
               <p className="text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
-                <Link href="/login" className="text-foreground underline-offset-4 hover:underline">
+                <Link
+                  href="/login"
+                  className="text-foreground underline-offset-4 hover:underline"
+                >
                   Login
                 </Link>
               </p>
