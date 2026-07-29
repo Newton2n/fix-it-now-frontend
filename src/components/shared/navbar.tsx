@@ -20,7 +20,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 type Role = "customer" | "technician" | "admin" | null;
@@ -45,7 +44,7 @@ export default function Navbar({ role = null, userName }: HeaderProps) {
       label: "Categories",
     },
     {
-      href: "/dashboard/user",
+      href: "/dashboard/customer",
       label: "Dashboard",
     },
   ];

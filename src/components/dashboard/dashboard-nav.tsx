@@ -7,11 +7,8 @@ import {
   Star,
   Settings,
   LifeBuoy,
-  ShieldCheck,
   FolderKanban,
-  ClipboardList,
-  ListChecks,
-  Bell,
+  ClipboardList
 } from "lucide-react";
 
 export type Role = "admin" | "customer" | "technician";
