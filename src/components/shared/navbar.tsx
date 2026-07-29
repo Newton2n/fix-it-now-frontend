@@ -40,6 +40,10 @@ export default function Navbar({ role = null, userName }: HeaderProps) {
       href: "/services",
       label: "Services",
     },
+    {
+      href: "/categories",
+      label: "Categories",
+    },
   ];
 
   const roleLinks =

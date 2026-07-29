@@ -16,6 +16,19 @@ export const getAllService = async () => {
     return result;
   }
 };
+export const getAllServiceByCategoryId = async (id:string) => {
+  const res = await fetch(`${backendUrl}/api/service/category/${id}`, {
+    cache: "force-cache",
+    next: {
+      revalidate: 60 * 60 * 2,
+      tags: ["all-service-by-category"],
+    },
+  });
+  const result = await res.json();
+  if (result.success) {
+    return result;
+  }
+};
 
 export const getSingleService = async (id: string) => {
   if (!id) {
@@ -27,10 +40,10 @@ export const getSingleService = async (id: string) => {
   const cookieStore = await cookies();
 
   console.log("cookie store",cookieStore)
-  const accessToken =await cookieStore.get("accessToken")?.value;
+  const accessToken = cookieStore.get("accessToken")?.value;
   console.log("accessToken",accessToken)
 
-  const verifyAccessToken =await jwtUtils.verifyToken(
+  const verifyAccessToken = jwtUtils.verifyToken(
     accessToken as string,
     process.env.JWT_ACCESS_SECRET!,
   );

@@ -52,7 +52,7 @@ export default function ServiceCard({
 
           <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-background/95 px-2.5 py-1 text-xs font-semibold shadow-sm backdrop-blur">
             <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-            <span>{rating.toFixed(1)}</span>
+            {/* <span>{rating?.toFixed(1)}</span> */}
           </div>
         </div>
 
@@ -89,7 +89,7 @@ export default function ServiceCard({
               <p className="text-xs text-muted-foreground">Rating</p>
               <div className="flex items-center justify-end gap-1">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-semibold">{rating.toFixed(1)}</span>
+                {/* <span className="text-sm font-semibold">{rating.toFixed(1)}</span> */}
               </div>
             </div>
           </div>
