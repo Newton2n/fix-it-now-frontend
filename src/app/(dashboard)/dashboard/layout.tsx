@@ -1,18 +1,25 @@
 import { ReactNode } from "react";
 import DashboardSidebar from "@/components/dashboard/dashboard-sidebar";
 import DashboardTopbar from "@/components/dashboard/dashboard-topbar";
+import { getMe } from "@/actions/auth.action";
+import { notFound } from "next/navigation";
 
 type Props = {
   children: ReactNode;
 };
 
-export default function DashboardLayout({ children }: Props) {
-  const role = "technician"; // replace later with auth-based role
+export default async function DashboardLayout({ children }: Props) {
+  const user = await getMe();
+  console.log("get me ", user);
+  if (!user.success) {
+    return notFound();
+  }
+  const role = user?.data.role;
 
   return (
     <div className="flex min-h-screen bg-muted/20">
       <div className="hidden lg:block">
-        <DashboardSidebar role={role} />
+        <DashboardSidebar role={role || "CUSTOMER"} />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">

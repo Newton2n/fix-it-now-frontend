@@ -34,15 +34,15 @@ export default function DashboardSidebar({ role }: Props) {
           </div>
 
           <div className="space-y-1">
-            {items.map((item) => {
+            {items?.map((item) => {
               const active =
                 pathname === item.href || pathname.startsWith(item.href + "/");
               const Icon = item.icon;
 
               return (
                 <Link
-                  key={item.href}
-                  href={item.href}
+                  key={item?.href}
+                  href={item?.href}
                   className={cn(
                     "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition",
                     active
@@ -51,7 +51,7 @@ export default function DashboardSidebar({ role }: Props) {
                   )}
                 >
                   <Icon className="h-4 w-4" />
-                  <span className="flex-1">{item.label}</span>
+                  <span className="flex-1">{item?.label}</span>
                   {active ? <Badge variant="secondary">Active</Badge> : null}
                 </Link>
               );

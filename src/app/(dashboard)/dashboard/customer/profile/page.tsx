@@ -1,26 +1,18 @@
-import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
-import SectionCard from "@/components/dashboard/section-card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import ProfilePage, { UserProfile } from "@/components/dashboard/profile-page";
+
+const user: UserProfile = {
+  id: "706059be-0a96-4dcf-86da-8046777b61dc",
+  name: "Newton",
+  phoneNumber: null,
+  email: "2@gmail.com",
+  role: "CUSTOMER",
+  status: "ACTIVE",
+  country: null,
+  profilePicture: null,
+  createdAt: "2026-07-08T06:12:00.598Z",
+  updatedAt: "2026-07-11T11:09:11.035Z",
+};
 
 export default function CustomerProfilePage() {
-  return (
-    <div className="space-y-6">
-      <DashboardPageHeader
-        title="My Profile"
-        description="Update your personal information."
-      />
-
-      <SectionCard title="Profile Details" description="Edit your customer account info">
-        <div className="grid gap-4 md:grid-cols-2">
-          <Input placeholder="Full name" />
-          <Input placeholder="Email address" />
-          <Input placeholder="Phone number" />
-          <Input placeholder="Address" />
-        </div>
-
-        <Button className="mt-4">Save Changes</Button>
-      </SectionCard>
-    </div>
-  );
+  return <ProfilePage user={user} canEdit />;
 }

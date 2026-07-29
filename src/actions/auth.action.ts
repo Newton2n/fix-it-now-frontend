@@ -59,8 +59,8 @@ export const login = async (data: TLoginFormData) => {
 
 export const register = async (data: TRegistrationFormData) => {
   try {
-
     const { confirmPassword, ...registerData } = data;
+    console.log(confirmPassword)
 
     const res = await fetch(`${backendUrl}/api/auth/register`, {
       method: "POST",
@@ -97,4 +97,40 @@ export const register = async (data: TRegistrationFormData) => {
   }
 };
 
+export const getMe = async () => {
+  const cookieStore = await cookies();
 
+  const accessToken = cookieStore.get("accessToken")?.value;
+
+  try {
+    const res = await fetch(`${backendUrl}/api/auth/me`, {
+      headers: {
+        Cookie: `accessToken=${accessToken}`,
+      },
+      cache: "force-cache",
+      next: {
+        revalidate: 60 * 60 * 24,
+        tags: ["login-user"],
+      },
+    });
+
+    const result = await res.json();
+
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.message || "Invalid credentials.",
+        errorDetails: result.errorDetails || [],
+      };
+    }
+    return result;
+  } catch (error) {
+    console.error("Login action error:", error);
+
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      errorDetails: [],
+    };
+  }
+};
