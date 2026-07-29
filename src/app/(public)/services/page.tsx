@@ -2,47 +2,14 @@ import ServiceCard from "@/components/service/service-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { getAllService } from "@/actions/service.action";
+import { ServicesResponse } from "@/schema/service/service.schema";
 
-const services = [
-  {
-    id: 1,
-    title: "Plumbing Repair",
-    image: "/services/plumbing.jpg",
-    location: "Dhaka",
-    rating: 4.8,
-    price: 25,
-    technician: "Rahim Uddin",
-  },
-  {
-    id: 2,
-    title: "AC Installation",
-    image: "/services/ac.jpg",
-    location: "Chattogram",
-    rating: 4.9,
-    price: 45,
-    technician: "Aminul Islam",
-  },
-  {
-    id: 3,
-    title: "Electrical Fixing",
-    image: "/services/electrical.jpg",
-    location: "Sylhet",
-    rating: 4.7,
-    price: 30,
-    technician: "Jannat Ara",
-  },
-  {
-    id: 4,
-    title: "Home Cleaning",
-    image: "/services/cleaning.jpg",
-    location: "Rajshahi",
-    rating: 4.6,
-    price: 20,
-    technician: "Sadia Khan",
-  },
-];
+export default async function ServicesPage() {
+  const getServices: ServicesResponse = await getAllService();
 
-export default function ServicesPage() {
+  const services = getServices?.data?.result?.data || [];
+
   return (
     <main className="min-h-screen bg-background">
       <section className="border-b bg-muted/30">
@@ -61,22 +28,47 @@ export default function ServicesPage() {
 
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-6">
         <div className="grid gap-4 rounded-2xl border bg-card p-4 shadow-sm md:grid-cols-4">
-          <Input placeholder="Search service or location..." className="md:col-span-2" />
+          <Input
+            placeholder="Search service or location..."
+            className="md:col-span-2"
+          />
           <Button variant="outline">Filter: Category</Button>
           <Button>Search</Button>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          <Button variant="secondary" size="sm">All</Button>
-          <Button variant="outline" size="sm">Plumbing</Button>
-          <Button variant="outline" size="sm">Electrical</Button>
-          <Button variant="outline" size="sm">Cleaning</Button>
-          <Button variant="outline" size="sm">AC Repair</Button>
+          <Button variant="secondary" size="sm">
+            All
+          </Button>
+          <Button variant="outline" size="sm">
+            Plumbing
+          </Button>
+          <Button variant="outline" size="sm">
+            Electrical
+          </Button>
+          <Button variant="outline" size="sm">
+            Cleaning
+          </Button>
+          <Button variant="outline" size="sm">
+            AC Repair
+          </Button>
         </div>
 
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {services.map((service) => (
-            <ServiceCard key={service.id} {...service} />
+            <ServiceCard
+              key={service.id}
+              id={service.id}
+              title={service.title}
+              image={
+                service.thumbnailImage ||
+                "https://images.unsplash.com/photo-1605152276897-4f618f831968?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2VydmljZXxlbnwwfHwwfHx8MA%3D%3D"
+              }
+              location="Location not specified"
+              rating={5.0}
+              price={service.price}
+              technician="Professional Technician"
+            />
           ))}
         </div>
       </section>

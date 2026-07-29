@@ -72,7 +72,7 @@ export default function Footer() {
         <Separator className="my-8" />
 
         <div className="flex flex-col gap-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <p>© {new Date().getFullYear()} FixItNow. All rights reserved.</p>
+          <p>© 2026 FixItNow. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-foreground">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-foreground">Terms</Link>

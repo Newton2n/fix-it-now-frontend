@@ -16,6 +16,7 @@ export const login = async (data: TLoginFormData) => {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       cache: "no-store",
       body: JSON.stringify(data),
     });
