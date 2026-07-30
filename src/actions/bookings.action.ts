@@ -39,3 +39,35 @@ export const getAllBookingsFromLoginUser = async () => {
     return result.data.bookings;
   }
 };
+export const getAllBookingsFromLoginTechnician = async () => {
+  const cookieStore = await cookies();
+
+  console.log("cookie store", cookieStore);
+  const accessToken = cookieStore.get("accessToken")?.value;
+  const verify = jwtUtils.verifyToken(
+    accessToken as string,
+    process.env.JWT_ACCESS_SECRET!,
+  );
+  if (!verify.success && verify.data?.role !== "TECHNICIAN") {
+    return {
+      success: false,
+      message: "sorry you are have no permission",
+    };
+  }
+
+  const res = await fetch(`${backendUrl}/api/technicians/bookings`, {
+    headers: {
+      Cookie: `accessToken=${accessToken}`,
+    },
+    cache: "force-cache",
+    next: {
+      tags: ["user-bookings"],
+      revalidate: 60 * 60 * 12,
+    },
+  });
+  const result = await res.json();
+  console.log("Technician Bookings response", result);
+  if (result.success) {
+    return result.data;
+  }
+};

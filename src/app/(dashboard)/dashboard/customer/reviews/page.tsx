@@ -12,10 +12,8 @@ import { MoreVertical, Star } from "lucide-react";
 import { getAllReviewDetailsFromLoginUser } from "@/actions/review.action";
 import { Review } from "@/types/review";
 
-
-
 export default async function CustomerReviewsPage() {
-  const res = await getAllReviewDetailsFromLoginUser()
+  const res = await getAllReviewDetailsFromLoginUser();
   const reviews = res.data;
   const meta = res.meta;
 
@@ -32,7 +30,7 @@ export default async function CustomerReviewsPage() {
       >
         <div className="space-y-4">
           {reviews?.length > 0 ? (
-            reviews.map((review :Review) => (
+            reviews.map((review: Review) => (
               <div
                 key={review.id}
                 className="rounded-xl border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
@@ -80,12 +78,14 @@ export default async function CustomerReviewsPage() {
                     </Badge>
 
                     <DropdownMenu>
-                      <DropdownMenuTrigger >
-                        <Button variant="outline" size="icon" className="h-9 w-9">
-                          <MoreVertical className="h-4 w-4" />
-                          <span className="sr-only">Open actions</span>
-                        </Button>
-                      </DropdownMenuTrigger>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button variant="outline" size="icon" className="h-9 w-9">
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">Open actions</span>
+                          </Button>
+                        }
+                      />
                       <DropdownMenuContent align="end" className="w-40">
                         <DropdownMenuItem>Edit</DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive focus:text-destructive">
