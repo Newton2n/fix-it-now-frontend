@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 import Navbar from "../components/shared/navbar";
 import Footer from "@/components/shared/footer";
 import { Toaster } from "sonner";
-import { getMe } from "@/actions/auth.action";
+import { Suspense } from "react";
+import NavbarSkeleton from "@/components/shared/navbar-skeleton";
+import AuthNavbar from "@/components/shared/auth-navbar";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -29,8 +31,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getMe();
-  const role = user?.data.role;
   return (
     <html
       lang="en"
@@ -46,7 +46,9 @@ export default async function RootLayout({
     >
       <body className="min-h-screen w-full overflow-x-hidden bg-background text-foreground">
         <div className="flex min-h-screen w-full flex-col">
-          <Navbar role={role} />
+          <Suspense fallback={<NavbarSkeleton />}>
+            <AuthNavbar />
+          </Suspense>
           <main className="flex-1 w-full">
             <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
               {children}

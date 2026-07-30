@@ -14,6 +14,7 @@ import {
   UserRound,
 } from "lucide-react";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 
 type UserRole = "CUSTOMER" | "TECHNICIAN" | "ADMIN";
 
@@ -88,26 +89,7 @@ export default async function TechnicianProfilePage({
     techRes?.data?.result ?? null;
 
   if (!technician) {
-    return (
-      <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <Card>
-          <CardContent className="flex min-h-64 flex-col items-center justify-center text-center">
-            <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-muted">
-              <UserRound className="size-6 text-muted-foreground" />
-            </div>
-
-            <h1 className="text-lg font-semibold">
-              Technician not found
-            </h1>
-
-            <p className="mt-1 max-w-md text-sm text-muted-foreground">
-              This technician profile doesn't exist or is no
-              longer available.
-            </p>
-          </CardContent>
-        </Card>
-      </main>
-    );
+    return notFound()
   }
 
   const userRes = await getUserById(technician.userId);
