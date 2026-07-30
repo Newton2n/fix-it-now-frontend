@@ -9,7 +9,6 @@ import {
   CalendarDays,
   CreditCard,
   Star,
-  Settings,
   FolderKanban,
   ClipboardList,
   type LucideIcon,
@@ -30,8 +29,7 @@ const dashboardNav: Record<Role, NavItem[]> = {
     { href: "/dashboard/admin/profile", label: "Profile", icon: Users },
     { href: "/dashboard/admin/users", label: "Users", icon: Users },
     { href: "/dashboard/admin/bookings", label: "Bookings", icon: ClipboardList },
-    { href: "/dashboard/admin/categories", label: "Categories", icon: FolderKanban },
-    { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },
+    { href: "/dashboard/admin/categories", label: "Categories", icon: FolderKanban }
   ],
   CUSTOMER: [
     { href: "/dashboard/customer", label: "Overview", icon: LayoutDashboard },
@@ -44,8 +42,7 @@ const dashboardNav: Record<Role, NavItem[]> = {
     { href: "/dashboard/technician", label: "Overview", icon: LayoutDashboard },
     { href: "/dashboard/technician/bookings", label: "Bookings", icon: ClipboardList },
     { href: "/dashboard/technician/availability", label: "Availability", icon: CalendarDays },
-    { href: "/dashboard/technician/services", label: "Services", icon: Wrench },
-    { href: "/dashboard/technician/settings", label: "Settings", icon: Settings },
+    { href: "/dashboard/technician/services", label: "Services", icon: Wrench }
   ],
 };
 

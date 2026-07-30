@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import Navbar from "../components/shared/navbar";
 import Footer from "@/components/shared/footer";
 import { Toaster } from "sonner";
+import { getMe } from "@/actions/auth.action";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -23,11 +24,13 @@ export const metadata: Metadata = {
   description: "Your Trusted Home Service Platform",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+   const user = await getMe();
+    const role = user?.data.role;
   return (
     <html
       lang="en"
@@ -43,7 +46,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen w-full overflow-x-hidden bg-background text-foreground">
         <div className="flex min-h-screen w-full flex-col">
-          <Navbar />
+          <Navbar role={role} />
           <main className="flex-1 w-full">
             <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
               {children}

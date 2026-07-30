@@ -3,14 +3,16 @@ import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookingResponse, BookingStatus } from "@/schema/booking/booking.schema";
-
-
+import {
+  BookingResponse,
+  BookingStatus,
+} from "@/schema/booking/booking.schema";
+import Link from "next/link";
 
 export default async function CustomerBookingsPage() {
   const bookingResponse: BookingResponse = await getAllBookingsFromLoginUser();
   const bookings = bookingResponse?.data || [];
-  console.log("all bookings response data",bookingResponse)
+  console.log("all bookings response data", bookingResponse);
   const meta = bookingResponse?.meta;
 
   const hasBookings = bookings.length > 0;
@@ -40,7 +42,9 @@ export default async function CustomerBookingsPage() {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-2">
                     <div>
-                      <p className="text-sm text-muted-foreground">Booking ID</p>
+                      <p className="text-sm text-muted-foreground">
+                        Booking ID
+                      </p>
                       <p className="font-medium break-all">{booking.id}</p>
                     </div>
 
@@ -51,7 +55,10 @@ export default async function CustomerBookingsPage() {
                       />
                       <Info label="Location" value={booking.location} />
                       <Info label="Service ID" value={booking.serviceId} />
-                      <Info label="Customer Note" value={booking.customerNote} />
+                      <Info
+                        label="Customer Note"
+                        value={booking.customerNote}
+                      />
                     </div>
                   </div>
 
@@ -73,10 +80,13 @@ export default async function CustomerBookingsPage() {
               </div>
               <h3 className="text-lg font-semibold">No bookings found</h3>
               <p className="text-sm text-muted-foreground">
-                You haven’t booked any services yet. Once you create a booking, it will appear
-                here.
+                You haven’t booked any services yet. Once you create a booking,
+                it will appear here.
               </p>
-              <Button>Browse Services</Button>
+              {/* <Button className={"cursor-pointer"}>
+                {" "}
+                <Link href={"/services"}>Browse Services</Link>
+              </Button> */}
             </div>
           </div>
         )}

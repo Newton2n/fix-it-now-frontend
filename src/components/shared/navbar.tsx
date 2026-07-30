@@ -22,7 +22,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
-type Role = "customer" | "technician" | "admin" | null;
+type Role = "CUSTOMER" | "TECHNICIAN" | "ADMIN" | null;
 
 type HeaderProps = {
   role?: Role;
@@ -42,22 +42,18 @@ export default function Navbar({ role = null, userName }: HeaderProps) {
     {
       href: "/categories",
       label: "Categories",
-    },
-    {
-      href: "/dashboard/customer",
-      label: "Dashboard",
-    },
+    }
   ];
 
   const roleLinks =
-    role === "customer"
+    role === "CUSTOMER"
       ? [
           {
             href: "/dashboard/customer",
             label: "My Dashboard",
           },
         ]
-      : role === "technician"
+      : role === "TECHNICIAN"
         ? [
             {
               href: "/dashboard/technician",
@@ -68,7 +64,7 @@ export default function Navbar({ role = null, userName }: HeaderProps) {
               label: "Bookings",
             },
           ]
-        : role === "admin"
+        : role === "ADMIN"
           ? [
               {
                 href: "/dashboard/admin",
@@ -144,9 +140,9 @@ export default function Navbar({ role = null, userName }: HeaderProps) {
                   render={
                     <Link
                       href={
-                        role === "customer"
+                        role === "CUSTOMER"
                           ? "/dashboard/customer"
-                          : role === "technician"
+                          : role === "TECHNICIAN"
                             ? "/dashboard/technician"
                             : "/dashboard/admin"
                       }
@@ -244,9 +240,9 @@ export default function Navbar({ role = null, userName }: HeaderProps) {
 
                       <Link
                         href={
-                          role === "customer"
+                          role === "CUSTOMER"
                             ? "/dashboard/customer"
-                            : role === "technician"
+                            : role === "TECHNICIAN"
                               ? "/dashboard/technician"
                               : "/dashboard/admin"
                         }
