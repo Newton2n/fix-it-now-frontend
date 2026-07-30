@@ -81,9 +81,6 @@ export default async function TechnicianProfilePage({
 }) {
   const { id } = await params;
 
-  /* ---------------------------------------------
-   * Get technician
-   * --------------------------------------------- */
 
   const techRes = await getTechnicianProfileById(id);
 
@@ -113,10 +110,6 @@ export default async function TechnicianProfilePage({
     );
   }
 
-  /* ---------------------------------------------
-   * Get user
-   * --------------------------------------------- */
-
   const userRes = await getUserById(technician.userId);
 
   const user: User | null = userRes?.data ?? null;
@@ -143,9 +136,7 @@ export default async function TechnicianProfilePage({
     );
   }
 
-  /* ---------------------------------------------
-   * Safe fallbacks
-   * --------------------------------------------- */
+
 
   const services: Service[] = technician.service ?? [];
 
@@ -163,9 +154,7 @@ export default async function TechnicianProfilePage({
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-      {/* =====================================================
-          HERO
-      ====================================================== */}
+     
 
       <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
         {/* Cover */}
@@ -257,19 +246,13 @@ export default async function TechnicianProfilePage({
         </div>
       </section>
 
-      {/* =====================================================
-          MAIN CONTENT
-      ====================================================== */}
+      
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
-        {/* ===================================================
-            MAIN COLUMN
-        ==================================================== */}
+      
 
         <div className="min-w-0 space-y-6">
-          {/* -------------------------------------------------
-              ABOUT
-          -------------------------------------------------- */}
+        
 
           <Card>
             <CardHeader>
@@ -319,9 +302,7 @@ export default async function TechnicianProfilePage({
             </CardContent>
           </Card>
 
-          {/* -------------------------------------------------
-              AVAILABILITY
-          -------------------------------------------------- */}
+        
 
           {availabilityEntries.length > 0 && (
             <Card>
@@ -371,9 +352,7 @@ export default async function TechnicianProfilePage({
             </Card>
           )}
 
-          {/* -------------------------------------------------
-              SERVICES
-          -------------------------------------------------- */}
+         
 
           <Card>
             <CardHeader>
@@ -394,9 +373,7 @@ export default async function TechnicianProfilePage({
           </Card>
         </div>
 
-        {/* ===================================================
-            SIDEBAR
-        ==================================================== */}
+    
 
         <aside className="space-y-6 lg:sticky lg:top-6">
           {/* Technician details */}

@@ -29,8 +29,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-   const user = await getMe();
-    const role = user?.data.role;
+  const user = await getMe();
+  const role = user?.data.role;
   return (
     <html
       lang="en"
@@ -54,7 +54,7 @@ export default async function RootLayout({
           </main>
           <Footer />
         </div>
-       <Toaster />
+        <Toaster />
       </body>
     </html>
   );
