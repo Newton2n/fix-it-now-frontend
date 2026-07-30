@@ -1,4 +1,4 @@
-import { getAllBooking } from "@/actions/admin";
+import { getAllBooking } from "@/actions/admin.action";
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge } from "@/components/ui/badge";
@@ -35,17 +35,21 @@ type BookingResponse = {
   data: Booking[];
 };
 
-
-
 export default async function AdminBookingsPage() {
-  const result = await getAllBooking()
+  const result = await getAllBooking();
 
-  const bookings = result.data.result.data
-  const meta = result.data.result.meta
+  const bookings = result.data.result.data;
+  const meta = result.data.result.meta;
 
-  const totalPaid = bookings.filter((booking :Booking) => booking.status === "PAID").length;
-  const totalCompleted = bookings.filter((booking :Booking) => booking.status === "COMPLETED").length;
-  const totalPending = bookings.filter((booking :Booking) => booking.status === "REQUESTED").length;
+  const totalPaid = bookings.filter(
+    (booking: Booking) => booking.status === "PAID",
+  ).length;
+  const totalCompleted = bookings.filter(
+    (booking: Booking) => booking.status === "COMPLETED",
+  ).length;
+  const totalPending = bookings.filter(
+    (booking: Booking) => booking.status === "REQUESTED",
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -66,7 +70,7 @@ export default async function AdminBookingsPage() {
       >
         {bookings.length > 0 ? (
           <div className="space-y-4">
-            {bookings.map((booking :Booking) => (
+            {bookings.map((booking: Booking) => (
               <div
                 key={booking.id}
                 className="rounded-xl border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
@@ -88,16 +92,31 @@ export default async function AdminBookingsPage() {
                     <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
                       <Info label="Customer ID" value={booking.customerId} />
                       <Info label="Service ID" value={booking.serviceId} />
-                      <Info label="Scheduled At" value={formatDateTime(booking.scheduledAt)} />
+                      <Info
+                        label="Scheduled At"
+                        value={formatDateTime(booking.scheduledAt)}
+                      />
                       <Info label="Location" value={booking.location} />
-                      <Info label="Customer Note" value={booking.customerNote} />
-                      <Info label="Created At" value={formatDateTime(booking.createdAt)} />
-                      <Info label="Updated At" value={formatDateTime(booking.updatedAt)} />
+                      <Info
+                        label="Customer Note"
+                        value={booking.customerNote}
+                      />
+                      <Info
+                        label="Created At"
+                        value={formatDateTime(booking.createdAt)}
+                      />
+                      <Info
+                        label="Updated At"
+                        value={formatDateTime(booking.updatedAt)}
+                      />
                     </div>
                   </div>
 
                   <div className="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-                    <Badge variant={getStatusVariant(booking.status)} className="rounded-full px-3">
+                    <Badge
+                      variant={getStatusVariant(booking.status)}
+                      className="rounded-full px-3"
+                    >
                       {getStatusLabel(booking.status)}
                     </Badge>
 
@@ -111,7 +130,9 @@ export default async function AdminBookingsPage() {
           </div>
         ) : (
           <div className="rounded-xl border border-dashed bg-muted/20 py-16 text-center">
-            <h3 className="text-lg font-semibold text-foreground">No bookings found</h3>
+            <h3 className="text-lg font-semibold text-foreground">
+              No bookings found
+            </h3>
             <p className="mt-2 text-sm text-muted-foreground">
               There are no customer bookings to display right now.
             </p>
@@ -125,7 +146,9 @@ export default async function AdminBookingsPage() {
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
-      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
       <p className="mt-2 text-2xl font-semibold text-foreground">{value}</p>
     </div>
   );

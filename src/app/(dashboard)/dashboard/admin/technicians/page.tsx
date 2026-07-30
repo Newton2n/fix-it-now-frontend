@@ -1,4 +1,4 @@
-import { getAllTechnicianProfile } from "@/actions/admin";
+import { getAllTechnicianProfile } from "@/actions/admin.action";
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge } from "@/components/ui/badge";
@@ -49,7 +49,10 @@ export default async function AdminTechniciansPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <StatCard label="Total Technicians" value={technicians.length} />
+        <StatCard
+          label="Total Technicians"
+          value={meta?.totalRow ?? technicians.length}
+        />
         <StatCard
           label="Verified"
           value={technicians.filter((t) => t.status === "VERIFIED").length}
@@ -59,7 +62,6 @@ export default async function AdminTechniciansPage() {
           value={technicians.filter((t) => t.status === "PENDING").length}
         />
       </div>
-
       <SectionCard
         title="Technician List"
         description={`Page ${meta?.page ?? 1} of ${meta?.totalPage ?? 1} • ${technicians.length} technicians`}
@@ -75,7 +77,7 @@ export default async function AdminTechniciansPage() {
                   key={tech.id}
                   className={cn(
                     "rounded-2xl border bg-card shadow-sm transition-all",
-                    "hover:-translate-y-0.5 hover:shadow-lg"
+                    "hover:-translate-y-0.5 hover:shadow-lg",
                   )}
                 >
                   <div className="border-b bg-gradient-to-r from-muted/40 to-transparent px-4 py-4 sm:px-6">
@@ -93,7 +95,10 @@ export default async function AdminTechniciansPage() {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant={getStatusVariant(tech.status)} className="rounded-full px-3">
+                        <Badge
+                          variant={getStatusVariant(tech.status)}
+                          className="rounded-full px-3"
+                        >
                           {getStatusLabel(tech.status)}
                         </Badge>
                         <Badge
@@ -111,19 +116,34 @@ export default async function AdminTechniciansPage() {
                       <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                         <Info label="Profile ID" value={tech.id} />
                         <Info label="User ID" value={tech.userId} />
-                        <Info label="Experience" value={`${tech.yearsOfExperience} years`} />
-                        <Info label="Created At" value={formatDateTime(tech.createdAt)} />
-                        <Info label="Updated At" value={formatDateTime(tech.updatedAt)} />
+                        <Info
+                          label="Experience"
+                          value={`${tech.yearsOfExperience} years`}
+                        />
+                        <Info
+                          label="Created At"
+                          value={formatDateTime(tech.createdAt)}
+                        />
+                        <Info
+                          label="Updated At"
+                          value={formatDateTime(tech.updatedAt)}
+                        />
                         <Info
                           label="Status"
-                          value={tech.isAvailable ? "Open for jobs" : "Not available"}
+                          value={
+                            tech.isAvailable ? "Open for jobs" : "Not available"
+                          }
                         />
                       </div>
 
                       <SectionBlock title="Skills">
                         <div className="flex flex-wrap gap-2">
                           {tech.skills.map((skill) => (
-                            <Badge key={skill} variant="outline" className="rounded-full px-3 py-1">
+                            <Badge
+                              key={skill}
+                              variant="outline"
+                              className="rounded-full px-3 py-1"
+                            >
                               {skill}
                             </Badge>
                           ))}
@@ -133,7 +153,11 @@ export default async function AdminTechniciansPage() {
                       <SectionBlock title="Service Areas">
                         <div className="flex flex-wrap gap-2">
                           {tech.serviceArea.map((area) => (
-                            <Badge key={area} variant="secondary" className="rounded-full px-3 py-1">
+                            <Badge
+                              key={area}
+                              variant="secondary"
+                              className="rounded-full px-3 py-1"
+                            >
                               {area}
                             </Badge>
                           ))}
@@ -166,18 +190,24 @@ export default async function AdminTechniciansPage() {
                                     {day}
                                   </p>
                                   <p className="text-xs text-muted-foreground">
-                                    {formatTime(slot.start)} - {formatTime(slot.end)}
+                                    {formatTime(slot.start)} -{" "}
+                                    {formatTime(slot.end)}
                                   </p>
                                 </div>
 
-                                <Badge variant="outline" className="rounded-full px-3">
+                                <Badge
+                                  variant="outline"
+                                  className="rounded-full px-3"
+                                >
                                   Open
                                 </Badge>
                               </div>
                             </div>
                           ))
                         ) : (
-                          <p className="text-sm text-muted-foreground">No availability set.</p>
+                          <p className="text-sm text-muted-foreground">
+                            No availability set.
+                          </p>
                         )}
                       </div>
 
@@ -191,7 +221,11 @@ export default async function AdminTechniciansPage() {
                               Verify Technician
                             </Button>
                           ) : (
-                            <Button size="sm" variant="outline" className="w-full">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full"
+                            >
                               View Profile
                             </Button>
                           )}
@@ -205,7 +239,9 @@ export default async function AdminTechniciansPage() {
           </div>
         ) : (
           <div className="rounded-xl border border-dashed bg-muted/20 py-16 text-center">
-            <h3 className="text-lg font-semibold text-foreground">No technicians found</h3>
+            <h3 className="text-lg font-semibold text-foreground">
+              No technicians found
+            </h3>
             <p className="mt-2 text-sm text-muted-foreground">
               There are no technicians to display.
             </p>
@@ -219,7 +255,9 @@ export default async function AdminTechniciansPage() {
 function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-2xl border bg-card p-4 shadow-sm">
-      <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">{label}</p>
+      <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+        {label}
+      </p>
       <p className="mt-2 text-2xl font-semibold text-foreground">{value}</p>
     </div>
   );

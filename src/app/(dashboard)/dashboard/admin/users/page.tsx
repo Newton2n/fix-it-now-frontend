@@ -1,4 +1,4 @@
-import { getAllUser } from "@/actions/admin";
+import { getAllUser } from "@/actions/admin.action";
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge } from "@/components/ui/badge";
@@ -46,11 +46,11 @@ export default async function AdminUsersPage() {
         <StatCard label="Total Users" value={meta.totalRow} />
         <StatCard
           label="Customers"
-          value={users.filter((u :User) => u.role === "CUSTOMER").length}
+          value={users.filter((u: User) => u.role === "CUSTOMER").length}
         />
         <StatCard
           label="Technicians"
-          value={users.filter((u :User) => u.role === "TECHNICIAN").length}
+          value={users.filter((u: User) => u.role === "TECHNICIAN").length}
         />
       </div>
 
@@ -60,7 +60,7 @@ export default async function AdminUsersPage() {
       >
         {users.length > 0 ? (
           <div className="space-y-4">
-            {users.map((user:User) => (
+            {users.map((user: User) => (
               <div
                 key={user.id}
                 className="rounded-xl border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"

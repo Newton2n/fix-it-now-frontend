@@ -1,4 +1,4 @@
-import { getAllCategory } from "@/actions/admin";
+import { getAllCategory } from "@/actions/admin.action";
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge } from "@/components/ui/badge";
@@ -23,13 +23,11 @@ type CategoryResponse = {
   data: Category[];
 };
 
-
-
 export default async function AdminCategoriesPage() {
   const response = await getAllCategory();
-  console.log("response category",response)
+  console.log("response category", response);
   const categories = response?.data.result.data;
-  const meta = response?.data.result.meta ;
+  const meta = response?.data.result.meta;
 
   return (
     <div className="space-y-6">
@@ -55,7 +53,7 @@ export default async function AdminCategoriesPage() {
       >
         {categories?.length > 0 ? (
           <div className="space-y-4">
-            {categories.map((category:Category) => (
+            {categories.map((category: Category) => (
               <div
                 key={category.id}
                 className="rounded-xl border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"

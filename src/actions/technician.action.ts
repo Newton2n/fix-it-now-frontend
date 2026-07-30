@@ -3,16 +3,17 @@
 import { cookies } from "next/headers";
 
 const backendUrl = process.env.BACKEND_API;
-export const getUserById = async (id: string) => {
+
+export const getTechnicianProfileById = async (id: string) => {
   if (!id) {
-    return { success: false, message: "User id required" };
+    return { success: false, message: "technician id required" };
   }
   const cookieStore = await cookies();
 
   const accessToken = cookieStore.get("accessToken")?.value;
 
   try {
-    const res = await fetch(`${backendUrl}/api/user/${id}`, {
+    const res = await fetch(`${backendUrl}/api/technicians/profile/${id}`, {
       headers: {
         Cookie: `accessToken=${accessToken}`,
       },

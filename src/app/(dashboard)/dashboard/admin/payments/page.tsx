@@ -1,4 +1,4 @@
-import { getAllPayments } from "@/actions/admin";
+import { getAllPayments } from "@/actions/admin.action";
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge } from "@/components/ui/badge";
@@ -48,7 +48,6 @@ export default async function AdminPaymentsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard label="Total Payments" value={meta.totalRow} />
         <StatCard label="Successful Revenue" value={`USD ${totalRevenue}`} />
-     
       </div>
 
       <SectionCard

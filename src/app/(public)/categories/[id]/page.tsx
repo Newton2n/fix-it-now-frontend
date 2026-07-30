@@ -24,7 +24,7 @@ export default async function CategoryDetailPage({
   const categoryResult = await getCategoryDetails(id);
   const serviceResult = await getAllServiceByCategoryId(id);
 
-  const category = categoryResult?.data?.result;
+  const category = categoryResult?.data?.result.data;
   const services = serviceResult?.data?.result?.data ?? [];
 
   if (!category) notFound();
