@@ -3,7 +3,8 @@ import FeaturedServices from "@/components/home/featured-section";
 import TopTechnicians from "@/components/home/top-technicians";
 import HowItWorks from "@/components/home/how-it-work";
 import CTASection from "@/components/home/cta-section";
-import CategoriesPage from "./(public)/categories/page";
+import CategoriesPage from "../(public)/categories/page";
+
 
 export default function HomePage() {
   return (

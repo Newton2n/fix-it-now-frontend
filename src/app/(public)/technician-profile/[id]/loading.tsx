@@ -52,7 +52,7 @@ export default function TechnicianProfileLoading() {
                   key={index}
                   className="overflow-hidden rounded-xl border"
                 >
-                  <Skeleton className="aspect-[16/10] w-full" />
+                  <Skeleton className="aspect-16/10 w-full" />
 
                   <div className="space-y-3 p-5">
                     <Skeleton className="h-5 w-3/4" />
