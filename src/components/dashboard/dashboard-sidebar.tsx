@@ -12,6 +12,7 @@ import {
   FolderKanban,
   ClipboardList,
   type LucideIcon,
+  DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,21 +29,46 @@ const dashboardNav: Record<Role, NavItem[]> = {
     { href: "/dashboard/admin", label: "Overview", icon: LayoutDashboard },
     { href: "/dashboard/admin/profile", label: "Profile", icon: Users },
     { href: "/dashboard/admin/users", label: "Users", icon: Users },
-    { href: "/dashboard/admin/bookings", label: "Bookings", icon: ClipboardList },
-    { href: "/dashboard/admin/categories", label: "Categories", icon: FolderKanban }
+    {
+      href: "/dashboard/admin/bookings",
+      label: "Bookings",
+      icon: ClipboardList,
+    },
+    {
+      href: "/dashboard/admin/categories",
+      label: "Categories",
+      icon: FolderKanban,
+    },
+    { href: "/dashboard/admin/payments", label: "Payments", icon: DollarSign },
   ],
   CUSTOMER: [
     { href: "/dashboard/customer", label: "Overview", icon: LayoutDashboard },
-    { href: "/dashboard/customer/bookings", label: "Bookings", icon: CalendarDays },
-    { href: "/dashboard/customer/payments", label: "Payments", icon: CreditCard },
+    {
+      href: "/dashboard/customer/bookings",
+      label: "Bookings",
+      icon: CalendarDays,
+    },
+    {
+      href: "/dashboard/customer/payments",
+      label: "Payments",
+      icon: CreditCard,
+    },
     { href: "/dashboard/customer/profile", label: "Profile", icon: Users },
     { href: "/dashboard/customer/reviews", label: "Reviews", icon: Star },
   ],
   TECHNICIAN: [
     { href: "/dashboard/technician", label: "Overview", icon: LayoutDashboard },
-    { href: "/dashboard/technician/bookings", label: "Bookings", icon: ClipboardList },
-    { href: "/dashboard/technician/availability", label: "Availability", icon: CalendarDays },
-    { href: "/dashboard/technician/services", label: "Services", icon: Wrench }
+    {
+      href: "/dashboard/technician/bookings",
+      label: "Bookings",
+      icon: ClipboardList,
+    },
+    {
+      href: "/dashboard/technician/availability",
+      label: "Availability",
+      icon: CalendarDays,
+    },
+    { href: "/dashboard/technician/services", label: "Services", icon: Wrench },
   ],
 };
 
@@ -54,13 +80,17 @@ export default function DashboardSidebar({ role }: DashboardSidebarProps) {
   const pathname = usePathname();
   const navItems = dashboardNav[role];
 
-const isActive = (href: string) => {
-  if (href.endsWith("/customer") || href.endsWith("/admin") || href.endsWith("/technician")) {
-    return pathname === href;
-  }
+  const isActive = (href: string) => {
+    if (
+      href.endsWith("/customer") ||
+      href.endsWith("/admin") ||
+      href.endsWith("/technician")
+    ) {
+      return pathname === href;
+    }
 
-  return pathname === href || pathname.startsWith(`${href}/`);
-};
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   return (
     <aside className="flex h-full w-full flex-col border-r bg-background">
@@ -84,7 +114,7 @@ const isActive = (href: string) => {
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
                 active
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               )}
             >
               <Icon className="h-4 w-4" />
