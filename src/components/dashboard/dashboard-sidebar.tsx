@@ -29,6 +29,7 @@ const dashboardNav: Record<Role, NavItem[]> = {
     { href: "/dashboard/admin", label: "Overview", icon: LayoutDashboard },
     { href: "/dashboard/admin/profile", label: "Profile", icon: Users },
     { href: "/dashboard/admin/users", label: "Users", icon: Users },
+    { href: "/dashboard/admin/technicians", label: "Technician", icon: Wrench },
     {
       href: "/dashboard/admin/bookings",
       label: "Bookings",
