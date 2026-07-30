@@ -1,4 +1,4 @@
-"use server"
+"use server";
 import { jwtUtils } from "@/utils/jwt";
 import { cookies } from "next/headers";
 
@@ -16,7 +16,7 @@ export const getAllService = async () => {
     return result;
   }
 };
-export const getAllServiceByCategoryId = async (id:string) => {
+export const getAllServiceByCategoryId = async (id: string) => {
   const res = await fetch(`${backendUrl}/api/service/category/${id}`, {
     cache: "force-cache",
     next: {
@@ -25,6 +25,37 @@ export const getAllServiceByCategoryId = async (id:string) => {
     },
   });
   const result = await res.json();
+  if (result.success) {
+    return result;
+  }
+};
+export const getAllServiceByLoginTechnician = async () => {
+  const cookieStore = await cookies();
+
+  console.log("cookie store", cookieStore);
+  const accessToken = cookieStore.get("accessToken")?.value;
+  const verify = jwtUtils.verifyToken(
+    accessToken as string,
+    process.env.JWT_ACCESS_SECRET!,
+  );
+  if (!verify.success && verify.data?.role !== "TECHNICIAN") {
+    return {
+      success: false,
+      message: "sorry you are have no permission",
+    };
+  }
+  const res = await fetch(`${backendUrl}/api/technicians/services`, {
+    cache: "force-cache",
+    headers: {
+      Cookie: `accessToken=${accessToken}`,
+    },
+    next: {
+      revalidate: 60 * 60 * 2,
+      tags: ["all-service-by-login-Technician"],
+    },
+  });
+  const result = await res.json();
+  console.log("get all service from login in technician response", result);
   if (result.success) {
     return result;
   }
@@ -39,9 +70,9 @@ export const getSingleService = async (id: string) => {
   }
   const cookieStore = await cookies();
 
-  console.log("cookie store",cookieStore)
+  console.log("cookie store", cookieStore);
   const accessToken = cookieStore.get("accessToken")?.value;
-  console.log("accessToken",accessToken)
+  console.log("accessToken", accessToken);
 
   const verifyAccessToken = jwtUtils.verifyToken(
     accessToken as string,
@@ -58,10 +89,10 @@ export const getSingleService = async (id: string) => {
     cache: "no-store",
     headers: {
       Cookie: `accessToken=${accessToken}`,
-    }
+    },
   });
   const result = await res.json();
-  console.log("single service response",result)
+  console.log("single service response", result);
   if (result.success) {
     return result;
   }
