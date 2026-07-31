@@ -25,7 +25,7 @@ export type BookingStatus =
 
 export type UserStatus = "ACTIVE" | "BANNED"
 
-export type TechnicianVerificationStatus = "PENDING" | "VERIFIED" | "UNVERIFIED" | "REJECTED"
+
 
 export type PaymentStatus = "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED"
 
@@ -42,28 +42,50 @@ export interface User {
   profilePicture?: string
 }
 
-export interface TechnicianProfile {
-  id: string
-  userId: string
-  bio: string
-  skills: string[]
-  experience: string
-  hourlyRate?: number
-  verificationStatus: TechnicianVerificationStatus
-  availability?: {
-    monday?: { start: string; end: string }
-    tuesday?: { start: string; end: string }
-    wednesday?: { start: string; end: string }
-    thursday?: { start: string; end: string }
-    friday?: { start: string; end: string }
-    saturday?: { start: string; end: string }
-    sunday?: { start: string; end: string }
-  }
-  profilePicture?: string
-  createdAt: string
-  updatedAt: string
-}
+export type TechnicianVerificationStatus = "VERIFIED" | "PENDING" | "SUSPENDED";
 
+export interface TechnicianProfile {
+  id: string;
+  userId: string;
+  bio: string;
+  skills: string[];
+  isAvailable: boolean;
+  yearsOfExperience: string;
+  availability: {
+    monday?: { start: string; end: string };
+    tuesday?: { start: string; end: string };
+    wednesday?: { start: string; end: string };
+    thursday?: { start: string; end: string };
+    friday?: { start: string; end: string };
+    saturday?: { start: string; end: string };
+    sunday?: { start: string; end: string };
+  };
+  status: TechnicianVerificationStatus;
+  serviceArea: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+export interface TechnicianProfile {
+  id: string;
+  userId: string;
+  bio: string;
+  skills: string[];
+  isAvailable: boolean;
+  yearsOfExperience: string;
+  availability: {
+    monday?: { start: string; end: string };
+    tuesday?: { start: string; end: string };
+    wednesday?: { start: string; end: string };
+    thursday?: { start: string; end: string };
+    friday?: { start: string; end: string };
+    saturday?: { start: string; end: string };
+    sunday?: { start: string; end: string };
+  };
+  status: TechnicianVerificationStatus;
+  serviceArea: string[];
+  createdAt: string;
+  updatedAt: string;
+}
 export interface Service {
   id: string
   categoryId: string

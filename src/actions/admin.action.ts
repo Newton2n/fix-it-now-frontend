@@ -3,6 +3,9 @@
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { jwtUtils } from "@/utils/jwt";
+import { PaginatedResult } from "@/types/admin";
+import { Booking } from "@/schema/booking/booking.schema";
+import { TechnicianProfile } from "@/types/api";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -228,7 +231,15 @@ export const getAllUser = async () => {
 
 export const getAllBooking = async () => {
   const result = await adminFetch<{
-    result: typeof emptyResult;
+    result: {
+      meta: {
+        currentPage: number;
+        limit: number;
+        totalRow: number;
+        totalPage: number;
+      };
+      data: Booking[];
+    };
   }>("/api/admin/bookings", {
     method: "GET",
     cache: "force-cache",
@@ -242,7 +253,15 @@ export const getAllBooking = async () => {
     return {
       success: false,
       message: result.message,
-      data: emptyResult,
+      data: {
+        meta: {
+          currentPage: 1,
+          limit: 0,
+          totalRow: 0,
+          totalPage: 0,
+        },
+        data: [],
+      },
       errorDetails: result.errorDetails,
     };
   }
@@ -250,13 +269,23 @@ export const getAllBooking = async () => {
   return {
     success: true,
     message: result.message,
-    data: result.data?.result || emptyResult,
+    data: result.data?.result ?? {
+      meta: {
+        currentPage: 1,
+        limit: 0,
+        totalRow: 0,
+        totalPage: 0,
+      },
+      data: [],
+    },
   };
 };
 
+
+
 export const getAllTechnicianProfile = async () => {
   const result = await adminFetch<{
-    result: typeof emptyResult;
+    result: PaginatedResult<TechnicianProfile>;
   }>("/api/technicians", {
     method: "GET",
     cache: "force-cache",
@@ -270,7 +299,10 @@ export const getAllTechnicianProfile = async () => {
     return {
       success: false,
       message: result.message,
-      data: emptyResult,
+      data: {
+        meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
+        data: [],
+      },
       errorDetails: result.errorDetails,
     };
   }
@@ -278,11 +310,23 @@ export const getAllTechnicianProfile = async () => {
   return {
     success: true,
     message: result.message,
-    data: result.data?.result || emptyResult,
+    data: result.data?.result ?? {
+      meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
+      data: [],
+    },
   };
 };
 
-export const verifyTechnician = async (technicianId: string) => {
+type TechnicianStatus = "PENDING" | "VERIFIED" | "SUSPENDED";
+
+type TechnicianStatusInput = {
+  status: TechnicianStatus;
+};
+
+export const updateTechnicianStatus = async (
+  technicianId: string,
+  data: TechnicianStatusInput,
+) => {
   if (!technicianId) {
     return {
       success: false,
@@ -291,10 +335,28 @@ export const verifyTechnician = async (technicianId: string) => {
     };
   }
 
+  if (
+    data.status !== "PENDING" &&
+    data.status !== "VERIFIED" &&
+    data.status !== "SUSPENDED"
+  ) {
+    return {
+      success: false,
+      message: "Invalid technician status.",
+      errorDetails: [],
+    };
+  }
+
   const result = await adminFetch(
-    `/api/admin/technicians/${technicianId}/verify`,
+    `/api/technicians/admin/${technicianId}/verify`,
     {
       method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        status: data.status,
+      }),
     },
   );
 
@@ -306,39 +368,20 @@ export const verifyTechnician = async (technicianId: string) => {
 
   return {
     success: true,
-    message: result.message || "Technician verified successfully.",
+    message: result.message || `Technician status updated to ${data.status.toLowerCase()}.`,
     data: result.data,
   };
 };
 
-export const unverifyTechnician = async (technicianId: string) => {
-  if (!technicianId) {
-    return {
-      success: false,
-      message: "Technician ID is required.",
-      errorDetails: [],
-    };
-  }
+export const verifyTechnician = async(technicianId: string) =>
+  updateTechnicianStatus(technicianId, { status: "VERIFIED" });
 
-  const result = await adminFetch(
-    `/api/admin/technicians/${technicianId}/unverify`,
-    {
-      method: "PATCH",
-    },
-  );
+export const unverifyTechnician = async(technicianId: string) =>
+  updateTechnicianStatus(technicianId, { status: "PENDING" });
 
-  if (!result.success) {
-    return result;
-  }
+export const suspendTechnician = async(technicianId: string) =>
+  updateTechnicianStatus(technicianId, { status: "SUSPENDED" });
 
-  revalidateTag("all-technician-admin", "max");
-
-  return {
-    success: true,
-    message: result.message || "Technician unverified successfully.",
-    data: result.data,
-  };
-};
 
 export const updateUserStatus = async (
   userId: string,

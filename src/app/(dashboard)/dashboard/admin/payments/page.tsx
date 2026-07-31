@@ -2,7 +2,6 @@ import { getAllPayments } from "@/actions/admin.action";
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 type PaymentStatus = "SUCCEEDED" | "PENDING" | "FAILED" | "REFUNDED";
 
@@ -19,7 +18,7 @@ type Payment = {
   updatedAt: string;
 };
 
-type PaymentResponse = {
+type PaymentResult = {
   meta: {
     currentPage: number;
     limit: number;
@@ -31,12 +30,42 @@ type PaymentResponse = {
 
 export default async function AdminPaymentsPage() {
   const result = await getAllPayments();
-  const payments = result.data.result.data;
-  const meta = result.data.result.meta;
+
+  if (!result.success) {
+    return (
+      <div className="space-y-6">
+        <DashboardPageHeader
+          title="Payments"
+          description="Track all platform transactions."
+        />
+        <SectionCard title="Unable to load payments">
+          <div className="rounded-xl border border-dashed py-16 text-center">
+            <h3 className="text-lg font-semibold">Something went wrong</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {result.message || "Unable to load payments."}
+            </p>
+          </div>
+        </SectionCard>
+      </div>
+    );
+  }
+
+  const paymentResult: PaymentResult = result.data ?? {
+    meta: {
+      currentPage: 1,
+      limit: 0,
+      totalRow: 0,
+      totalPage: 0,
+    },
+    data: [],
+  };
+
+  const payments = paymentResult.data;
+  const meta = paymentResult.meta;
 
   const totalRevenue = payments
-    .filter((payment: Payment) => payment.status === "SUCCEEDED")
-    .reduce((sum: number, payment: Payment) => sum + payment.amount, 0);
+    .filter((payment) => payment.status === "SUCCEEDED")
+    .reduce((sum, payment) => sum + payment.amount, 0);
 
   return (
     <div className="space-y-6">
@@ -48,6 +77,7 @@ export default async function AdminPaymentsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard label="Total Payments" value={meta.totalRow} />
         <StatCard label="Successful Revenue" value={`USD ${totalRevenue}`} />
+        <StatCard label="Successful Payments" value={payments.filter((p) => p.status === "SUCCEEDED").length} />
       </div>
 
       <SectionCard
@@ -56,7 +86,7 @@ export default async function AdminPaymentsPage() {
       >
         {payments.length > 0 ? (
           <div className="space-y-4">
-            {payments.map((payment: Payment) => (
+            {payments.map((payment) => (
               <div
                 key={payment.id}
                 className="rounded-xl border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
@@ -99,10 +129,6 @@ export default async function AdminPaymentsPage() {
                     >
                       {getStatusLabel(payment.status)}
                     </Badge>
-
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
                   </div>
                 </div>
               </div>
@@ -141,7 +167,7 @@ function Info({ label, value }: { label: string; value: string }) {
         {label}
       </p>
       <p className="mt-1 break-all text-sm font-medium leading-6 text-foreground">
-        {value}
+        {value || "—"}
       </p>
     </div>
   );
