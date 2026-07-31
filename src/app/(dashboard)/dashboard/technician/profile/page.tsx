@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -67,13 +66,8 @@ export default function TechnicianProfilePage() {
     window.location.reload();
   };
 
-  /*
-   * If the API returns "Resource not found",
-   * treat that as no technician profile.
-   *
-   * This lets the technician see the create profile form
-   * instead of an unnecessary error screen.
-   */
+  // If the API returns "Resource not found", treat that as no technician profile.
+  // This lets the technician see the create profile form instead of an unnecessary error screen.
   const hasProfile = Boolean(profile);
 
   if (loading) {
@@ -111,9 +105,7 @@ export default function TechnicianProfilePage() {
         description="View and manage your professional technician profile."
       />
 
-      {/* ================================================== */}
       {/* NO PROFILE */}
-      {/* ================================================== */}
 
       {!hasProfile && (
         <SectionCard
@@ -138,23 +130,18 @@ export default function TechnicianProfilePage() {
               {error && (
                 <Alert className="mb-6">
                   <AlertCircle className="size-4" />
-                  <AlertDescription>
-                    {error}
-                  </AlertDescription>
+                  <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
-              {/* 
-                CREATE FORM
-
-                This form should contain:
-                - Bio
-                - Skills
-                - Years of experience
-                - Service areas
-                - Availability
-
-                The create action submits all of them together.
+              {/* CREATE FORM
+                  This form should contain:
+                  - Bio
+                  - Skills
+                  - Years of experience
+                  - Service areas
+                  - Availability
+                  The create action submits all of them together.
               */}
               <TechnicianProfileForm
                 mode="create"
@@ -165,9 +152,7 @@ export default function TechnicianProfilePage() {
         </SectionCard>
       )}
 
-      {/* ================================================== */}
       {/* EXISTING PROFILE */}
-      {/* ================================================== */}
 
       {hasProfile && profile && (
         <>
@@ -210,14 +195,10 @@ export default function TechnicianProfilePage() {
             }
           >
             {editing ? (
-              /*
-               * EDIT MODE
-               *
-               * IMPORTANT:
-               * Availability is NOT included here.
-               *
-               * Availability has its own page/form.
-               */
+              // EDIT MODE
+              // IMPORTANT:
+              // Availability is NOT included here.
+              // Availability has its own page/form.
               <TechnicianProfileForm
                 mode="edit"
                 initialData={profile}
@@ -354,14 +335,10 @@ function ProfileInfo({
       <div className="flex items-center gap-2 text-muted-foreground">
         {icon}
 
-        <p className="text-xs font-medium uppercase tracking-wide">
-          {label}
-        </p>
+        <p className="text-xs font-medium uppercase tracking-wide">{label}</p>
       </div>
 
-      <p className="mt-2 text-sm font-medium text-foreground">
-        {value}
-      </p>
+      <p className="mt-2 text-sm font-medium text-foreground">{value}</p>
     </div>
   );
 }
@@ -369,4 +346,3 @@ function ProfileInfo({
 function formatDateTime(dateString: string) {
   return new Date(dateString).toLocaleString();
 }
-

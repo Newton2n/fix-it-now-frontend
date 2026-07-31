@@ -3,7 +3,7 @@
 import type { TechnicianProfile } from "@/types/api";
 
 import { TechnicianCreateForm } from "./technician-create-form";
-import { TechnicianProfileEditForm } from "./technician-profile-edit-form"; 
+import { TechnicianProfileEditForm } from "./technician-profile-edit-form";
 
 type TechnicianProfileFormProps = {
   mode: "create" | "edit";
@@ -17,7 +17,11 @@ export function TechnicianProfileForm({
   onSuccess,
 }: TechnicianProfileFormProps) {
   if (mode === "create") {
-    return <TechnicianCreateForm onSuccess={onSuccess} />;
+    return (
+      <TechnicianCreateForm
+        onSuccess={onSuccess}
+      />
+    );
   }
 
   return (

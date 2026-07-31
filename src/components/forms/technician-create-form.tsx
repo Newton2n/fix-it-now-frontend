@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -12,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
 
 import {
   createTechnicianProfile,
@@ -21,6 +21,8 @@ import {
   TechnicianAvailabilityForm,
   type Availability,
 } from "./technician-availability-form";
+
+import { setFormErrors } from "@/lib/form-utils";
 
 const technicianCreateSchema = z.object({
   bio: z
@@ -32,12 +34,13 @@ const technicianCreateSchema = z.object({
     .string()
     .min(1, "Please add at least one skill"),
 
-  yearsOfExperience: z
-    .coerce
-    .number()
-    .int("Experience must be a whole number")
-    .min(0, "Experience cannot be negative")
-    .max(60, "Please enter a valid experience"),
+  experience: z
+    .string()
+    .min(1, "Experience information is required")
+    .max(
+      200,
+      "Experience must be less than 200 characters",
+    ),
 });
 
 type TechnicianCreateFormData = z.infer<
@@ -51,7 +54,9 @@ type TechnicianCreateFormProps = {
 export function TechnicianCreateForm({
   onSuccess,
 }: TechnicianCreateFormProps) {
-  const [isPending, setIsPending] = useState(false);
+  const [isPending, setIsPending] =
+    useState(false);
+
   const [availability, setAvailability] =
     useState<Availability>({});
 
@@ -59,60 +64,59 @@ export function TechnicianCreateForm({
     register,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm<TechnicianCreateFormData>({
-    resolver: zodResolver(technicianCreateSchema),
+    resolver: zodResolver(
+      technicianCreateSchema,
+    ),
     defaultValues: {
       bio: "",
       skills: "",
-      yearsOfExperience: 0,
+      experience: "",
     },
   });
 
   const onSubmit = async (
     data: TechnicianCreateFormData,
   ) => {
-    if (Object.keys(availability).length === 0) {
-      toast.error(
-        "Please select at least one available day.",
-      );
-      return;
-    }
-
     setIsPending(true);
 
     try {
       const payload = {
         bio: data.bio,
+
         skills: data.skills
           .split(",")
           .map((skill) => skill.trim())
           .filter(Boolean),
 
-        yearsOfExperience: data.yearsOfExperience,
+        yearsOfExperience: data.experience,
 
         availability,
       };
 
-      console.log("Create technician profile payload:", payload);
-
-      const result = await createTechnicianProfile(payload);
+      const result =
+        await createTechnicianProfile(payload);
 
       if (!result.success) {
         toast.error(result.message);
+
+        if (result.errorDetails) {
+          setFormErrors(
+            result.errorDetails,
+            setError,
+          );
+        }
+
         return;
       }
 
-      toast.success(result.message);
-      onSuccess?.();
-    } catch (error) {
-      console.error(
-        "Create technician profile error:",
-        error,
+      toast.success(
+        result.message ||
+          "Technician profile created successfully.",
       );
 
-      toast.error(
-        "Unable to create technician profile.",
-      );
+      onSuccess?.();
     } finally {
       setIsPending(false);
     }
@@ -123,21 +127,12 @@ export function TechnicianCreateForm({
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-6"
     >
-      {/* Professional Information */}
-      <div className="rounded-xl border bg-card p-6">
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold">
-            Professional Information
-          </h3>
+      <Card className="p-6">
+        <h3 className="mb-4 text-lg font-semibold">
+          Professional Information
+        </h3>
 
-          <p className="mt-1 text-sm text-muted-foreground">
-            Tell customers about your professional experience
-            and skills.
-          </p>
-        </div>
-
-        <div className="space-y-5">
-          {/* Bio */}
+        <div className="space-y-4">
           <div>
             <Label htmlFor="bio">
               Professional Bio
@@ -145,8 +140,8 @@ export function TechnicianCreateForm({
 
             <Textarea
               id="bio"
-              placeholder="Tell customers about your experience and expertise..."
-              className="mt-2 min-h-32"
+              placeholder="Write a professional bio..."
+              className="mt-2"
               {...register("bio")}
             />
 
@@ -157,7 +152,6 @@ export function TechnicianCreateForm({
             )}
           </div>
 
-          {/* Skills */}
           <div>
             <Label htmlFor="skills">
               Skills
@@ -165,14 +159,10 @@ export function TechnicianCreateForm({
 
             <Input
               id="skills"
-              placeholder="Plumbing, HVAC Repair, Electrical Wiring"
+              placeholder="Plumbing, Electrical, HVAC"
               className="mt-2"
               {...register("skills")}
             />
-
-            <p className="mt-1 text-xs text-muted-foreground">
-              Separate multiple skills with commas.
-            </p>
 
             {errors.skills && (
               <p className="mt-1 text-sm text-destructive">
@@ -181,37 +171,36 @@ export function TechnicianCreateForm({
             )}
           </div>
 
-          {/* Experience */}
           <div>
-            <Label htmlFor="yearsOfExperience">
+            <Label htmlFor="experience">
               Years of Experience
             </Label>
 
             <Input
-              id="yearsOfExperience"
+              id="experience"
               type="number"
               min="0"
-              placeholder="e.g. 5"
+              placeholder="5"
               className="mt-2"
-              {...register("yearsOfExperience")}
+              {...register("experience")}
             />
 
-            {errors.yearsOfExperience && (
+            {errors.experience && (
               <p className="mt-1 text-sm text-destructive">
-                {errors.yearsOfExperience.message}
+                {errors.experience.message}
               </p>
             )}
           </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Availability */}
+      {/* Availability belongs to CREATE only */}
       <TechnicianAvailabilityForm
         value={availability}
         onChange={setAvailability}
+        submitMode="change"
       />
 
-      {/* Submit */}
       <div className="flex justify-end">
         <Button
           type="submit"
@@ -223,11 +212,10 @@ export function TechnicianCreateForm({
           )}
 
           {isPending
-            ? "Creating Profile..."
-            : "Create Technician Profile"}
+            ? "Creating..."
+            : "Create Profile"}
         </Button>
       </div>
     </form>
   );
 }
-
