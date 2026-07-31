@@ -41,7 +41,7 @@ export const getAllReviewDetailsFromLoginUser = async () => {
 export const submitReview = async (data: {
   bookingId: string
   rating: number
-  comment: string
+  description: string
 }) => {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
@@ -97,7 +97,7 @@ export const updateReview = async (
   reviewId: string,
   data: {
     rating: number
-    comment: string
+    description: string
   }
 ) => {
   const cookieStore = await cookies();

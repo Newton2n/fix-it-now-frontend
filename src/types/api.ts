@@ -85,7 +85,7 @@ export interface Booking {
   technicianId: string
   serviceId: string
   status: BookingStatus
-  scheduledDate: string
+  scheduledAt: string
   notes?: string
   price: number
   createdAt: string
