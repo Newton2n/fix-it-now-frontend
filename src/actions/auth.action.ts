@@ -4,7 +4,9 @@ import type {
   TLoginFormData,
   TRegistrationFormData,
 } from "@/schema/auth/auth.schema";
+import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -37,10 +39,12 @@ export const login = async (data: TLoginFormData) => {
       cookie.set("accessToken", result.data.accessToken, {
         httpOnly: true,
         maxAge: 60 * 60 * 24,
+        sameSite: "lax",
       });
       cookie.set("refreshToken", result.data.refreshToken, {
         httpOnly: true,
         maxAge: 60 * 60 * 24 * 7,
+        sameSite: "lax",
       });
     }
     // const decodeAccessToken = Jwt.decode(result.data.accessToken) as JwtPayload;
@@ -60,7 +64,7 @@ export const login = async (data: TLoginFormData) => {
 export const register = async (data: TRegistrationFormData) => {
   try {
     const { confirmPassword, ...registerData } = data;
-    console.log(confirmPassword)
+    console.log(confirmPassword);
 
     const res = await fetch(`${backendUrl}/api/auth/register`, {
       method: "POST",
@@ -133,4 +137,14 @@ export const getMe = async () => {
       errorDetails: [],
     };
   }
+};
+
+export const logout = async () => {
+  const cookieStore = await cookies();
+
+  cookieStore.delete("accessToken");
+  cookieStore.delete("refreshToken");
+
+  revalidateTag("login-user", "max");
+  redirect("/login");
 };

@@ -9,7 +9,9 @@ import {
   UserPlus,
   User as UserIcon,
 } from "lucide-react";
-
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { logout } from "@/actions/auth.action";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Sheet,
@@ -34,7 +36,6 @@ export type Role = "CUSTOMER" | "TECHNICIAN" | "ADMIN" | null;
 type NavbarProps = {
   role?: Role;
   userName?: string | null;
-  onLogout?: () => void;
 };
 
 type NavLink = {
@@ -109,11 +110,17 @@ function AccountMenu({
 }: {
   role: Role;
   userName?: string | null;
-  onLogout?: () => void;
+  onLogout: () => void;
 }) {
   const isLoggedIn = Boolean(userName);
   const dashboardHref = role ? ROLE_CONFIG[role].dashboardHref : null;
-  const profileLink = role ==="ADMIN" ? "/dashboard/admin/profile" : role === "CUSTOMER" ? "/dashboard/customer/profile" : "/dashboard/technician/profile" 
+  const profileLink =
+    role === "ADMIN"
+      ? "/dashboard/admin/profile"
+      : role === "CUSTOMER"
+      ? "/dashboard/customer/profile"
+      : "/dashboard/technician/profile";
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -193,10 +200,15 @@ function MobileMenu({
   role,
   userName,
   onLogout,
-}: NavbarProps & { links: NavLink[] }) {
+}: NavbarProps & { links: NavLink[]; onLogout: () => void }) {
   const dashboardHref = role ? ROLE_CONFIG[role].dashboardHref : null;
   const isLoggedIn = Boolean(userName);
-    const profileLink = role ==="ADMIN" ? "/dashboard/admin/profile" : role === "CUSTOMER" ? "/dashboard/customer/profile" : "/dashboard/technician/profile" 
+  const profileLink =
+    role === "ADMIN"
+      ? "/dashboard/admin/profile"
+      : role === "CUSTOMER"
+      ? "/dashboard/customer/profile"
+      : "/dashboard/technician/profile";
 
   return (
     <Sheet>
@@ -279,11 +291,20 @@ function MobileMenu({
   );
 }
 
-export default function Navbar({
-  role = null,
-  userName = null,
-  onLogout,
-}: NavbarProps) {
+export default function Navbar({ role = null, userName = null }: NavbarProps) {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Logged out successfully.");
+      router.push("/login");
+      router.refresh();
+    } catch {
+      toast.error("Failed to logout.");
+    }
+  };
+
   const links = [...BASE_LINKS, ...(role ? ROLE_CONFIG[role].links : [])];
 
   return (
@@ -307,14 +328,14 @@ export default function Navbar({
 
         <div className="flex items-center gap-2">
           <div className="hidden md:block">
-            <AccountMenu role={role} userName={userName} onLogout={onLogout} />
+            <AccountMenu role={role} userName={userName} onLogout={handleLogout} />
           </div>
 
           <MobileMenu
             links={links}
             role={role}
             userName={userName}
-            onLogout={onLogout}
+            onLogout={handleLogout}
           />
         </div>
       </div>
