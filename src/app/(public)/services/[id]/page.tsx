@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, MapPin, Clock, ImageOff } from "lucide-react";
+import { Star, MapPin, Clock, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,31 +22,30 @@ export default async function ServiceDetailPage({
 }) {
   const { id } = await params;
   const result = await getSingleService(id);
-  console.log("single service result", result);
 
   if (!result || !result.data) {
     notFound();
   }
 
-  const service: ServiceItem = result?.data.result ? result?.data.result : {};
-  console.log("service", service);
+  const service: ServiceItem = result?.data.result
+    ? result.data.result
+    : ({} as ServiceItem);
+
   return (
     <main className="min-h-screen bg-background">
       <section className="mx-auto max-w-7xl px-4 py-10 md:px-6">
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="relative h-80 overflow-hidden rounded-2xl border bg-muted md:h-120">
-            {
-              <Image
-                src={
-                  service?.thumbnailImage ||
-                  "https://images.unsplash.com/photo-1605152276897-4f618f831968?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2VydmljZXxlbnwwfHwwfHx8MA%3D%3D"
-                }
-                alt={service?.title || "Free image"}
-                fill
-                className="object-cover"
-                priority
-              />
-            }
+            <Image
+              src={
+                service?.thumbnailImage ||
+                "https://images.unsplash.com/photo-1605152276897-4f618f831968?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2VydmljZXxlbnwwfHwwfHx8MA%3D%3D"
+              }
+              alt={service?.title || "Free image"}
+              fill
+              className="object-cover"
+              priority
+            />
           </div>
 
           <div className="space-y-6">
@@ -77,25 +76,29 @@ export default async function ServiceDetailPage({
 
             <Card>
               <CardHeader>
-                <CardTitle>Technician Details</CardTitle>
+                <CardTitle>Technician Profile</CardTitle>
                 <CardDescription>
-                  Trusted professional assigned to this service
+                  View the professional assigned to this service
                 </CardDescription>
               </CardHeader>
-              {/* <CardContent className="space-y-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Technician Name</span>
-                  <span className="font-medium text-foreground font-mono text-xs">
-                    {service.technicianId}
-                  </span>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+                    <UserRound className="size-6 text-muted-foreground" />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-foreground">Technician</p>
+                    <p className="text-sm text-muted-foreground">
+                      Service provider for this job
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Category ID</span>
-                  <span className="font-medium text-foreground font-mono text-xs">
-                    {service.categoryId}
-                  </span>
-                </div>
-              </CardContent> */}
+
+                <Link href={`/technician-profile/${service.technicianId}`}>
+                  <Button className="w-full cursor-pointer">View Technician Profile</Button>
+                </Link>
+              </CardContent>
             </Card>
 
             <Card>
@@ -110,6 +113,7 @@ export default async function ServiceDetailPage({
                     {service?.currency}
                   </span>
                 </p>
+
                 <Button disabled={!service.isAvailable}>
                   {service?.isAvailable ? (
                     <Link href={`/book/${service?.id}`}>Book Now</Link>

@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type Service = {
   id: string;
@@ -57,9 +58,11 @@ export default function TechnicianServicesGrid({
               <p className="text-sm font-medium text-foreground">
                 {service.currency} {service.price}
               </p>
-              <Button size="sm" variant="outline">
+              <Link href={`/services/${service.id}`}>
+              <Button className={"cursor-pointer"} size="sm" variant="outline">
                 View
               </Button>
+              </Link>
             </div>
           </div>
         </div>
