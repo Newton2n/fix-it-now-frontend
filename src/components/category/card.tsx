@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LucideIcon } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 
 import {
   Card,
@@ -29,19 +29,33 @@ export default function CategoryCard({
         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
           <Icon className="h-6 w-6" />
         </div>
-        <CardTitle>{name}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+
+        <CardTitle>
+          {name}
+        </CardTitle>
+
+        <CardDescription>
+          {description}
+        </CardDescription>
       </CardHeader>
 
       <CardContent className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">Category ID</p>
+        <p className="text-sm text-muted-foreground">
+          Category ID
+        </p>
+
         <p className="max-w-[160px] truncate text-xs font-mono text-muted-foreground">
           {id}
         </p>
       </CardContent>
 
       <CardContent className="pt-0">
-        <Button variant="outline" size="sm" className="w-full" >
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full"
+          asChild
+        >
           <Link href={`/categories/${id}`}>
             View Services
           </Link>

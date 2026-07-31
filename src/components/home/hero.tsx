@@ -1,4 +1,5 @@
 import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -13,7 +14,9 @@ export default function Hero() {
 
           <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
             Welcome to FixItNow
-            <span className="block text-primary">When You Need Them</span>
+            <span className="block text-primary">
+              When You Need Them
+            </span>
           </h1>
 
           <p className="max-w-xl text-lg text-muted-foreground">
@@ -26,15 +29,19 @@ export default function Hero() {
               placeholder="Search services, technicians, or location..."
               className="h-12 max-w-xl"
             />
+
             <Button size="lg" className="h-12 px-6">
               Search Now
             </Button>
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Button variant="outline" size="sm" >
-              <Link href="/services">Browse Services</Link>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/services">
+                Browse Services
+              </Link>
             </Button>
+
             <Button variant="secondary" size="sm">
               Top Rated Technicians
             </Button>
@@ -43,20 +50,39 @@ export default function Hero() {
 
         <div className="grid w-full max-w-xl grid-cols-2 gap-4">
           <div className="rounded-xl border bg-card p-6 shadow-sm">
-            <p className="text-sm text-muted-foreground">Available Services</p>
-            <h3 className="mt-2 text-3xl font-bold text-foreground">120+</h3>
+            <p className="text-sm text-muted-foreground">
+              Available Services
+            </p>
+            <h3 className="mt-2 text-3xl font-bold text-foreground">
+              120+
+            </h3>
           </div>
+
           <div className="rounded-xl border bg-card p-6 shadow-sm">
-            <p className="text-sm text-muted-foreground">Verified Technicians</p>
-            <h3 className="mt-2 text-3xl font-bold text-foreground">80+</h3>
+            <p className="text-sm text-muted-foreground">
+              Verified Technicians
+            </p>
+            <h3 className="mt-2 text-3xl font-bold text-foreground">
+              80+
+            </h3>
           </div>
+
           <div className="rounded-xl border bg-card p-6 shadow-sm">
-            <p className="text-sm text-muted-foreground">Happy Customers</p>
-            <h3 className="mt-2 text-3xl font-bold text-foreground">1k+</h3>
+            <p className="text-sm text-muted-foreground">
+              Happy Customers
+            </p>
+            <h3 className="mt-2 text-3xl font-bold text-foreground">
+              1k+
+            </h3>
           </div>
+
           <div className="rounded-xl border bg-card p-6 shadow-sm">
-            <p className="text-sm text-muted-foreground">Average Rating</p>
-            <h3 className="mt-2 text-3xl font-bold text-foreground">4.9/5</h3>
+            <p className="text-sm text-muted-foreground">
+              Average Rating
+            </p>
+            <h3 className="mt-2 text-3xl text-foreground font-bold">
+              4.9/5
+            </h3>
           </div>
         </div>
       </div>

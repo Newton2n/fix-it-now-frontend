@@ -1,4 +1,5 @@
 import { MoreHorizontal } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,15 +11,27 @@ import {
 export default function TableActionMenu() {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger >
+      <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
           <MoreHorizontal className="h-4 w-4" />
+          <span className="sr-only">
+            Open actions menu
+          </span>
         </Button>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent align="end">
-        <DropdownMenuItem>Edit</DropdownMenuItem>
-        <DropdownMenuItem>View</DropdownMenuItem>
-        <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+        <DropdownMenuItem>
+          Edit
+        </DropdownMenuItem>
+
+        <DropdownMenuItem>
+          View
+        </DropdownMenuItem>
+
+        <DropdownMenuItem className="text-red-600">
+          Delete
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
