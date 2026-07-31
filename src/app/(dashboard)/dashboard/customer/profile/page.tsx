@@ -1,18 +1,33 @@
-import ProfilePage, { UserProfile } from "@/components/dashboard/profile-page";
+import ProfilePage, {
+  type UserProfile,
+} from "@/components/dashboard/profile-page";
+import { getMe } from "@/actions/auth.action";
 
-const user: UserProfile = {
-  id: "706059be-0a96-4dcf-86da-8046777b61dc",
-  name: "Newton",
-  phoneNumber: null,
-  email: "2@gmail.com",
-  role: "CUSTOMER",
-  status: "ACTIVE",
-  country: null,
-  profilePicture: null,
-  createdAt: "2026-07-08T06:12:00.598Z",
-  updatedAt: "2026-07-11T11:09:11.035Z",
-};
+export default async function CustomerProfilePage() {
+  const result = await getMe();
 
-export default function CustomerProfilePage() {
+  if (!result.success || !result.data) {
+    return (
+      <div className="flex min-h-100 items-center justify-center">
+        <p className="text-sm text-muted-foreground">
+          Unable to load your profile.
+        </p>
+      </div>
+    );
+  }
+
+  const user: UserProfile = {
+    id: result.data.id,
+    name: result.data.name,
+    phoneNumber: result.data.phoneNumber ?? null,
+    email: result.data.email,
+    role: result.data.role,
+    status: result.data.status,
+    country: result.data.country ?? null,
+    profilePicture: result.data.profilePicture ?? null,
+    createdAt: result.data.createdAt,
+    updatedAt: result.data.updatedAt,
+  };
+
   return <ProfilePage user={user} canEdit />;
 }

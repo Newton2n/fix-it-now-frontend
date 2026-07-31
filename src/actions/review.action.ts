@@ -10,38 +10,100 @@ export const getAllReviewDetailsFromLoginUser = async () => {
 
   const accessToken = cookieStore.get("accessToken")?.value;
 
-  const verifyAccessToken = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verifyAccessToken.success) {
+  if (!accessToken) {
     return {
       success: false,
-      message: "sorry you are not log in",
+      message: "You are not authenticated.",
+      data: [],
+      meta: {
+        currentPage: 1,
+        limit: 10,
+        totalRow: 0,
+        totalPage: 0,
+      },
     };
   }
 
-  const res = await fetch(`${backendUrl}/api/review/me`, {
-    headers: {
-      Cookie: `accessToken=${accessToken}`,
-    },
-    cache: "force-cache",
-    next: {
-      tags: ["user-payments"],
-      revalidate: 60 * 60 * 24,
-    },
-  });
-  const result = await res.json();
-  console.log("review response", result);
-  if (result.success) {
-    return result.data.result;
+  const verify = jwtUtils.verifyToken(
+    accessToken,
+    process.env.JWT_ACCESS_SECRET!,
+  );
+
+  if (!verify.success) {
+    return {
+      success: false,
+      message: "Your session is invalid or expired.",
+      data: [],
+      meta: {
+        currentPage: 1,
+        limit: 10,
+        totalRow: 0,
+        totalPage: 0,
+      },
+    };
+  }
+
+  try {
+    const res = await fetch(`${backendUrl}/api/review/me`, {
+      method: "GET",
+      headers: {
+        Cookie: `accessToken=${accessToken}`,
+      },
+      cache: "no-store",
+    });
+
+    const result = await res.json();
+
+    console.log("Review response:", result);
+
+    if (!res.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "Unable to load reviews.",
+        data: [],
+        meta: {
+          currentPage: 1,
+          limit: 10,
+          totalRow: 0,
+          totalPage: 0,
+        },
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    return {
+      success: true,
+      message: result.message || "Reviews fetched successfully.",
+      data: result.data?.result?.data || [],
+      meta: result.data?.result?.meta || {
+        currentPage: 1,
+        limit: 10,
+        totalRow: 0,
+        totalPage: 0,
+      },
+    };
+  } catch (error) {
+    console.error("Get user reviews error:", error);
+
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      data: [],
+      meta: {
+        currentPage: 1,
+        limit: 10,
+        totalRow: 0,
+        totalPage: 0,
+      },
+      errorDetails: [],
+    };
   }
 };
 
 export const submitReview = async (data: {
-  bookingId: string
-  rating: number
-  description: string
+  bookingId: string;
+  rating: number;
+  description: string;
 }) => {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
@@ -96,9 +158,9 @@ export const submitReview = async (data: {
 export const updateReview = async (
   reviewId: string,
   data: {
-    rating: number
-    description: string
-  }
+    rating: number;
+    description: string;
+  },
 ) => {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;

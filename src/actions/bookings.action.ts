@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { jwtUtils } from "@/utils/jwt";
+import { getMe } from "./auth.action";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -49,6 +50,8 @@ export const getAllBookingsFromLoginUser = async () => {
 
     const result = await res.json();
 
+    console.log("All bookings by logged-in customer:", result);
+
     if (!res.ok || !result.success) {
       return {
         success: false,
@@ -61,7 +64,7 @@ export const getAllBookingsFromLoginUser = async () => {
     return {
       success: true,
       message: result.message || "Bookings fetched successfully.",
-      data: result.data?.bookings || [],
+      data: result.data?.bookings?.data || [],
     };
   } catch (error) {
     console.error("Get user bookings error:", error);
@@ -203,6 +206,120 @@ export const updateTechnicianBookingStatus = async (
     };
   } catch (error) {
     console.error("Update technician booking status error:", error);
+
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      errorDetails: [],
+    };
+  }
+};
+
+//cancel booking by customer
+
+export const cancelBooking = async (bookingId: string) => {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
+
+  if (!accessToken) {
+    return {
+      success: false,
+      message: "You are not authenticated.",
+      errorDetails: [],
+    };
+  }
+
+  try {
+    // Get the currently authenticated user
+    const userResult = await getMe();
+
+    if (!userResult?.success || !userResult.data) {
+      return {
+        success: false,
+        message: "Unable to verify your account.",
+        errorDetails: [],
+      };
+    }
+
+    const user = userResult.data;
+
+    // Only customers can cancel bookings
+    if (user.role !== "CUSTOMER") {
+      return {
+        success: false,
+        message: "Only customers can cancel bookings.",
+        errorDetails: [],
+      };
+    }
+
+    // Get the booking first so we can verify ownership
+    const bookingRes = await fetch(`${backendUrl}/api/booking/${bookingId}`, {
+      method: "GET",
+      headers: {
+        Cookie: `accessToken=${accessToken}`,
+      },
+      cache: "no-store",
+    });
+
+    const bookingResult = await bookingRes.json();
+
+    if (!bookingRes.ok || !bookingResult.success) {
+      return {
+        success: false,
+        message: bookingResult.message || "Unable to retrieve booking.",
+        errorDetails: bookingResult.errorDetails || [],
+      };
+    }
+
+    const booking = bookingResult.data;
+
+    // Verify this booking belongs to the logged-in customer
+    if (booking.customerId !== user.id) {
+      return {
+        success: false,
+        message: "You are not allowed to cancel this booking.",
+        errorDetails: [],
+      };
+    }
+
+    // Do not allow cancellation after the job has started
+    if (booking.status === "IN_PROGRESS" || booking.status === "COMPLETED") {
+      return {
+        success: false,
+        message: `This booking cannot be cancelled because it is already ${booking.status.toLowerCase().replace("_", " ")}.`,
+        errorDetails: [],
+      };
+    }
+
+    // Cancel the booking
+    const cancelRes = await fetch(
+      `${backendUrl}/api/booking/${bookingId}/cancel`,
+      {
+        method: "PATCH",
+        headers: {
+          Cookie: `accessToken=${accessToken}`,
+        },
+        cache: "no-store",
+      },
+    );
+
+    const result = await cancelRes.json();
+
+    if (!cancelRes.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "Unable to cancel booking.",
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    return {
+      success: true,
+      message: result.message || "Booking cancelled successfully.",
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Cancel booking error:", error);
 
     return {
       success: false,

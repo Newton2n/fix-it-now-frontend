@@ -119,7 +119,7 @@ export default function TechnicianBookingsPage() {
 
       toast.success(result.message);
 
-      // Update the booking locally.
+      // Update locally.
       setBookings((currentBookings) =>
         currentBookings.map((booking) =>
           booking.id === bookingId
@@ -132,11 +132,9 @@ export default function TechnicianBookingsPage() {
       );
     } catch (error) {
       console.error("Booking status update error:", error);
-
       toast.error("Something went wrong. Please try again.");
     } finally {
       setActionLoading(null);
-
       setConfirmDialog({
         open: false,
         bookingId: null,
@@ -150,8 +148,7 @@ export default function TechnicianBookingsPage() {
       case "accept":
         return {
           title: "Accept booking?",
-          description:
-            "You are accepting this service request from the customer.",
+          description: "You are accepting this service request from the customer.",
           confirmText: "Accept Booking",
           isDestructive: false,
         };
@@ -175,8 +172,7 @@ export default function TechnicianBookingsPage() {
       case "complete":
         return {
           title: "Complete this job?",
-          description:
-            "Once completed, the customer will be able to leave a review.",
+          description: "Once completed, the customer will be able to leave a review.",
           confirmText: "Mark Completed",
           isDestructive: false,
         };
@@ -239,10 +235,6 @@ export default function TechnicianBookingsPage() {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Booking Card                                                               */
-/* -------------------------------------------------------------------------- */
-
 interface BookingCardProps {
   booking: Booking;
   onAction: (bookingId: string, action: TechnicianBookingAction) => void;
@@ -256,28 +248,18 @@ function BookingCard({ booking, onAction, isLoading }: BookingCardProps) {
         <div className="flex-1 space-y-4">
           <div>
             <p className="text-sm text-muted-foreground">Booking</p>
-
-            <p className="break-all font-medium text-foreground">
-              {booking.id}
-            </p>
+            <p className="break-all font-medium text-foreground">{booking.id}</p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Info
-              label="Scheduled"
-              value={formatDateTime(booking.scheduledAt)}
-            />
-
-
+            <Info label="Scheduled" value={formatDateTime(booking.scheduledAt)} />
             <Info label="Created" value={formatDateTime(booking.createdAt)} />
-
             <Info label="Updated" value={formatDateTime(booking.updatedAt)} />
           </div>
         </div>
 
         <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
           <BookingStatusBadge status={booking.status as BookingStatus} />
-
           <BookingActions
             booking={booking}
             onAction={onAction}
@@ -288,10 +270,6 @@ function BookingCard({ booking, onAction, isLoading }: BookingCardProps) {
     </div>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/* Booking Actions                                                            */
-/* -------------------------------------------------------------------------- */
 
 interface BookingActionsProps {
   booking: Booking;
@@ -350,10 +328,6 @@ function BookingActions({ booking, onAction, isLoading }: BookingActionsProps) {
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/* Loading                                                                    */
-/* -------------------------------------------------------------------------- */
-
 function BookingsSkeleton() {
   return (
     <div className="space-y-6">
@@ -373,15 +347,10 @@ function BookingsSkeleton() {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Empty State                                                                */
-/* -------------------------------------------------------------------------- */
-
 function EmptyBookings() {
   return (
     <div className="rounded-xl border border-dashed bg-muted/20 py-16 text-center">
       <h3 className="text-lg font-semibold">No booking requests</h3>
-
       <p className="mt-2 text-sm text-muted-foreground">
         You don't have any incoming booking requests right now.
       </p>
@@ -389,23 +358,14 @@ function EmptyBookings() {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Info                                                                       */
-/* -------------------------------------------------------------------------- */
-
 function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border bg-background p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
-
       <p className="mt-1 break-all text-sm font-medium">{value}</p>
     </div>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/* Date                                                                       */
-/* -------------------------------------------------------------------------- */
 
 function formatDateTime(dateString: string) {
   return new Date(dateString).toLocaleString();

@@ -58,31 +58,17 @@ export default function TechnicianServicesPage() {
           getAllCategories(),
         ]);
 
-        /*
-         * Services
-         */
+        // Services
         if (servicesRes?.success && servicesRes.data?.result) {
           setServices(servicesRes.data.result);
         }
 
-        /*
-         * Categories
-         *
-         * getAllCategories() returns:
-         *
-         * {
-         *   success: true,
-         *   data: Category[],
-         *   meta: {...}
-         * }
-         */
+        // Categories
         if (categoriesRes?.success && categoriesRes.data) {
           setCategories(categoriesRes.data);
         }
 
-        /*
-         * Handle API errors individually.
-         */
+        // Handle API errors individually
         if (!servicesRes?.success) {
           toast.error(servicesRes?.message || "Failed to load your services.");
         }
@@ -92,7 +78,6 @@ export default function TechnicianServicesPage() {
         }
       } catch (error) {
         console.error("Failed to fetch services data:", error);
-
         toast.error("Something went wrong while loading your services.");
       } finally {
         setLoading(false);
@@ -102,17 +87,13 @@ export default function TechnicianServicesPage() {
     fetchData();
   }, []);
 
-  /*
-   * Open edit dialog
-   */
+  // Open edit dialog
   const handleEditService = (service: Service) => {
     setSelectedService(service);
     setEditDialogOpen(true);
   };
 
-  /*
-   * Delete service
-   */
+  // Delete service
   const handleDeleteService = async () => {
     if (!serviceToDelete) return;
 
@@ -133,11 +114,7 @@ export default function TechnicianServicesPage() {
     setServiceToDelete(null);
   };
 
-  /*
-   * Service created successfully
-   *
-   * We don't need window.location.reload().
-   */
+  // Service created successfully
   const handleCreateSuccess = (newService?: Service) => {
     setCreateDialogOpen(false);
 
@@ -146,9 +123,7 @@ export default function TechnicianServicesPage() {
     }
   };
 
-  /*
-   * Service updated successfully
-   */
+  // Service updated successfully
   const handleEditSuccess = (updatedService?: Service) => {
     setEditDialogOpen(false);
 
@@ -202,7 +177,6 @@ export default function TechnicianServicesPage() {
             <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
               <DialogHeader>
                 <DialogTitle>Create New Service</DialogTitle>
-
                 <DialogDescription>
                   Add a new service to your offerings.
                 </DialogDescription>
@@ -238,7 +212,6 @@ export default function TechnicianServicesPage() {
                       <p className="text-sm text-muted-foreground">
                         Service Title
                       </p>
-
                       <h3 className="text-lg font-semibold">{service.title}</h3>
                     </div>
 
@@ -248,24 +221,19 @@ export default function TechnicianServicesPage() {
 
                     <div className="grid gap-3 md:grid-cols-2">
                       <Info label="Service ID" value={service.id} />
-
                       <Info label="Category ID" value={service.categoryId} />
-
                       <Info
                         label="Technician ID"
                         value={service.technicianId}
                       />
-
                       <Info
                         label="Price"
                         value={`${service.currency} ${service.price}`}
                       />
-
                       <Info
                         label="Created"
                         value={formatDateTime(service.createdAt)}
                       />
-
                       <Info
                         label="Updated"
                         value={formatDateTime(service.updatedAt)}
@@ -339,7 +307,6 @@ export default function TechnicianServicesPage() {
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Edit Service</DialogTitle>
-
               <DialogDescription>
                 Update your service information.
               </DialogDescription>

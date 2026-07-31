@@ -1,530 +1,498 @@
 "use server";
 
-import { jwtUtils } from "@/utils/jwt";
+import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
+import { jwtUtils } from "@/utils/jwt";
 
 const backendUrl = process.env.BACKEND_API;
-export const getAllCategory = async () => {
-  const cookieStore = await cookies();
 
-  console.log("cookie store", cookieStore);
+if (!backendUrl) {
+  throw new Error("BACKEND_API environment variable is not configured.");
+}
+
+type UserStatus = "ACTIVE" | "INACTIVE";
+
+type CategoryInput = {
+  name: string;
+  description?: string;
+};
+
+type UserStatusInput = {
+  status: UserStatus;
+};
+
+type AdminResponse<T = unknown> = {
+  success: boolean;
+  message: string;
+  data?: T;
+  errorDetails?: unknown[];
+};
+
+const emptyResult = {
+  meta: {
+    currentPage: 1,
+    limit: 10,
+    totalRow: 0,
+    totalPage: 0,
+  },
+  data: [],
+};
+
+async function getAdminToken() {
+  const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verify.success && verify.data?.role !== "ADMIN") {
+
+  if (!accessToken) {
     return {
       success: false,
-      message: "sorry you are have no permission",
+      message: "You are not authenticated.",
+      accessToken: null,
     };
   }
-  const res = await fetch(`${backendUrl}/api/admin/categories`, {
+
+  const verify = jwtUtils.verifyToken(
+    accessToken,
+    process.env.JWT_ACCESS_SECRET!,
+  );
+
+  if (!verify.success) {
+    return {
+      success: false,
+      message: "Your session is invalid or expired.",
+      accessToken: null,
+    };
+  }
+
+  if (verify.data?.role !== "ADMIN") {
+    return {
+      success: false,
+      message: "You do not have permission to perform this action.",
+      accessToken: null,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Authorized.",
+    accessToken,
+  };
+}
+
+async function adminFetch<T = unknown>(
+  endpoint: string,
+  options: RequestInit = {},
+): Promise<AdminResponse<T | null>> {
+  const auth = await getAdminToken();
+
+  if (!auth.success || !auth.accessToken) {
+    return {
+      success: false,
+      message: auth.message,
+      data: null,
+      errorDetails: [],
+    };
+  }
+
+  try {
+    const response = await fetch(`${backendUrl}${endpoint}`, {
+      ...options,
+      headers: {
+        ...options.headers,
+        Cookie: `accessToken=${auth.accessToken}`,
+      },
+    });
+
+    let result;
+
+    try {
+      result = await response.json();
+    } catch {
+      return {
+        success: false,
+        message: "Invalid response received from the server.",
+        data: null,
+        errorDetails: [],
+      };
+    }
+
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "The request could not be completed.",
+        data: null,
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    return {
+      success: true,
+      message: result.message || "Operation completed successfully.",
+      data: result.data,
+      errorDetails: result.errorDetails || [],
+    };
+  } catch (error) {
+    console.error(`Admin API error: ${endpoint}`, error);
+
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      data: null,
+      errorDetails: [],
+    };
+  }
+}
+
+export const getAllCategory = async () => {
+  const result = await adminFetch<{
+    result: typeof emptyResult;
+  }>("/api/admin/categories", {
+    method: "GET",
     cache: "force-cache",
-    headers: {
-      Cookie: `accessToken=${accessToken}`,
-    },
     next: {
       revalidate: 60 * 60 * 2,
       tags: ["all-category-admin"],
     },
   });
-  const result = await res.json();
-  console.log("get all category admin", result);
-  if (result.success) {
-    return result;
-  }
-};
-export const getAllPayments = async () => {
-  const cookieStore = await cookies();
 
-  console.log("cookie store", cookieStore);
-  const accessToken = cookieStore.get("accessToken")?.value;
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verify.success && verify.data?.role !== "ADMIN") {
+  if (!result.success) {
     return {
       success: false,
-      message: "sorry you are have no permission",
+      message: result.message,
+      data: emptyResult,
+      errorDetails: result.errorDetails,
     };
   }
-  const res = await fetch(`${backendUrl}/api/admin/payments`, {
+
+  return {
+    success: true,
+    message: result.message,
+    data: result.data?.result || emptyResult,
+  };
+};
+
+export const getAllPayments = async () => {
+  const result = await adminFetch<{
+    result: typeof emptyResult;
+  }>("/api/admin/payments", {
+    method: "GET",
     cache: "force-cache",
-    headers: {
-      Cookie: `accessToken=${accessToken}`,
-    },
     next: {
       revalidate: 60 * 60 * 2,
       tags: ["all-payments-admin"],
     },
   });
-  const result = await res.json();
-  console.log("get all payments admin", result);
-  if (result.success) {
-    return result;
-  }
-};
-export const getAllUser = async () => {
-  const cookieStore = await cookies();
 
-  console.log("cookie store", cookieStore);
-  const accessToken = cookieStore.get("accessToken")?.value;
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verify.success && verify.data?.role !== "ADMIN") {
+  if (!result.success) {
     return {
       success: false,
-      message: "sorry you are have no permission",
+      message: result.message,
+      data: emptyResult,
+      errorDetails: result.errorDetails,
     };
   }
-  const res = await fetch(`${backendUrl}/api/admin/users`, {
+
+  return {
+    success: true,
+    message: result.message,
+    data: result.data?.result || emptyResult,
+  };
+};
+
+export const getAllUser = async () => {
+  const result = await adminFetch<{
+    result: typeof emptyResult;
+  }>("/api/admin/users", {
+    method: "GET",
     cache: "force-cache",
-    headers: {
-      Cookie: `accessToken=${accessToken}`,
-    },
     next: {
       revalidate: 60 * 60 * 2,
       tags: ["all-users-admin"],
     },
   });
-  const result = await res.json();
-  console.log("get all users admin", result);
-  if (result.success) {
-    return result;
-  }
-};
-export const getAllBooking = async () => {
-  const cookieStore = await cookies();
 
-  console.log("cookie store", cookieStore);
-  const accessToken = cookieStore.get("accessToken")?.value;
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verify.success && verify.data?.role !== "ADMIN") {
+  if (!result.success) {
     return {
       success: false,
-      message: "sorry you are have no permission",
+      message: result.message,
+      data: emptyResult,
+      errorDetails: result.errorDetails,
     };
   }
-  const res = await fetch(`${backendUrl}/api/admin/bookings`, {
+
+  return {
+    success: true,
+    message: result.message,
+    data: result.data?.result || emptyResult,
+  };
+};
+
+export const getAllBooking = async () => {
+  const result = await adminFetch<{
+    result: typeof emptyResult;
+  }>("/api/admin/bookings", {
+    method: "GET",
     cache: "force-cache",
-    headers: {
-      Cookie: `accessToken=${accessToken}`,
-    },
     next: {
       revalidate: 60 * 60 * 2,
       tags: ["all-bookings-admin"],
     },
   });
-  const result = await res.json();
-  console.log("get all bookings admin", result);
-  if (result.success) {
-    return result;
-  }
-};
-export const getAllTechnicianProfile = async () => {
-  const cookieStore = await cookies();
 
-  console.log("cookie store", cookieStore);
-  const accessToken = cookieStore.get("accessToken")?.value;
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verify.success && verify.data?.role !== "ADMIN") {
+  if (!result.success) {
     return {
       success: false,
-      message: "sorry you are have no permission",
+      message: result.message,
+      data: emptyResult,
+      errorDetails: result.errorDetails,
     };
   }
-  const res = await fetch(`${backendUrl}/api/technicians`, {
+
+  return {
+    success: true,
+    message: result.message,
+    data: result.data?.result || emptyResult,
+  };
+};
+
+export const getAllTechnicianProfile = async () => {
+  const result = await adminFetch<{
+    result: typeof emptyResult;
+  }>("/api/technicians", {
+    method: "GET",
     cache: "force-cache",
-    headers: {
-      Cookie: `accessToken=${accessToken}`,
-    },
     next: {
       revalidate: 60 * 60 * 2,
       tags: ["all-technician-admin"],
     },
   });
-  const result = await res.json();
-  console.log("get all bookings admin", result);
-  if (result.success) {
-    return result;
+
+  if (!result.success) {
+    return {
+      success: false,
+      message: result.message,
+      data: emptyResult,
+      errorDetails: result.errorDetails,
+    };
   }
+
+  return {
+    success: true,
+    message: result.message,
+    data: result.data?.result || emptyResult,
+  };
 };
 
-// Technician Verification Actions
 export const verifyTechnician = async (technicianId: string) => {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
+  if (!technicianId) {
+    return {
+      success: false,
+      message: "Technician ID is required.",
+      errorDetails: [],
+    };
+  }
 
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
+  const result = await adminFetch(
+    `/api/admin/technicians/${technicianId}/verify`,
+    {
+      method: "PATCH",
+    },
   );
-  if (!verify.success || verify.data?.role !== "ADMIN") {
-    return {
-      success: false,
-      message: "You do not have permission to perform this action.",
-      errorDetails: [],
-    };
+
+  if (!result.success) {
+    return result;
   }
 
-  try {
-    const res = await fetch(
-      `${backendUrl}/api/admin/technicians/${technicianId}/verify`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: `accessToken=${accessToken}`,
-        },
-      }
-    );
+  revalidateTag("all-technician-admin", "max");
 
-    const result = await res.json();
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Unable to verify technician.",
-        errorDetails: result.errorDetails || [],
-      };
-    }
-
-    return {
-      success: true,
-      message: "Technician verified successfully.",
-      data: result.data,
-    };
-  } catch (error) {
-    console.error("Verify technician error:", error);
-    return {
-      success: false,
-      message: "Unable to connect to the server. Please try again.",
-      errorDetails: [],
-    };
-  }
+  return {
+    success: true,
+    message: result.message || "Technician verified successfully.",
+    data: result.data,
+  };
 };
 
 export const unverifyTechnician = async (technicianId: string) => {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
+  if (!technicianId) {
+    return {
+      success: false,
+      message: "Technician ID is required.",
+      errorDetails: [],
+    };
+  }
 
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
+  const result = await adminFetch(
+    `/api/admin/technicians/${technicianId}/unverify`,
+    {
+      method: "PATCH",
+    },
   );
-  if (!verify.success || verify.data?.role !== "ADMIN") {
-    return {
-      success: false,
-      message: "You do not have permission to perform this action.",
-      errorDetails: [],
-    };
+
+  if (!result.success) {
+    return result;
   }
 
-  try {
-    const res = await fetch(
-      `${backendUrl}/api/admin/technicians/${technicianId}/unverify`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: `accessToken=${accessToken}`,
-        },
-      }
-    );
+  revalidateTag("all-technician-admin", "max");
 
-    const result = await res.json();
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Unable to unverify technician.",
-        errorDetails: result.errorDetails || [],
-      };
-    }
-
-    return {
-      success: true,
-      message: "Technician unverified successfully.",
-      data: result.data,
-    };
-  } catch (error) {
-    console.error("Unverify technician error:", error);
-    return {
-      success: false,
-      message: "Unable to connect to the server. Please try again.",
-      errorDetails: [],
-    };
-  }
+  return {
+    success: true,
+    message: result.message || "Technician unverified successfully.",
+    data: result.data,
+  };
 };
 
-// User Ban Actions
+export const updateUserStatus = async (
+  userId: string,
+  data: UserStatusInput,
+) => {
+  if (!userId) {
+    return {
+      success: false,
+      message: "User ID is required.",
+      errorDetails: [],
+    };
+  }
+
+  if (data.status !== "ACTIVE" && data.status !== "INACTIVE") {
+    return {
+      success: false,
+      message: "Invalid user status.",
+      errorDetails: [],
+    };
+  }
+
+  const result = await adminFetch(`/api/admin/users/${userId}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!result.success) {
+    return result;
+  }
+
+  revalidateTag("all-users-admin", "max");
+
+  return {
+    success: true,
+    message:
+      result.message || `User status updated to ${data.status.toLowerCase()}.`,
+    data: result.data,
+  };
+};
+
 export const banUser = async (userId: string) => {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
-
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verify.success || verify.data?.role !== "ADMIN") {
-    return {
-      success: false,
-      message: "You do not have permission to perform this action.",
-      errorDetails: [],
-    };
-  }
-
-  try {
-    const res = await fetch(
-      `${backendUrl}/api/admin/users/${userId}/ban`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: `accessToken=${accessToken}`,
-        },
-      }
-    );
-
-    const result = await res.json();
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Unable to ban user.",
-        errorDetails: result.errorDetails || [],
-      };
-    }
-
-    return {
-      success: true,
-      message: "User banned successfully.",
-      data: result.data,
-    };
-  } catch (error) {
-    console.error("Ban user error:", error);
-    return {
-      success: false,
-      message: "Unable to connect to the server. Please try again.",
-      errorDetails: [],
-    };
-  }
+  return updateUserStatus(userId, {
+    status: "INACTIVE",
+  });
 };
 
 export const unbanUser = async (userId: string) => {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
-
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verify.success || verify.data?.role !== "ADMIN") {
-    return {
-      success: false,
-      message: "You do not have permission to perform this action.",
-      errorDetails: [],
-    };
-  }
-
-  try {
-    const res = await fetch(
-      `${backendUrl}/api/admin/users/${userId}/unban`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: `accessToken=${accessToken}`,
-        },
-      }
-    );
-
-    const result = await res.json();
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Unable to unban user.",
-        errorDetails: result.errorDetails || [],
-      };
-    }
-
-    return {
-      success: true,
-      message: "User unbanned successfully.",
-      data: result.data,
-    };
-  } catch (error) {
-    console.error("Unban user error:", error);
-    return {
-      success: false,
-      message: "Unable to connect to the server. Please try again.",
-      errorDetails: [],
-    };
-  }
+  return updateUserStatus(userId, {
+    status: "ACTIVE",
+  });
 };
 
-// Category CRUD Actions
-export const createCategory = async (data: { name: string; description?: string }) => {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
-
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verify.success || verify.data?.role !== "ADMIN") {
+export const createCategory = async (data: CategoryInput) => {
+  if (!data.name?.trim()) {
     return {
       success: false,
-      message: "You do not have permission to perform this action.",
+      message: "Category name is required.",
       errorDetails: [],
     };
   }
 
-  try {
-    const res = await fetch(`${backendUrl}/api/category`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: `accessToken=${accessToken}`,
-      },
-      body: JSON.stringify(data),
-    });
+  const result = await adminFetch("/api/category", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: data.name.trim(),
+      description: data.description?.trim() || undefined,
+    }),
+  });
 
-    const result = await res.json();
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Unable to create category.",
-        errorDetails: result.errorDetails || [],
-      };
-    }
-
-    return {
-      success: true,
-      message: "Category created successfully.",
-      data: result.data,
-    };
-  } catch (error) {
-    console.error("Create category error:", error);
-    return {
-      success: false,
-      message: "Unable to connect to the server. Please try again.",
-      errorDetails: [],
-    };
+  if (!result.success) {
+    return result;
   }
+
+  revalidateTag("all-category-admin", "max");
+
+  return {
+    success: true,
+    message: result.message || "Category created successfully.",
+    data: result.data,
+  };
 };
 
 export const updateCategory = async (
   categoryId: string,
-  data: { name: string; description?: string }
+  data: CategoryInput,
 ) => {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
-
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verify.success || verify.data?.role !== "ADMIN") {
+  if (!categoryId) {
     return {
       success: false,
-      message: "You do not have permission to perform this action.",
+      message: "Category ID is required.",
       errorDetails: [],
     };
   }
 
-  try {
-    const res = await fetch(`${backendUrl}/api/category/${categoryId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: `accessToken=${accessToken}`,
-      },
-      body: JSON.stringify(data),
-    });
-
-    const result = await res.json();
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Unable to update category.",
-        errorDetails: result.errorDetails || [],
-      };
-    }
-
-    return {
-      success: true,
-      message: "Category updated successfully.",
-      data: result.data,
-    };
-  } catch (error) {
-    console.error("Update category error:", error);
+  if (!data.name?.trim()) {
     return {
       success: false,
-      message: "Unable to connect to the server. Please try again.",
+      message: "Category name is required.",
       errorDetails: [],
     };
   }
+
+  const result = await adminFetch(`/api/category/${categoryId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: data.name.trim(),
+      description: data.description?.trim() || undefined,
+    }),
+  });
+
+  if (!result.success) {
+    return result;
+  }
+
+  revalidateTag("all-category-admin", "max");
+
+  return {
+    success: true,
+    message: result.message || "Category updated successfully.",
+    data: result.data,
+  };
 };
 
 export const deleteCategory = async (categoryId: string) => {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
-
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verify.success || verify.data?.role !== "ADMIN") {
+  if (!categoryId) {
     return {
       success: false,
-      message: "You do not have permission to perform this action.",
+      message: "Category ID is required.",
       errorDetails: [],
     };
   }
 
-  try {
-    const res = await fetch(`${backendUrl}/api/category/${categoryId}`, {
-      method: "DELETE",
-      headers: {
-        Cookie: `accessToken=${accessToken}`,
-      },
-    });
+  const result = await adminFetch(`/api/category/${categoryId}`, {
+    method: "DELETE",
+  });
 
-    const result = await res.json();
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Unable to delete category.",
-        errorDetails: result.errorDetails || [],
-      };
-    }
-
-    return {
-      success: true,
-      message: "Category deleted successfully.",
-      data: result.data,
-    };
-  } catch (error) {
-    console.error("Delete category error:", error);
-    return {
-      success: false,
-      message: "Unable to connect to the server. Please try again.",
-      errorDetails: [],
-    };
+  if (!result.success) {
+    return result;
   }
+
+  revalidateTag("all-category-admin", "max");
+
+  return {
+    success: true,
+    message: result.message || "Category deleted successfully.",
+    data: result.data,
+  };
 };

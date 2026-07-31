@@ -10,30 +10,76 @@ export const getAllPaymentDetailsFromLoginUser = async () => {
 
   const accessToken = cookieStore.get("accessToken")?.value;
 
-  const verifyAccessToken = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verifyAccessToken.success) {
+  const emptyResponse = {
+    data: [],
+    meta: {
+      currentPage: 1,
+      limit: 10,
+      totalRow: 0,
+      totalPage: 0,
+    },
+  };
+
+  if (!accessToken) {
     return {
       success: false,
-      message: "sorry you are not log in",
+      message: "You are not authenticated.",
+      ...emptyResponse,
     };
   }
 
-  const res = await fetch(`${backendUrl}/api/payment`, {
-    headers: {
-      Cookie: `accessToken=${accessToken}`,
-    },
-    cache: "force-cache",
-    next: {
-      tags: ["user-payments"],
-      revalidate: 60 * 60 * 24,
-    },
-  });
-  const result = await res.json();
-  console.log("payment response", result);
-  if (result.success) {
-    return result.data.result;
+  const verifyAccessToken = jwtUtils.verifyToken(
+    accessToken,
+    process.env.JWT_ACCESS_SECRET!,
+  );
+
+  if (!verifyAccessToken.success) {
+    return {
+      success: false,
+      message: "Your session is invalid or expired.",
+      ...emptyResponse,
+    };
+  }
+
+  try {
+    const res = await fetch(`${backendUrl}/api/payment`, {
+      method: "GET",
+      headers: {
+        Cookie: `accessToken=${accessToken}`,
+      },
+      cache: "no-store",
+    });
+
+    const result = await res.json();
+
+    console.log("Payment response:", result);
+
+    if (!res.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "Unable to load payment history.",
+        ...emptyResponse,
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    const paymentResult = result.data?.result;
+
+    return {
+      success: true,
+      message: result.message || "Payment history retrieved successfully.",
+      data: paymentResult?.data || [],
+      meta: paymentResult?.meta || emptyResponse.meta,
+    };
+  } catch (error) {
+    console.error("Get user payment history error:", error);
+
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      ...emptyResponse,
+      errorDetails: [],
+    };
   }
 };
+
