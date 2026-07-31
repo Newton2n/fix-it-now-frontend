@@ -34,7 +34,6 @@ export type Role = "CUSTOMER" | "TECHNICIAN" | "ADMIN" | null;
 type NavbarProps = {
   role?: Role;
   userName?: string | null;
-  /** Wire this to your real sign-out logic (e.g. next-auth signOut, a server action, etc). */
   onLogout?: () => void;
 };
 
@@ -49,7 +48,6 @@ const BASE_LINKS: NavLink[] = [
   { href: "/categories", label: "Categories" },
 ];
 
-// Single source of truth for role -> dashboard href + extra nav links
 const ROLE_CONFIG: Record<
   Exclude<Role, null>,
   { dashboardHref: string; links: NavLink[] }
@@ -104,11 +102,6 @@ function AuthButtons({ className }: { className?: string }) {
   );
 }
 
-/**
- * One dropdown, two states:
- * - logged out -> Login / Register
- * - logged in  -> Dashboard / Profile / Logout
- */
 function AccountMenu({
   role,
   userName,
@@ -120,47 +113,48 @@ function AccountMenu({
 }) {
   const isLoggedIn = Boolean(userName);
   const dashboardHref = role ? ROLE_CONFIG[role].dashboardHref : null;
-
+  const profileLink = role ==="ADMIN" ? "/dashboard/admin/profile" : role === "CUSTOMER" ? "/dashboard/customer/profile" : "/dashboard/technician/profile" 
   return (
     <DropdownMenu>
-      {/* FIX: Applied buttonVariants directly to the Trigger instead of nesting a Button */}
-      <DropdownMenuTrigger
-        className={cn(
-          buttonVariants({ variant: "ghost", size: "icon" }),
-          "rounded-full outline-none focus-visible:ring-1 focus-visible:ring-ring"
-        )}
-      >
-        {isLoggedIn ? (
-          <Avatar className="h-9 w-9">
-            <AvatarFallback>{getInitials(userName)}</AvatarFallback>
-          </Avatar>
-        ) : (
-          <UserIcon className="h-5 w-5" />
-        )}
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          {isLoggedIn ? (
+            <Avatar className="h-9 w-9">
+              <AvatarFallback>{getInitials(userName)}</AvatarFallback>
+            </Avatar>
+          ) : (
+            <UserIcon className="h-5 w-5" />
+          )}
+        </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-48">
         {isLoggedIn ? (
           <>
-            <DropdownMenuLabel className="truncate">{userName}</DropdownMenuLabel>
+            <DropdownMenuLabel className="truncate">
+              {userName}
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
 
             {dashboardHref && (
-              /* FIX: Wrapped DropdownMenuItem in Link */
-              <Link href={dashboardHref}>
-                <DropdownMenuItem className="flex cursor-pointer items-center gap-2">
+              <DropdownMenuItem asChild>
+                <Link href={dashboardHref} className="flex items-center gap-2">
                   <LayoutDashboard className="h-4 w-4" />
                   Dashboard
-                </DropdownMenuItem>
-              </Link>
+                </Link>
+              </DropdownMenuItem>
             )}
 
-            <Link href="/profile">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-2">
+            <DropdownMenuItem asChild>
+              <Link href={profileLink} className="flex items-center gap-2">
                 <UserIcon className="h-4 w-4" />
                 Profile
-              </DropdownMenuItem>
-            </Link>
+              </Link>
+            </DropdownMenuItem>
 
             <DropdownMenuSeparator />
 
@@ -174,19 +168,19 @@ function AccountMenu({
           </>
         ) : (
           <>
-            <Link href="/login">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-2">
+            <DropdownMenuItem asChild>
+              <Link href="/login" className="flex items-center gap-2">
                 <LogIn className="h-4 w-4" />
                 Login
-              </DropdownMenuItem>
-            </Link>
+              </Link>
+            </DropdownMenuItem>
 
-            <Link href="/register">
-              <DropdownMenuItem className="flex cursor-pointer items-center gap-2">
+            <DropdownMenuItem asChild>
+              <Link href="/register" className="flex items-center gap-2">
                 <UserPlus className="h-4 w-4" />
                 Register
-              </DropdownMenuItem>
-            </Link>
+              </Link>
+            </DropdownMenuItem>
           </>
         )}
       </DropdownMenuContent>
@@ -202,17 +196,19 @@ function MobileMenu({
 }: NavbarProps & { links: NavLink[] }) {
   const dashboardHref = role ? ROLE_CONFIG[role].dashboardHref : null;
   const isLoggedIn = Boolean(userName);
+    const profileLink = role ==="ADMIN" ? "/dashboard/admin/profile" : role === "CUSTOMER" ? "/dashboard/customer/profile" : "/dashboard/technician/profile" 
 
   return (
     <Sheet>
-      {/* FIX: Applied buttonVariants directly to the SheetTrigger to prevent mobile crash */}
-      <SheetTrigger
-        className={cn(
-          buttonVariants({ variant: "outline", size: "icon" }),
-          "md:hidden"
-        )}
-      >
-        <Menu className="h-5 w-5" />
+      <SheetTrigger asChild>
+        <Button
+          variant="outline"
+          size="icon"
+          className="md:hidden"
+          aria-label="Open menu"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
       </SheetTrigger>
 
       <SheetContent side="right" className="w-80">
@@ -259,11 +255,8 @@ function MobileMenu({
                 )}
 
                 <Link
-                  href="/profile"
-                  className={cn(
-                    buttonVariants({ variant: "ghost" }),
-                    "w-full"
-                  )}
+                  href={profileLink}
+                  className={cn(buttonVariants({ variant: "ghost" }), "w-full")}
                 >
                   Profile
                 </Link>
@@ -314,11 +307,7 @@ export default function Navbar({
 
         <div className="flex items-center gap-2">
           <div className="hidden md:block">
-            <AccountMenu
-              role={role}
-              userName={userName}
-              onLogout={onLogout}
-            />
+            <AccountMenu role={role} userName={userName} onLogout={onLogout} />
           </div>
 
           <MobileMenu

@@ -7,17 +7,25 @@ export default function CTASection() {
       <div className="rounded-2xl border bg-primary px-6 py-12 text-primary-foreground md:px-10">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl">
-            <h2 className="text-3xl font-bold">Ready to book your service?</h2>
+            <h2 className="text-3xl font-bold">
+              Ready to book your service?
+            </h2>
             <p className="mt-3 text-sm opacity-90">
-              Join FixItNow today and connect with trusted professionals in your area.
+              Join FixItNow today and connect with trusted professionals in your
+              area.
             </p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button variant="secondary" >
+            <Button variant="secondary" asChild>
               <Link href="/services">Explore Services</Link>
             </Button>
-            <Button variant="outline" className="border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary" >
+
+            <Button
+              variant="outline"
+              asChild
+              className="border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+            >
               <Link href="/auth/register">Get Started</Link>
             </Button>
           </div>

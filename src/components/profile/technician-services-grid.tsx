@@ -1,6 +1,7 @@
+import Link from "next/link";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
 type Service = {
   id: string;
@@ -24,7 +25,10 @@ export default function TechnicianServicesGrid({
   if (services.length === 0) {
     return (
       <div className="rounded-xl border border-dashed bg-muted/20 py-16 text-center">
-        <h3 className="text-lg font-semibold text-foreground">No services found</h3>
+        <h3 className="text-lg font-semibold text-foreground">
+          No services found
+        </h3>
+
         <p className="mt-2 text-sm text-muted-foreground">
           This technician has not created any services yet.
         </p>
@@ -41,7 +45,10 @@ export default function TechnicianServicesGrid({
         >
           <div className="space-y-2">
             <div className="flex items-start justify-between gap-3">
-              <h3 className="text-lg font-semibold text-foreground">{service.title}</h3>
+              <h3 className="text-lg font-semibold text-foreground">
+                {service.title}
+              </h3>
+
               <Badge
                 variant={service.isAvailable ? "default" : "secondary"}
                 className="rounded-full px-3"
@@ -58,11 +65,12 @@ export default function TechnicianServicesGrid({
               <p className="text-sm font-medium text-foreground">
                 {service.currency} {service.price}
               </p>
-              <Link href={`/services/${service.id}`}>
-              <Button className={"cursor-pointer"} size="sm" variant="outline">
-                View
+
+              <Button asChild size="sm" variant="outline">
+                <Link href={`/services/${service.id}`}>
+                  View
+                </Link>
               </Button>
-              </Link>
             </div>
           </div>
         </div>

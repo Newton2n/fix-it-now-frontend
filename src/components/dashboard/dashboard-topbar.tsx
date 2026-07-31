@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { Menu } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 
 type DashboardTopbarProps = {
@@ -21,22 +26,25 @@ export default function DashboardTopbar({
       <div className="flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-3">
           <Sheet>
-            <SheetTrigger
-              render={
-                <button
-                  type="button"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-md border bg-background lg:hidden"
-                >
-                  <Menu className="h-4 w-4" />
-                  <span className="sr-only">Open menu</span>
-                </button>
-              }
-            />
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-md border bg-background lg:hidden"
+              >
+                <Menu className="h-4 w-4" />
+                <span className="sr-only">
+                  Open menu
+                </span>
+              </button>
+            </SheetTrigger>
 
             <SheetContent side="left" className="w-72 p-0">
               <div className="flex h-full flex-col">
                 <div className="border-b p-4">
-                  <h2 className="text-lg font-semibold">Menu</h2>
+                  <h2 className="text-lg font-semibold">
+                    Menu
+                  </h2>
+
                   <p className="text-sm text-muted-foreground capitalize">
                     {role}
                   </p>
@@ -50,12 +58,14 @@ export default function DashboardTopbar({
                     >
                       Dashboard
                     </Link>
+
                     <Link
                       href="/dashboard/bookings"
                       className="block rounded-md px-3 py-2 text-sm hover:bg-accent"
                     >
                       Bookings
                     </Link>
+
                     <Link
                       href="/dashboard/profile"
                       className="block rounded-md px-3 py-2 text-sm hover:bg-accent"
@@ -69,14 +79,22 @@ export default function DashboardTopbar({
           </Sheet>
 
           <div>
-            <h1 className="text-base font-semibold">{title}</h1>
-            {subtitle ? (
-              <p className="text-sm text-muted-foreground">{subtitle}</p>
-            ) : null}
+            <h1 className="text-base font-semibold">
+              {title}
+            </h1>
+
+            {subtitle && (
+              <p className="text-sm text-muted-foreground">
+                {subtitle}
+              </p>
+            )}
           </div>
         </div>
 
-        <Badge variant="secondary" className="capitalize">
+        <Badge
+          variant="secondary"
+          className="capitalize"
+        >
           {role}
         </Badge>
       </div>
