@@ -74,21 +74,21 @@ export default function TechnicianProfilePage() {
           >
             <div className="space-y-3">
               <div>
-                <TechnicianVerificationBadge status={profile.verificationStatus} />
+                <TechnicianVerificationBadge status={profile.status} />
               </div>
-              {profile.verificationStatus === "PENDING" && (
+              {profile.status === "PENDING" && (
                 <p className="text-sm text-muted-foreground">
                   Your profile has been submitted and is waiting for admin verification.
                 </p>
               )}
-              {profile.verificationStatus === "VERIFIED" && (
+              {profile.status === "VERIFIED" && (
                 <p className="text-sm text-muted-foreground">
                   Your profile is verified and visible to customers.
                 </p>
               )}
-              {profile.verificationStatus === "UNVERIFIED" && (
+              {profile.status === "SUSPENDED" && (
                 <p className="text-sm text-muted-foreground">
-                  Your profile is not verified. Complete your profile to get verified.
+                  Your profile is suspended.
                 </p>
               )}
             </div>

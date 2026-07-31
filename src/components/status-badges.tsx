@@ -64,11 +64,21 @@ const paymentStatusConfig: Record<
   REFUNDED: { label: "Refunded", variant: "secondary" },
 };
 
+function fallbackConfig(status?: string | null) {
+  return {
+    label: status ?? "Unknown",
+    variant: "secondary" as const,
+  };
+}
+
 export function BookingStatusBadge({
   status,
   className,
-}: { status: BookingStatus } & StatusBadgeProps) {
-  const config = bookingStatusConfig[status];
+}: { status?: string | null } & StatusBadgeProps) {
+  const config = status && status in bookingStatusConfig
+    ? bookingStatusConfig[status as BookingStatus]
+    : fallbackConfig(status);
+
   return (
     <Badge variant={config.variant} className={cn("rounded-full", className)}>
       {config.label}
@@ -79,8 +89,11 @@ export function BookingStatusBadge({
 export function UserStatusBadge({
   status,
   className,
-}: { status: UserStatus } & StatusBadgeProps) {
-  const config = userStatusConfig[status];
+}: { status?: string | null } & StatusBadgeProps) {
+  const config = status && status in userStatusConfig
+    ? userStatusConfig[status as UserStatus]
+    : fallbackConfig(status);
+
   return (
     <Badge variant={config.variant} className={cn("rounded-full", className)}>
       {config.label}
@@ -91,12 +104,19 @@ export function UserStatusBadge({
 export function TechnicianVerificationBadge({
   status,
   className,
-}: { status: TechnicianVerificationStatus } & StatusBadgeProps) {
-  const config = technicianVerificationConfig[status];
-  const Icon = status === "VERIFIED" ? Check : status === "PENDING" ? Clock : X;
+}: { status?: string | null } & StatusBadgeProps) {
+  const config = status && status in technicianVerificationConfig
+    ? technicianVerificationConfig[status as TechnicianVerificationStatus]
+    : fallbackConfig(status);
+
+  const Icon =
+    status === "VERIFIED" ? Check : status === "PENDING" ? Clock : X;
 
   return (
-    <Badge variant={config.variant} className={cn("rounded-full gap-1", className)}>
+    <Badge
+      variant={config.variant}
+      className={cn("rounded-full gap-1", className)}
+    >
       <Icon className="h-3 w-3" />
       {config.label}
     </Badge>
@@ -106,8 +126,11 @@ export function TechnicianVerificationBadge({
 export function PaymentStatusBadge({
   status,
   className,
-}: { status: PaymentStatus } & StatusBadgeProps) {
-  const config = paymentStatusConfig[status];
+}: { status?: string | null } & StatusBadgeProps) {
+  const config = status && status in paymentStatusConfig
+    ? paymentStatusConfig[status as PaymentStatus]
+    : fallbackConfig(status);
+
   return (
     <Badge variant={config.variant} className={cn("rounded-full", className)}>
       {config.label}
