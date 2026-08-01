@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MoreVertical, Plus, Trash2, Edit } from "lucide-react";
 import { toast } from "sonner";
@@ -70,7 +70,9 @@ export default function TechnicianServicesClient({
     setDeleteConfirmOpen(false);
     setServiceToDelete(null);
 
-    setServices((prev) => prev.filter((service) => service.id !== serviceToDelete));
+    setServices((prev) =>
+      prev.filter((service) => service.id !== serviceToDelete),
+    );
     refreshList();
   };
 
@@ -132,49 +134,23 @@ export default function TechnicianServicesClient({
               key={service.id}
               className="rounded-xl border bg-card p-4 shadow-sm transition hover:shadow-md"
             >
-              <div className="flex flex-col gap-5 sm:flex-row sm:justify-between">
-                <div className="flex-1 space-y-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Service Title</p>
-                    <h3 className="text-lg font-semibold">{service.title}</h3>
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm text-muted-foreground">
+                      Service Title
+                    </p>
+                    <h3 className="truncate text-lg font-semibold">
+                      {service.title}
+                    </h3>
                   </div>
-
-                  <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-                    {service.description}
-                  </p>
-
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <Info label="Service ID" value={service.id} />
-                    <Info label="Category ID" value={service.categoryId} />
-                    <Info label="Technician ID" value={service.technicianId} />
-                    <Info
-                      label="Price"
-                      value={`${service.currency} ${service.price}`}
-                    />
-                    <Info
-                      label="Created"
-                      value={formatDateTime(service.createdAt)}
-                    />
-                    <Info
-                      label="Updated"
-                      value={formatDateTime(service.updatedAt)}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-3 sm:items-end">
-                  <Badge
-                    variant={service.isAvailable ? "default" : "destructive"}
-                    className="rounded-full px-3"
-                  >
-                    {service.isAvailable ? "Available" : "Unavailable"}
-                  </Badge>
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
-                        size="sm"
+                        size="icon"
                         variant="ghost"
+                        className="h-9 w-9 shrink-0"
                         aria-label={`Actions for ${service.title}`}
                       >
                         <MoreVertical className="h-4 w-4" />
@@ -202,6 +178,35 @@ export default function TechnicianServicesClient({
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                </div>
+
+                <Badge
+                  variant={service.isAvailable ? "default" : "destructive"}
+                  className="w-fit rounded-full px-3"
+                >
+                  {service.isAvailable ? "Available" : "Unavailable"}
+                </Badge>
+
+                <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+                  {service.description}
+                </p>
+
+                <div className="grid gap-3 md:grid-cols-2">
+                  <Info label="Service ID" value={service.id} />
+                  <Info label="Category ID" value={service.categoryId} />
+                  <Info label="Technician ID" value={service.technicianId} />
+                  <Info
+                    label="Price"
+                    value={`${service.currency} ${service.price}`}
+                  />
+                  <Info
+                    label="Created"
+                    value={formatDateTime(service.createdAt)}
+                  />
+                  <Info
+                    label="Updated"
+                    value={formatDateTime(service.updatedAt)}
+                  />
                 </div>
               </div>
             </div>
@@ -259,8 +264,8 @@ function EmptyServices({ onCreateClick }: { onCreateClick: () => void }) {
     <div className="rounded-xl border border-dashed bg-muted/20 py-16 text-center">
       <h3 className="text-lg font-semibold">No services found</h3>
       <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-        You haven&apos;t added any services yet. Create your first service to start
-        getting bookings.
+        You haven&apos;t added any services yet. Create your first service to
+        start getting bookings.
       </p>
       <Button onClick={onCreateClick} className="mt-6">
         Add Service

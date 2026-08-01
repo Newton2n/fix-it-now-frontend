@@ -1,5 +1,5 @@
 "use server";
-import { TCreateService } from "@/types/service";
+import { TCreateService, TUpdateService } from "@/types/service";
 import { jwtUtils } from "@/utils/jwt";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
@@ -104,10 +104,9 @@ export const getSingleService = async (id: string) => {
   }
 };
 
-//create service 
+//create service
 export const createService = async (data: TCreateService) => {
-
-  console.log("create service payload",data)
+  console.log("create service payload", data);
 
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
@@ -143,25 +142,22 @@ export const createService = async (data: TCreateService) => {
         errorDetails: result.errorDetails || [],
       };
     }
-    
+
     //revalidate all service in login technician
-    revalidateTag("all-service-by-login-Technician",{
-      expire :0,
-
-    })
+    revalidateTag("all-service-by-login-Technician", {
+      expire: 0,
+    });
     //revalidate all service by category section
-    revalidateTag("all-service-by-category",{
-      expire :0,
-
-    })
+    revalidateTag("all-service-by-category", {
+      expire: 0,
+    });
     // revalidate all service in home page
-    revalidateTag("all-service",{
-      expire :0,
-
-    })
+    revalidateTag("all-service", {
+      expire: 0,
+    });
     return {
       success: true,
-      message: "Service created successfully.",
+      message: result.message || "Service created successfully.",
       data: result.data,
     };
   } catch (error) {
@@ -174,10 +170,9 @@ export const createService = async (data: TCreateService) => {
   }
 };
 
-
-
-
-export const updateService = async (id: string, data: any) => {
+//update service
+export const updateService = async (id: string, data: TUpdateService) => {
+  console.log("service update payload", id, data);
   if (!id) {
     return {
       success: false,
@@ -220,9 +215,22 @@ export const updateService = async (id: string, data: any) => {
       };
     }
 
+    //revalidate all service in login technician
+    revalidateTag("all-service-by-login-Technician", {
+      expire: 0,
+    });
+    //revalidate all service by category section
+    revalidateTag("all-service-by-category", {
+      expire: 0,
+    });
+    // revalidate all service in home page
+    revalidateTag("all-service", {
+      expire: 0,
+    });
+
     return {
       success: true,
-      message: "Service updated successfully.",
+      message: result.message || "Service updated successfully.",
       data: result.data,
     };
   } catch (error) {
@@ -235,6 +243,7 @@ export const updateService = async (id: string, data: any) => {
   }
 };
 
+//delete service
 export const deleteService = async (id: string) => {
   if (!id) {
     return {
@@ -276,9 +285,22 @@ export const deleteService = async (id: string) => {
       };
     }
 
+    //revalidate all service in login technician
+    revalidateTag("all-service-by-login-Technician", {
+      expire: 0,
+    });
+    //revalidate all service by category section
+    revalidateTag("all-service-by-category", {
+      expire: 0,
+    });
+    // revalidate all service in home page
+    revalidateTag("all-service", {
+      expire: 0,
+    });
+
     return {
       success: true,
-      message: "Service deleted successfully.",
+      message: result.message || "Service deleted successfully.",
       data: result.data,
     };
   } catch (error) {
