@@ -4,5 +4,5 @@ import ProfilePage, { UserProfile } from "@/components/dashboard/profile-page";
 export default async function AdminProfilePage() {
   const res = await getMe();
   const user = res.data;
-  return <ProfilePage user={user} canEdit={false} />;
+  return <ProfilePage user={user} canEdit={true} />;
 }
