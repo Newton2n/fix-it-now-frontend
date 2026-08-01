@@ -4,7 +4,7 @@ import type {
   TLoginFormData,
   TRegistrationFormData,
 } from "@/schema/auth/auth.schema";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -145,6 +145,15 @@ export const logout = async () => {
   cookieStore.delete("accessToken");
   cookieStore.delete("refreshToken");
 
-  revalidateTag("login-user", "max");
+  revalidateTag("login-user", {
+    expire: 0,
+  });
+
+  revalidateTag("login-technician", {
+    expire: 0,
+  });
+
+  // Clear client-side router cache for the entire layout tree
+  revalidatePath("/", "layout");
   redirect("/login");
 };

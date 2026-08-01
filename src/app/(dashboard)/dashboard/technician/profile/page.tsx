@@ -66,8 +66,7 @@ export default function TechnicianProfilePage() {
     window.location.reload();
   };
 
-  // If the API returns "Resource not found", treat that as no technician profile.
-  // This lets the technician see the create profile form instead of an unnecessary error screen.
+
   const hasProfile = Boolean(profile);
 
   if (loading) {
@@ -134,15 +133,9 @@ export default function TechnicianProfilePage() {
                 </Alert>
               )}
 
-              {/* CREATE FORM
-                  This form should contain:
-                  - Bio
-                  - Skills
-                  - Years of experience
-                  - Service areas
-                  - Availability
-                  The create action submits all of them together.
-              */}
+             {
+              // Render the TechnicianProfileForm for creating a new profile
+             }
               <TechnicianProfileForm
                 mode="create"
                 onSuccess={handleSuccess}

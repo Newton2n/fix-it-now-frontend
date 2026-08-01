@@ -13,52 +13,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 
-import {
-  createTechnicianProfile,
-} from "@/actions/technician.action";
-
-import {
-  TechnicianAvailabilityForm,
-  type Availability,
-} from "./technician-availability-form";
-
+import { createTechnicianProfile } from "@/actions/technician.action";
+import { TechnicianAvailabilityForm } from "./technician-availability-form";
+import type { TChangeAvailabilityPayload } from "@/types/technician";
 import { setFormErrors } from "@/lib/form-utils";
-
-const technicianCreateSchema = z.object({
-  bio: z
-    .string()
-    .min(10, "Bio must be at least 10 characters")
-    .max(500, "Bio must be less than 500 characters"),
-
-  skills: z
-    .string()
-    .min(1, "Please add at least one skill"),
-
-  experience: z
-    .string()
-    .min(1, "Experience information is required")
-    .max(
-      200,
-      "Experience must be less than 200 characters",
-    ),
-});
+import { technicianCreateSchemaWithoutAvailability } from "@/schema/technician/technician.schema";
 
 type TechnicianCreateFormData = z.infer<
-  typeof technicianCreateSchema
+  typeof technicianCreateSchemaWithoutAvailability
 >;
+type AvailabilityMap = TChangeAvailabilityPayload["availability"];
 
 type TechnicianCreateFormProps = {
   onSuccess?: () => void;
 };
 
-export function TechnicianCreateForm({
-  onSuccess,
-}: TechnicianCreateFormProps) {
-  const [isPending, setIsPending] =
-    useState(false);
-
-  const [availability, setAvailability] =
-    useState<Availability>({});
+export function TechnicianCreateForm({ onSuccess }: TechnicianCreateFormProps) {
+  const [isPending, setIsPending] = useState(false);
+  const [availability, setAvailability] = useState<AvailabilityMap>({});
 
   const {
     register,
@@ -66,56 +38,48 @@ export function TechnicianCreateForm({
     formState: { errors },
     setError,
   } = useForm<TechnicianCreateFormData>({
-    resolver: zodResolver(
-      technicianCreateSchema,
-    ),
+    resolver: zodResolver(technicianCreateSchemaWithoutAvailability),
     defaultValues: {
       bio: "",
       skills: "",
-      experience: "",
+      serviceArea: "",
+      yearsOfExperience: 0,
     },
   });
 
-  const onSubmit = async (
-    data: TechnicianCreateFormData,
-  ) => {
+  const onSubmit = async (data: TechnicianCreateFormData) => {
     setIsPending(true);
 
     try {
       const payload = {
         bio: data.bio,
-
         skills: data.skills
           .split(",")
           .map((skill) => skill.trim())
           .filter(Boolean),
-
-        yearsOfExperience: data.experience,
-
+        serviceArea: data.serviceArea
+          .split(",")
+          .map((area) => area.trim())
+          .filter(Boolean),
+        yearsOfExperience: Number(data.yearsOfExperience),
         availability,
       };
 
-      const result =
-        await createTechnicianProfile(payload);
+      const result = await createTechnicianProfile(payload);
 
       if (!result.success) {
-        toast.error(result.message);
+        toast.error(result.message || "Unable to create technician profile.");
 
         if (result.errorDetails) {
-          setFormErrors(
-            result.errorDetails,
-            setError,
-          );
+          setFormErrors(result.errorDetails, setError);
         }
 
         return;
       }
 
       toast.success(
-        result.message ||
-          "Technician profile created successfully.",
+        result.message || "Technician profile created successfully.",
       );
-
       onSuccess?.();
     } finally {
       setIsPending(false);
@@ -123,28 +87,19 @@ export function TechnicianCreateForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card className="p-6">
-        <h3 className="mb-4 text-lg font-semibold">
-          Professional Information
-        </h3>
+        <h3 className="mb-4 text-lg font-semibold">Professional Information</h3>
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="bio">
-              Professional Bio
-            </Label>
-
+            <Label htmlFor="bio">Professional Bio</Label>
             <Textarea
               id="bio"
               placeholder="Write a professional bio..."
               className="mt-2"
               {...register("bio")}
             />
-
             {errors.bio && (
               <p className="mt-1 text-sm text-destructive">
                 {errors.bio.message}
@@ -153,17 +108,13 @@ export function TechnicianCreateForm({
           </div>
 
           <div>
-            <Label htmlFor="skills">
-              Skills
-            </Label>
-
+            <Label htmlFor="skills">Skills</Label>
             <Input
               id="skills"
               placeholder="Plumbing, Electrical, HVAC"
               className="mt-2"
               {...register("skills")}
             />
-
             {errors.skills && (
               <p className="mt-1 text-sm text-destructive">
                 {errors.skills.message}
@@ -172,29 +123,40 @@ export function TechnicianCreateForm({
           </div>
 
           <div>
-            <Label htmlFor="experience">
-              Years of Experience
-            </Label>
+            <Label htmlFor="serviceArea">Service Area</Label>
+            <Input
+              id="serviceArea"
+              placeholder="Dhaka, Chattogram"
+              className="mt-2"
+              {...register("serviceArea")}
+            />
+            {errors.serviceArea && (
+              <p className="mt-1 text-sm text-destructive">
+                {errors.serviceArea.message}
+              </p>
+            )}
+          </div>
 
+          <div>
+            <Label htmlFor="experience">Years of Experience</Label>
             <Input
               id="experience"
               type="number"
               min="0"
+              max={"80"}
               placeholder="5"
               className="mt-2"
-              {...register("experience")}
+              {...register("yearsOfExperience", { valueAsNumber: true })}
             />
-
-            {errors.experience && (
+            {errors.yearsOfExperience && (
               <p className="mt-1 text-sm text-destructive">
-                {errors.experience.message}
+                {errors.yearsOfExperience.message}
               </p>
             )}
           </div>
         </div>
       </Card>
 
-      {/* Availability belongs to CREATE only */}
       <TechnicianAvailabilityForm
         value={availability}
         onChange={setAvailability}
@@ -202,18 +164,9 @@ export function TechnicianCreateForm({
       />
 
       <div className="flex justify-end">
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="gap-2"
-        >
-          {isPending && (
-            <Loader2 className="size-4 animate-spin" />
-          )}
-
-          {isPending
-            ? "Creating..."
-            : "Create Profile"}
+        <Button type="submit" disabled={isPending} className="gap-2">
+          {isPending && <Loader2 className="size-4 animate-spin" />}
+          {isPending ? "Creating..." : "Create Profile"}
         </Button>
       </div>
     </form>
