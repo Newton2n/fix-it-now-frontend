@@ -13,7 +13,7 @@ export type TechnicianStatus = "PENDING_APPROVAL" | "VERIFIED" | "SUSPENDED";
 
 export type CategoryInput = {
   name: string;
-  description?: string;
+  description: string;
 };
 
 export type UserStatusInput = {

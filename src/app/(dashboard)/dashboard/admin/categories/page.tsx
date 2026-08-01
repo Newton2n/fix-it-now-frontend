@@ -94,8 +94,9 @@ export default function AdminCategoriesPage() {
     if (!categoryToDelete) return;
 
     const result = await deleteCategory(categoryToDelete);
+
     if (result.success) {
-      toast.success(result.message);
+      toast.success(result.message || "Category deleted successfully");
       setCategories((prev) => prev.filter((c) => c.id !== categoryToDelete));
       setDeleteConfirmOpen(false);
       setCategoryToDelete(null);
@@ -126,7 +127,7 @@ export default function AdminCategoriesPage() {
         <SectionCard title="Category List" description="Loading...">
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-28" />
+              <Skeleton key={i} className="h-28 rounded-xl" />
             ))}
           </div>
         </SectionCard>
@@ -213,6 +214,10 @@ export default function AdminCategoriesPage() {
                         </Link>
                       </Button>
                     </div>
+
+                    <p className="text-xs text-amber-600">
+                      You can’t delete this category if it already has services.
+                    </p>
                   </div>
 
                   <div className="absolute right-0 top-0 flex shrink-0 flex-col items-end gap-3 lg:static lg:items-end">

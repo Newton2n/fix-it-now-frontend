@@ -3,7 +3,11 @@
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { jwtUtils } from "@/utils/jwt";
-import { CategoryInput, TechnicianStatusInput, UserStatusInput } from "@/schema/category/category.schema";
+import {
+  CategoryInput,
+  TechnicianStatusInput,
+  UserStatusInput,
+} from "@/schema/category/category.schema";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -602,10 +606,12 @@ export const createCategory = async (data: CategoryInput) => {
   }
 };
 
+//update category
 export const updateCategory = async (
   categoryId: string,
   data: CategoryInput,
 ) => {
+  console.log("update category in admin", categoryId, data);
   if (!categoryId) {
     return {
       success: false,
@@ -633,17 +639,20 @@ export const updateCategory = async (
   }
 
   try {
-    const response = await fetch(`${backendUrl}/api/category/${categoryId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: `accessToken=${auth.accessToken}`,
+    const response = await fetch(
+      `${backendUrl}/api/categories/admin/${categoryId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
+        body: JSON.stringify({
+          name: data.name.trim(),
+          description: data.description?.trim(),
+        }),
       },
-      body: JSON.stringify({
-        name: data.name.trim(),
-        description: data.description?.trim() || undefined,
-      }),
-    });
+    );
 
     const result = await response.json();
 
@@ -655,7 +664,14 @@ export const updateCategory = async (
       };
     }
 
-    revalidateTag("all-category-admin", "max");
+    // revalidate all categories in admin dashboard
+    revalidateTag("all-category-admin", {
+      expire: 0,
+    });
+    // revalidate all categories in home page
+    revalidateTag("all-category-home", {
+      expire: 0,
+    });
 
     return {
       success: true,
@@ -673,6 +689,7 @@ export const updateCategory = async (
 };
 
 export const deleteCategory = async (categoryId: string) => {
+  console.log("delete category in admin", categoryId);
   if (!categoryId) {
     return {
       success: false,
@@ -692,12 +709,15 @@ export const deleteCategory = async (categoryId: string) => {
   }
 
   try {
-    const response = await fetch(`${backendUrl}/api/category/${categoryId}`, {
-      method: "DELETE",
-      headers: {
-        Cookie: `accessToken=${auth.accessToken}`,
+    const response = await fetch(
+      `${backendUrl}/api/categories/admin/${categoryId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
       },
-    });
+    );
 
     const result = await response.json();
 
@@ -709,7 +729,14 @@ export const deleteCategory = async (categoryId: string) => {
       };
     }
 
-    revalidateTag("all-category-admin", "max");
+    // revalidate all categories in admin dashboard
+    revalidateTag("all-category-admin", {
+      expire: 0,
+    });
+    // revalidate all categories in home page
+    revalidateTag("all-category-home", {
+      expire: 0,
+    });
 
     return {
       success: true,
