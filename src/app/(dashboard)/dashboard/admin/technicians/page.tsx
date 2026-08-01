@@ -1,14 +1,11 @@
 import { Suspense } from "react";
-import Link from "next/link";
 
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { getAllTechnicianProfile } from "@/actions/admin.action";
-import type { TechnicianProfile } from "@/types/api";
-import TechnicianActionButtons from "@/components/admin/technician-action-buttons";
-import { TechnicianVerificationBadge } from "@/components/status-badges";
+import type { TechnicianProfile } from "@/types/technician";
+import { TechnicianCard } from "@/components/admin/admin-technician-card";
 
 export default function AdminTechniciansPage() {
   return (
@@ -44,7 +41,10 @@ async function TechniciansContent() {
   const technicians: TechnicianProfile[] = result.data?.data ?? [];
 
   return (
-    <SectionCard title="Technician List" description="Manage technician profiles">
+    <SectionCard
+      title="Technician List"
+      description="Manage technician profiles"
+    >
       {technicians.length > 0 ? (
         <div className="space-y-4">
           {technicians.map((technician) => (
@@ -55,45 +55,6 @@ async function TechniciansContent() {
         <EmptyTechnicians />
       )}
     </SectionCard>
-  );
-}
-
-function TechnicianCard({
-  technician,
-}: {
-  technician: TechnicianProfile;
-}) {
-  return (
-    <div className="rounded-xl border bg-card p-4 shadow-sm">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-lg font-semibold text-foreground">
-              {getBioPreview(technician.bio)}
-            </h3>
-            <TechnicianVerificationBadge status={technician.status} />
-          </div>
-
-          <p className="text-sm text-muted-foreground">
-            Experience: {technician.yearsOfExperience}
-          </p>
-
-          <p className="text-sm text-muted-foreground">
-            Skills: {technician.skills?.join(", ") || "Not added"}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link href={`/technician-profile/${technician.id}`}>
-              View Profile
-            </Link>
-          </Button>
-
-          <TechnicianActionButtons technician={technician} />
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -120,10 +81,4 @@ function TechniciansSkeleton() {
       </div>
     </SectionCard>
   );
-}
-
-function getBioPreview(bio: string | null | undefined) {
-  if (!bio) return "No bio added";
-  if (bio.length <= 60) return bio;
-  return `${bio.slice(0, 60)}...`;
 }

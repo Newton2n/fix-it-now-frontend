@@ -11,9 +11,38 @@ import {
   unverifyTechnician,
   suspendTechnician,
 } from "@/actions/admin.action";
-import type { TechnicianProfile } from "@/types/api";
+import type { TechnicianProfile } from "@/types/technician";
 
 type ActionType = "verify" | "unverify" | "suspend";
+
+const actionConfig: Record<
+  ActionType,
+  {
+    title: string;
+    description: string;
+    confirmText: string;
+    isDestructive: boolean;
+  }
+> = {
+  verify: {
+    title: "Verify technician?",
+    description: "This will mark the technician as verified.",
+    confirmText: "Verify",
+    isDestructive: false,
+  },
+  unverify: {
+    title: "Unverify technician?",
+    description: "This will remove the verified status from this technician.",
+    confirmText: "Unverify",
+    isDestructive: true,
+  },
+  suspend: {
+    title: "Suspend technician?",
+    description: "This will suspend the technician account.",
+    confirmText: "Suspend",
+    isDestructive: true,
+  },
+};
 
 export default function TechnicianActionButtons({
   technician,
@@ -21,27 +50,33 @@ export default function TechnicianActionButtons({
   technician?: TechnicianProfile;
 }) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
-  const [action, setAction] = useState<ActionType | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [selectedAction, setSelectedAction] = useState<ActionType | null>(null);
 
   if (!technician) return null;
 
-  const open = (nextAction: ActionType) => setAction(nextAction);
-  const close = () => {
-    if (pending) return;
-    setAction(null);
+  const openDialog = (action: ActionType) => {
+    setSelectedAction(action);
   };
 
-  const handleConfirm = async () => {
-    if (!action) return;
+  const closeDialog = () => {
+    if (isPending) return;
+    setSelectedAction(null);
+  };
+
+  const handleConfirm = () => {
+    if (!selectedAction) return;
 
     startTransition(async () => {
-      const result =
-        action === "verify"
-          ? await verifyTechnician(technician.id)
-          : action === "unverify"
-          ? await unverifyTechnician(technician.id)
-          : await suspendTechnician(technician.id);
+      let result;
+
+      if (selectedAction === "verify") {
+        result = await verifyTechnician(technician.id);
+      } else if (selectedAction === "unverify") {
+        result = await unverifyTechnician(technician.id);
+      } else {
+        result = await suspendTechnician(technician.id);
+      }
 
       if (!result.success) {
         toast.error(result.message || "Action failed.");
@@ -50,64 +85,45 @@ export default function TechnicianActionButtons({
 
       toast.success(result.message);
       router.refresh();
-      setAction(null);
+      setSelectedAction(null);
     });
   };
 
-  const dialogProps = {
-    verify: {
-      title: "Verify technician?",
-      description: "This will mark the technician as verified.",
-      confirmText: "Verify",
-      isDestructive: false,
-    },
-    unverify: {
-      title: "Unverify technician?",
-      description: "This will remove the verified status from this technician.",
-      confirmText: "Unverify",
-      isDestructive: true,
-    },
-    suspend: {
-      title: "Suspend technician?",
-      description: "This will suspend the technician account.",
-      confirmText: "Suspend",
-      isDestructive: true,
-    },
-  } as const;
+  const currentConfig = selectedAction ? actionConfig[selectedAction] : null;
 
   return (
     <>
       <div className="flex flex-wrap gap-2">
         {technician.status !== "VERIFIED" ? (
-          <Button size="sm" onClick={() => open("verify")}>
+          <Button size="sm" onClick={() => openDialog("verify")}>
             Verify
           </Button>
         ) : (
           <>
-            <Button size="sm" variant="outline" onClick={() => open("unverify")}>
+            <Button size="sm" variant="outline" onClick={() => openDialog("unverify")}>
               Unverify
             </Button>
-            <Button size="sm" variant="destructive" onClick={() => open("suspend")}>
+            <Button size="sm" variant="destructive" onClick={() => openDialog("suspend")}>
               Suspend
             </Button>
           </>
         )}
       </div>
 
-      {action ? (
+      {currentConfig && (
         <ConfirmDialog
           open
           onOpenChange={(open) => {
-            if (!open) close();
+            if (!open) closeDialog();
           }}
-          title={dialogProps[action].title}
-          description={dialogProps[action].description}
-          confirmText={pending ? "Please wait..." : dialogProps[action].confirmText}
+          title={currentConfig.title}
+          description={currentConfig.description}
+          confirmText={isPending ? "Please wait..." : currentConfig.confirmText}
           onConfirm={handleConfirm}
-          loading={pending}
-          isDestructive={dialogProps[action].isDestructive}
+          loading={isPending}
+          isDestructive={currentConfig.isDestructive}
         />
-      ) : null}
+      )}
     </>
   );
 }

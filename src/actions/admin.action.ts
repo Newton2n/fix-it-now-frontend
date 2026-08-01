@@ -3,17 +3,11 @@
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { jwtUtils } from "@/utils/jwt";
-import { PaginatedResult } from "@/types/admin";
-import { Booking } from "@/schema/booking/booking.schema";
-import { TechnicianProfile } from "@/types/api";
 
 const backendUrl = process.env.BACKEND_API;
 
-if (!backendUrl) {
-  throw new Error("BACKEND_API environment variable is not configured.");
-}
-
 type UserStatus = "ACTIVE" | "INACTIVE";
+type TechnicianStatus = "PENDING_APPROVAL" | "VERIFIED" | "SUSPENDED";
 
 type CategoryInput = {
   name: string;
@@ -24,6 +18,10 @@ type UserStatusInput = {
   status: UserStatus;
 };
 
+type TechnicianStatusInput = {
+  status: TechnicianStatus;
+};
+
 type AdminResponse<T = unknown> = {
   success: boolean;
   message: string;
@@ -31,7 +29,7 @@ type AdminResponse<T = unknown> = {
   errorDetails?: unknown[];
 };
 
-const emptyResult = {
+const emptyPaginatedResult = {
   meta: {
     currentPage: 1,
     limit: 10,
@@ -81,48 +79,38 @@ async function getAdminToken() {
   };
 }
 
-async function adminFetch<T = unknown>(
-  endpoint: string,
-  options: RequestInit = {},
-): Promise<AdminResponse<T | null>> {
+export const getAllCategory = async () => {
   const auth = await getAdminToken();
 
   if (!auth.success || !auth.accessToken) {
     return {
       success: false,
       message: auth.message,
-      data: null,
+      data: emptyPaginatedResult,
       errorDetails: [],
     };
   }
 
   try {
-    const response = await fetch(`${backendUrl}${endpoint}`, {
-      ...options,
+    const response = await fetch(`${backendUrl}/api/admin/categories`, {
+      method: "GET",
+      cache: "force-cache",
+      next: {
+        revalidate: 60 * 60 * 2,
+        tags: ["all-category-admin"],
+      },
       headers: {
-        ...options.headers,
         Cookie: `accessToken=${auth.accessToken}`,
       },
     });
 
-    let result;
-
-    try {
-      result = await response.json();
-    } catch {
-      return {
-        success: false,
-        message: "Invalid response received from the server.",
-        data: null,
-        errorDetails: [],
-      };
-    }
+    const result = await response.json();
 
     if (!response.ok || !result.success) {
       return {
         success: false,
         message: result.message || "The request could not be completed.",
-        data: null,
+        data: emptyPaginatedResult,
         errorDetails: result.errorDetails || [],
       };
     }
@@ -130,129 +118,130 @@ async function adminFetch<T = unknown>(
     return {
       success: true,
       message: result.message || "Operation completed successfully.",
-      data: result.data,
-      errorDetails: result.errorDetails || [],
+      data: result.data?.result || emptyPaginatedResult,
     };
   } catch (error) {
-    console.error(`Admin API error: ${endpoint}`, error);
-
+    console.error("Get all categories error:", error);
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
-      data: null,
+      data: emptyPaginatedResult,
       errorDetails: [],
     };
   }
-}
-
-export const getAllCategory = async () => {
-  const result = await adminFetch<{
-    result: typeof emptyResult;
-  }>("/api/admin/categories", {
-    method: "GET",
-    cache: "force-cache",
-    next: {
-      revalidate: 60 * 60 * 2,
-      tags: ["all-category-admin"],
-    },
-  });
-
-  if (!result.success) {
-    return {
-      success: false,
-      message: result.message,
-      data: emptyResult,
-      errorDetails: result.errorDetails,
-    };
-  }
-
-  return {
-    success: true,
-    message: result.message,
-    data: result.data?.result || emptyResult,
-  };
 };
 
 export const getAllPayments = async () => {
-  const result = await adminFetch<{
-    result: typeof emptyResult;
-  }>("/api/admin/payments", {
-    method: "GET",
-    cache: "force-cache",
-    next: {
-      revalidate: 60 * 60 * 2,
-      tags: ["all-payments-admin"],
-    },
-  });
+  const auth = await getAdminToken();
 
-  if (!result.success) {
+  if (!auth.success || !auth.accessToken) {
     return {
       success: false,
-      message: result.message,
-      data: emptyResult,
-      errorDetails: result.errorDetails,
+      message: auth.message,
+      data: emptyPaginatedResult,
+      errorDetails: [],
     };
   }
 
-  return {
-    success: true,
-    message: result.message,
-    data: result.data?.result || emptyResult,
-  };
+  try {
+    const response = await fetch(`${backendUrl}/api/admin/payments`, {
+      method: "GET",
+      cache: "force-cache",
+      next: {
+        revalidate: 60 * 60 * 2,
+        tags: ["all-payments-admin"],
+      },
+      headers: {
+        Cookie: `accessToken=${auth.accessToken}`,
+      },
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "The request could not be completed.",
+        data: emptyPaginatedResult,
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    return {
+      success: true,
+      message: result.message || "Operation completed successfully.",
+      data: result.data?.result || emptyPaginatedResult,
+    };
+  } catch (error) {
+    console.error("Get all payments error:", error);
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      data: emptyPaginatedResult,
+      errorDetails: [],
+    };
+  }
 };
 
 export const getAllUser = async () => {
-  const result = await adminFetch<{
-    result: typeof emptyResult;
-  }>("/api/admin/users", {
-    method: "GET",
-    cache: "force-cache",
-    next: {
-      revalidate: 60 * 60 * 2,
-      tags: ["all-users-admin"],
-    },
-  });
+  const auth = await getAdminToken();
 
-  if (!result.success) {
+  if (!auth.success || !auth.accessToken) {
     return {
       success: false,
-      message: result.message,
-      data: emptyResult,
-      errorDetails: result.errorDetails,
+      message: auth.message,
+      data: emptyPaginatedResult,
+      errorDetails: [],
     };
   }
 
-  return {
-    success: true,
-    message: result.message,
-    data: result.data?.result || emptyResult,
-  };
+  try {
+    const response = await fetch(`${backendUrl}/api/admin/users`, {
+      method: "GET",
+      cache: "force-cache",
+      next: {
+        revalidate: 60 * 60 * 2,
+        tags: ["all-users-admin"],
+      },
+      headers: {
+        Cookie: `accessToken=${auth.accessToken}`,
+      },
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "The request could not be completed.",
+        data: emptyPaginatedResult,
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    return {
+      success: true,
+      message: result.message || "Operation completed successfully.",
+      data: result.data?.result || emptyPaginatedResult,
+    };
+  } catch (error) {
+    console.error("Get all users error:", error);
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      data: emptyPaginatedResult,
+      errorDetails: [],
+    };
+  }
 };
 
 export const getAllBooking = async () => {
-  const result = await adminFetch<{
-    result: {
-      meta: {
-        currentPage: number;
-        limit: number;
-        totalRow: number;
-        totalPage: number;
-      };
-      data: Booking[];
-    };
-  }>("/api/admin/bookings", {
-    method: "GET",
-    cache: "force-cache",
-    next: {
-      revalidate: 60 * 60 * 2,
-      tags: ["all-bookings-admin"],
-    },
-  });
+  const auth = await getAdminToken();
 
-  if (!result.success) {
+  if (!auth.success || !auth.accessToken) {
     return {
       success: false,
-      message: result.message,
+      message: auth.message,
       data: {
         meta: {
           currentPage: 1,
@@ -262,71 +251,144 @@ export const getAllBooking = async () => {
         },
         data: [],
       },
-      errorDetails: result.errorDetails,
+      errorDetails: [],
     };
   }
 
-  return {
-    success: true,
-    message: result.message,
-    data: result.data?.result ?? {
-      meta: {
-        currentPage: 1,
-        limit: 0,
-        totalRow: 0,
-        totalPage: 0,
+  try {
+    const response = await fetch(`${backendUrl}/api/admin/bookings`, {
+      method: "GET",
+      cache: "force-cache",
+      next: {
+        revalidate: 60 * 60 * 2,
+        tags: ["all-bookings-admin"],
       },
-      data: [],
-    },
-  };
-};
+      headers: {
+        Cookie: `accessToken=${auth.accessToken}`,
+      },
+    });
 
+    const result = await response.json();
 
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "The request could not be completed.",
+        data: {
+          meta: {
+            currentPage: 1,
+            limit: 0,
+            totalRow: 0,
+            totalPage: 0,
+          },
+          data: [],
+        },
+        errorDetails: result.errorDetails || [],
+      };
+    }
 
-export const getAllTechnicianProfile = async () => {
-  const result = await adminFetch<{
-    result: PaginatedResult<TechnicianProfile>;
-  }>("/api/technicians", {
-    method: "GET",
-    cache: "force-cache",
-    next: {
-      revalidate: 60 * 60 * 2,
-      tags: ["all-technician-admin"],
-    },
-  });
-
-  if (!result.success) {
+    return {
+      success: true,
+      message: result.message || "Operation completed successfully.",
+      data: result.data?.result || {
+        meta: {
+          currentPage: 1,
+          limit: 0,
+          totalRow: 0,
+          totalPage: 0,
+        },
+        data: [],
+      },
+    };
+  } catch (error) {
+    console.error("Get all bookings error:", error);
     return {
       success: false,
-      message: result.message,
+      message: "Unable to connect to the server. Please try again.",
+      data: {
+        meta: {
+          currentPage: 1,
+          limit: 0,
+          totalRow: 0,
+          totalPage: 0,
+        },
+        data: [],
+      },
+      errorDetails: [],
+    };
+  }
+};
+
+export const getAllTechnicianProfile = async () => {
+  const auth = await getAdminToken();
+
+  if (!auth.success || !auth.accessToken) {
+    return {
+      success: false,
+      message: auth.message,
       data: {
         meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
         data: [],
       },
-      errorDetails: result.errorDetails,
+      errorDetails: [],
     };
   }
 
-  return {
-    success: true,
-    message: result.message,
-    data: result.data?.result ?? {
-      meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
-      data: [],
-    },
-  };
+  try {
+    const response = await fetch(`${backendUrl}/api/technicians`, {
+      method: "GET",
+      cache: "force-cache",
+      next: {
+        revalidate: 60 * 60 * 2,
+        tags: ["all-technician-admin"],
+      },
+      headers: {
+        Cookie: `accessToken=${auth.accessToken}`,
+      },
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "The request could not be completed.",
+        data: {
+          meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
+          data: [],
+        },
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    return {
+      success: true,
+      message: result.message || "Operation completed successfully.",
+      data: result.data?.result || {
+        meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
+        data: [],
+      },
+    };
+  } catch (error) {
+    console.error("Get all technician profiles error:", error);
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      data: {
+        meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
+        data: [],
+      },
+      errorDetails: [],
+    };
+  }
 };
 
-type TechnicianStatus = "PENDING" | "VERIFIED" | "SUSPENDED";
-
-type TechnicianStatusInput = {
-  status: TechnicianStatus;
-};
-
+// update technician status
 export const updateTechnicianStatus = async (
   technicianId: string,
   data: TechnicianStatusInput,
 ) => {
+  console.log("update technician profile admin", technicianId, data);
   if (!technicianId) {
     return {
       success: false,
@@ -336,7 +398,7 @@ export const updateTechnicianStatus = async (
   }
 
   if (
-    data.status !== "PENDING" &&
+    data.status !== "PENDING_APPROVAL" &&
     data.status !== "VERIFIED" &&
     data.status !== "SUSPENDED"
   ) {
@@ -347,41 +409,73 @@ export const updateTechnicianStatus = async (
     };
   }
 
-  const result = await adminFetch(
-    `/api/technicians/admin/${technicianId}/verify`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        status: data.status,
-      }),
-    },
-  );
+  const auth = await getAdminToken();
 
-  if (!result.success) {
-    return result;
+  if (!auth.success || !auth.accessToken) {
+    return {
+      success: false,
+      message: auth.message,
+      errorDetails: [],
+    };
   }
 
-  revalidateTag("all-technician-admin", "max");
+  try {
+    const response = await fetch(
+      `${backendUrl}/api/technicians/admin/${technicianId}/verify`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
+        body: JSON.stringify({
+          status: data.status,
+        }),
+      },
+    );
 
-  return {
-    success: true,
-    message: result.message || `Technician status updated to ${data.status.toLowerCase()}.`,
-    data: result.data,
-  };
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "The request could not be completed.",
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    revalidateTag("all-technician-admin", {
+      expire: 0,
+    });
+
+    return {
+      success: true,
+      message:
+        result.message ||
+        `Technician status updated to ${data.status.toLowerCase()}.`,
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Update technician status error:", error);
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      errorDetails: [],
+    };
+  }
 };
 
-export const verifyTechnician = async(technicianId: string) =>
+// Admin actions for verifying technicians
+export const verifyTechnician = async (technicianId: string) =>
   updateTechnicianStatus(technicianId, { status: "VERIFIED" });
 
-export const unverifyTechnician = async(technicianId: string) =>
-  updateTechnicianStatus(technicianId, { status: "PENDING" });
+// Admin actions for unverifying  technicians
+export const unverifyTechnician = async (technicianId: string) =>
+  updateTechnicianStatus(technicianId, { status: "PENDING_APPROVAL" });
 
-export const suspendTechnician = async(technicianId: string) =>
+// Admin actions for suspending technicians
+export const suspendTechnician = async (technicianId: string) =>
   updateTechnicianStatus(technicianId, { status: "SUSPENDED" });
-
 
 export const updateUserStatus = async (
   userId: string,
@@ -403,39 +497,63 @@ export const updateUserStatus = async (
     };
   }
 
-  const result = await adminFetch(`/api/admin/users/${userId}/status`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  const auth = await getAdminToken();
 
-  if (!result.success) {
-    return result;
+  if (!auth.success || !auth.accessToken) {
+    return {
+      success: false,
+      message: auth.message,
+      errorDetails: [],
+    };
   }
 
-  revalidateTag("all-users-admin", "max");
+  try {
+    const response = await fetch(
+      `${backendUrl}/api/admin/users/${userId}/status`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
+        body: JSON.stringify(data),
+      },
+    );
 
-  return {
-    success: true,
-    message:
-      result.message || `User status updated to ${data.status.toLowerCase()}.`,
-    data: result.data,
-  };
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "The request could not be completed.",
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    revalidateTag("all-users-admin", "max");
+
+    return {
+      success: true,
+      message:
+        result.message ||
+        `User status updated to ${data.status.toLowerCase()}.`,
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Update user status error:", error);
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      errorDetails: [],
+    };
+  }
 };
 
-export const banUser = async (userId: string) => {
-  return updateUserStatus(userId, {
-    status: "INACTIVE",
-  });
-};
+export const banUser = async (userId: string) =>
+  updateUserStatus(userId, { status: "INACTIVE" });
 
-export const unbanUser = async (userId: string) => {
-  return updateUserStatus(userId, {
-    status: "ACTIVE",
-  });
-};
+export const unbanUser = async (userId: string) =>
+  updateUserStatus(userId, { status: "ACTIVE" });
 
 export const createCategory = async (data: CategoryInput) => {
   if (!data.name?.trim()) {
@@ -446,28 +564,54 @@ export const createCategory = async (data: CategoryInput) => {
     };
   }
 
-  const result = await adminFetch("/api/category", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name: data.name.trim(),
-      description: data.description?.trim() || undefined,
-    }),
-  });
+  const auth = await getAdminToken();
 
-  if (!result.success) {
-    return result;
+  if (!auth.success || !auth.accessToken) {
+    return {
+      success: false,
+      message: auth.message,
+      errorDetails: [],
+    };
   }
 
-  revalidateTag("all-category-admin", "max");
+  try {
+    const response = await fetch(`${backendUrl}/api/category`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: `accessToken=${auth.accessToken}`,
+      },
+      body: JSON.stringify({
+        name: data.name.trim(),
+        description: data.description?.trim() || undefined,
+      }),
+    });
 
-  return {
-    success: true,
-    message: result.message || "Category created successfully.",
-    data: result.data,
-  };
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "The request could not be completed.",
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    revalidateTag("all-category-admin", "max");
+
+    return {
+      success: true,
+      message: result.message || "Category created successfully.",
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Create category error:", error);
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      errorDetails: [],
+    };
+  }
 };
 
 export const updateCategory = async (
@@ -490,28 +634,54 @@ export const updateCategory = async (
     };
   }
 
-  const result = await adminFetch(`/api/category/${categoryId}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name: data.name.trim(),
-      description: data.description?.trim() || undefined,
-    }),
-  });
+  const auth = await getAdminToken();
 
-  if (!result.success) {
-    return result;
+  if (!auth.success || !auth.accessToken) {
+    return {
+      success: false,
+      message: auth.message,
+      errorDetails: [],
+    };
   }
 
-  revalidateTag("all-category-admin", "max");
+  try {
+    const response = await fetch(`${backendUrl}/api/category/${categoryId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: `accessToken=${auth.accessToken}`,
+      },
+      body: JSON.stringify({
+        name: data.name.trim(),
+        description: data.description?.trim() || undefined,
+      }),
+    });
 
-  return {
-    success: true,
-    message: result.message || "Category updated successfully.",
-    data: result.data,
-  };
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "The request could not be completed.",
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    revalidateTag("all-category-admin", "max");
+
+    return {
+      success: true,
+      message: result.message || "Category updated successfully.",
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Update category error:", error);
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      errorDetails: [],
+    };
+  }
 };
 
 export const deleteCategory = async (categoryId: string) => {
@@ -523,19 +693,47 @@ export const deleteCategory = async (categoryId: string) => {
     };
   }
 
-  const result = await adminFetch(`/api/category/${categoryId}`, {
-    method: "DELETE",
-  });
+  const auth = await getAdminToken();
 
-  if (!result.success) {
-    return result;
+  if (!auth.success || !auth.accessToken) {
+    return {
+      success: false,
+      message: auth.message,
+      errorDetails: [],
+    };
   }
 
-  revalidateTag("all-category-admin", "max");
+  try {
+    const response = await fetch(`${backendUrl}/api/category/${categoryId}`, {
+      method: "DELETE",
+      headers: {
+        Cookie: `accessToken=${auth.accessToken}`,
+      },
+    });
 
-  return {
-    success: true,
-    message: result.message || "Category deleted successfully.",
-    data: result.data,
-  };
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "The request could not be completed.",
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    revalidateTag("all-category-admin", "max");
+
+    return {
+      success: true,
+      message: result.message || "Category deleted successfully.",
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Delete category error:", error);
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      errorDetails: [],
+    };
+  }
 };
