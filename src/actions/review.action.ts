@@ -63,7 +63,7 @@ export const getAllReviewDetailsFromLoginUser = async () => {
         data: [],
         meta: {
           currentPage: 1,
-          limit: 10,
+          limit: 15,
           totalRow: 0,
           totalPage: 0,
         },

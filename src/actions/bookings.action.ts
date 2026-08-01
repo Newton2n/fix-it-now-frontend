@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { jwtUtils } from "@/utils/jwt";
 import { getMe } from "./auth.action";
-import { verify } from "crypto";
+import { revalidateTag } from "next/cache";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -51,7 +51,7 @@ export const getAllBookingsFromLoginUser = async () => {
 
     const result = await res.json();
 
-    console.log("All bookings by logged-in customer:", result);
+    console.log("All bookings by logged-in customer", result.data.bookings?.data);
 
     if (!res.ok || !result.success) {
       return {
@@ -272,7 +272,7 @@ export const cancelBooking = async (bookingId: string) => {
       };
     }
 
-    const booking = bookingResult.data;
+    const booking = bookingResult.data.booking;
 
     // Verify this booking belongs to the logged-in customer
     if (booking.customerId !== user.id) {
@@ -283,11 +283,11 @@ export const cancelBooking = async (bookingId: string) => {
       };
     }
 
-    // Do not allow cancellation after the job has started
+    // Cancel the booking only if it is not in progress or completed
     if (booking.status === "IN_PROGRESS" || booking.status === "COMPLETED") {
       return {
         success: false,
-        message: `This booking cannot be cancelled because it is already ${booking.status.toLowerCase().replace("_", " ")}.`,
+        message: `This booking cannot be cancelled because it is already ${booking.status}.`,
         errorDetails: [],
       };
     }
@@ -313,6 +313,7 @@ export const cancelBooking = async (bookingId: string) => {
         errorDetails: result.errorDetails || [],
       };
     }
+
 
     return {
       success: true,

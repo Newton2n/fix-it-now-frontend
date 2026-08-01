@@ -2,7 +2,8 @@
 
 import { cookies } from "next/headers";
 import { jwtUtils } from "@/utils/jwt";
-import type { ActionResponse, TechnicianProfile } from "@/types/api";
+import type { ActionResponse} from "@/types/api";
+import type { TechnicianProfile } from "@/types/technician";
 import {
   TChangeAvailabilityPayload,
   TCreateTechnicianProfile,
