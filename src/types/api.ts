@@ -10,8 +10,6 @@ export type ActionResponse<T = unknown> = {
   }>;
 };
 
-// Entity Types
-
 export type UserRole = "CUSTOMER" | "TECHNICIAN" | "ADMIN";
 
 export type BookingStatus =
@@ -23,7 +21,7 @@ export type BookingStatus =
   | "COMPLETED"
   | "CANCELLED";
 
-export type UserStatus = "ACTIVE" | "INACTIVE" |"BLOCKED" ;
+export type UserStatus = "ACTIVE" | "INACTIVE" | "BLOCKED";
 
 export type PaymentStatus = "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
 
@@ -39,8 +37,6 @@ export interface User {
   country?: string;
   profilePicture?: string;
 }
-
-
 
 export interface Service {
   id: string;
@@ -80,8 +76,6 @@ export interface Review {
   createdAt: string;
   updatedAt: string;
 }
-
-
 
 export interface Payment {
   id: string;
