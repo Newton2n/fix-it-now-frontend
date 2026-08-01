@@ -23,7 +23,7 @@ export type BookingStatus =
   | "COMPLETED"
   | "CANCELLED";
 
-export type UserStatus = "ACTIVE" | "BANNED";
+export type UserStatus = "ACTIVE" | "INACTIVE" |"BLOCKED" ;
 
 export type PaymentStatus = "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
 

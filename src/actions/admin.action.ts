@@ -6,7 +6,7 @@ import { jwtUtils } from "@/utils/jwt";
 
 const backendUrl = process.env.BACKEND_API;
 
-type UserStatus = "ACTIVE" | "INACTIVE";
+type UserStatus = "ACTIVE" | "INACTIVE" | "BLOCKED";
 type TechnicianStatus = "PENDING_APPROVAL" | "VERIFIED" | "SUSPENDED";
 
 type CategoryInput = {
@@ -481,6 +481,8 @@ export const updateUserStatus = async (
   userId: string,
   data: UserStatusInput,
 ) => {
+
+  console.log("update user status in admin",userId,data)
   if (!userId) {
     return {
       success: false,
@@ -489,7 +491,7 @@ export const updateUserStatus = async (
     };
   }
 
-  if (data.status !== "ACTIVE" && data.status !== "INACTIVE") {
+  if (data.status !== "ACTIVE" && data.status !== "BLOCKED") {
     return {
       success: false,
       message: "Invalid user status.",
@@ -509,7 +511,7 @@ export const updateUserStatus = async (
 
   try {
     const response = await fetch(
-      `${backendUrl}/api/admin/users/${userId}/status`,
+      `${backendUrl}/api/admin/users/${userId}`,
       {
         method: "PATCH",
         headers: {
@@ -530,7 +532,10 @@ export const updateUserStatus = async (
       };
     }
 
-    revalidateTag("all-users-admin", "max");
+    // revalidate all users in admin dashboard
+    revalidateTag("all-users-admin",{
+      expire :0
+    });
 
     return {
       success: true,
@@ -550,7 +555,7 @@ export const updateUserStatus = async (
 };
 
 export const banUser = async (userId: string) =>
-  updateUserStatus(userId, { status: "INACTIVE" });
+  updateUserStatus(userId, { status: "BLOCKED" });
 
 export const unbanUser = async (userId: string) =>
   updateUserStatus(userId, { status: "ACTIVE" });

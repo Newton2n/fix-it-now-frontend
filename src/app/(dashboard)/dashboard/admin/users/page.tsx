@@ -5,29 +5,10 @@ import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge } from "@/components/ui/badge";
 import UserActions from "@/components/admin/user-action";
+import { User, UserMeta, UserRole } from "@/types/admin";
+import { UserStatus } from "@/types/api";
 
-type UserRole = "CUSTOMER" | "TECHNICIAN" | "ADMIN";
-type UserStatus = "ACTIVE" | "INACTIVE";
 
-type User = {
-  id: string;
-  name: string;
-  phoneNumber: string | null;
-  email: string;
-  role: UserRole;
-  status: UserStatus;
-  country: string | null;
-  profilePicture: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-type UserMeta = {
-  currentPage: number;
-  limit: number;
-  totalRow: number;
-  totalPage: number;
-};
 
 const emptyMeta: UserMeta = {
   currentPage: 1,
@@ -234,11 +215,29 @@ function Info({
 }
 
 function getStatusLabel(status: UserStatus) {
-  return status === "ACTIVE" ? "Active" : "Inactive";
+  switch (status) {
+    case "ACTIVE":
+      return "Active";
+    case "INACTIVE":
+      return "Inactive";
+    case "BLOCKED":
+      return "Blocked";
+    default:
+      return "Unknown";
+  }
 }
 
 function getStatusVariant(status: UserStatus) {
-  return status === "ACTIVE" ? "default" : "secondary";
+  switch (status) {
+    case "ACTIVE":
+      return "default";
+    case "INACTIVE":
+      return "secondary";
+    case "BLOCKED":
+      return "destructive";
+    default:
+      return "secondary";
+  }
 }
 
 function getRoleVariant(role: UserRole) {
