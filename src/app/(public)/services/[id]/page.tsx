@@ -203,7 +203,7 @@ export default async function ServiceDetailPage({
                   asChild={service.isAvailable}
                 >
                   {service.isAvailable ? (
-                    <Link href={`/book/${service.id}`}>
+                    <Link href={`/booking/${service.id}`}>
                       Book Now
                     </Link>
                   ) : (
