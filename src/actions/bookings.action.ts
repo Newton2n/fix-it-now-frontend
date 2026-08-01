@@ -51,7 +51,10 @@ export const getAllBookingsFromLoginUser = async () => {
 
     const result = await res.json();
 
-    console.log("All bookings by logged-in customer", result.data.bookings?.data);
+    console.log(
+      "All bookings by logged-in customer",
+      result.data.bookings?.data,
+    );
 
     if (!res.ok || !result.success) {
       return {
@@ -154,6 +157,7 @@ export const updateTechnicianBookingStatus = async (
   bookingId: string,
   status: TechnicianBookingStatus,
 ) => {
+  console.log("update booking status in by technician", bookingId, status);
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -313,7 +317,6 @@ export const cancelBooking = async (bookingId: string) => {
         errorDetails: result.errorDetails || [],
       };
     }
-
 
     return {
       success: true,

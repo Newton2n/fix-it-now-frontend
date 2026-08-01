@@ -65,9 +65,7 @@ export default function CustomerBookingsPage() {
         console.log("Customer reviews:", reviewsResult);
 
         if (!bookingsResult?.success) {
-          toast.error(
-            bookingsResult?.message || "Failed to load bookings.",
-          );
+          toast.error(bookingsResult?.message || "Failed to load bookings.");
           return;
         }
 
@@ -77,7 +75,9 @@ export default function CustomerBookingsPage() {
 
         if (Array.isArray(reviewsResult)) {
           const reviewedBookingIds = new Set<string>(
-            reviewsResult.map((review: { bookingId: string }) => review.bookingId),
+            reviewsResult.map(
+              (review: { bookingId: string }) => review.bookingId,
+            ),
           );
 
           setReviews(reviewedBookingIds);
@@ -127,7 +127,6 @@ export default function CustomerBookingsPage() {
       });
     } catch (error) {
       console.error("Cancel booking error:", error);
-
       toast.error("Something went wrong. Please try again.");
     } finally {
       setActionLoading(null);
@@ -151,6 +150,12 @@ export default function CustomerBookingsPage() {
     });
 
     toast.success("Review submitted successfully.");
+  };
+
+  // Handle Payment due work
+  const handlePayNow = (bookingId: string) => {
+    toast.info(`Pay now clicked for booking ${bookingId}`);
+    console.log("pay now", bookingId);
   };
 
   if (loading) {
@@ -193,6 +198,7 @@ export default function CustomerBookingsPage() {
                     bookingId: booking.id,
                   })
                 }
+                onPayNow={() => handlePayNow(booking.id)}
                 isLoading={actionLoading === booking.id}
               />
             ))}
@@ -240,7 +246,6 @@ export default function CustomerBookingsPage() {
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Add Review</DialogTitle>
-
               <DialogDescription>
                 Share your experience with this service.
               </DialogDescription>
@@ -258,15 +263,13 @@ export default function CustomerBookingsPage() {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Booking Card                                                               */
-/* -------------------------------------------------------------------------- */
-
+// Booking Card
 interface BookingCardProps {
   booking: Booking;
   hasReview: boolean;
   onCancel: () => void;
   onReview: () => void;
+  onPayNow: () => void;
   isLoading: boolean;
 }
 
@@ -275,16 +278,15 @@ function BookingCard({
   hasReview,
   onCancel,
   onReview,
+  onPayNow,
   isLoading,
 }: BookingCardProps) {
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-        {/* Booking information */}
         <div className="flex-1 space-y-4">
           <div>
             <p className="text-sm text-muted-foreground">Booking</p>
-
             <p className="break-all font-medium text-foreground">
               {booking.id}
             </p>
@@ -295,45 +297,26 @@ function BookingCard({
               label="Scheduled"
               value={formatDateTime(booking.scheduledAt)}
             />
-
-            <Info
-              label="Location"
-              value={booking.location || "Not provided"}
-            />
-
-            <Info
-              label="Service ID"
-              value={booking.serviceId}
-            />
-
+            <Info label="Location" value={booking.location || "Not provided"} />
+            <Info label="Service ID" value={booking.serviceId} />
             <Info
               label="Customer Note"
               value={booking.customerNote || "No note"}
             />
-
-            <Info
-              label="Created"
-              value={formatDateTime(booking.createdAt)}
-            />
-
-            <Info
-              label="Updated"
-              value={formatDateTime(booking.updatedAt)}
-            />
+            <Info label="Created" value={formatDateTime(booking.createdAt)} />
+            <Info label="Updated" value={formatDateTime(booking.updatedAt)} />
           </div>
         </div>
 
-        {/* Status + actions */}
         <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
-          <BookingStatusBadge
-            status={booking.status as BookingStatus}
-          />
+          <BookingStatusBadge status={booking.status as BookingStatus} />
 
           <BookingActions
             booking={booking}
             hasReview={hasReview}
             onCancel={onCancel}
             onReview={onReview}
+            onPayNow={onPayNow}
             isLoading={isLoading}
           />
         </div>
@@ -342,15 +325,12 @@ function BookingCard({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Booking Actions                                                            */
-/* -------------------------------------------------------------------------- */
-
 interface BookingActionsProps {
   booking: Booking;
   hasReview: boolean;
   onCancel: () => void;
   onReview: () => void;
+  onPayNow: () => void;
   isLoading: boolean;
 }
 
@@ -359,16 +339,11 @@ function BookingActions({
   hasReview,
   onCancel,
   onReview,
+  onPayNow,
   isLoading,
 }: BookingActionsProps) {
   switch (booking.status) {
-    /*
-     * Customer can cancel the booking before
-     * the technician starts the job.
-     */
     case "REQUESTED":
-    case "ACCEPTED":
-    case "PAID":
       return (
         <Button
           size="sm"
@@ -380,16 +355,32 @@ function BookingActions({
         </Button>
       );
 
-    /*
-     * Once the technician starts the job,
-     * customer cannot cancel anymore.
-     */
+    case "ACCEPTED":
+      return (
+        <div className="flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
+            {isLoading ? "Cancelling..." : "Cancel Booking"}
+          </Button>
+
+          <Button size="sm" onClick={onPayNow} disabled={isLoading}>
+            Pay Now
+          </Button>
+        </div>
+      );
+
+    case "PAID":
+      return (
+        <span className="text-sm text-muted-foreground">Payment completed</span>
+      );
+
     case "IN_PROGRESS":
       return null;
 
-    /*
-     * Customer can review a completed booking.
-     */
     case "COMPLETED":
       if (hasReview) {
         return (
@@ -400,28 +391,17 @@ function BookingActions({
       }
 
       return (
-        <Button
-          size="sm"
-          onClick={onReview}
-          disabled={isLoading}
-        >
+        <Button size="sm" onClick={onReview} disabled={isLoading}>
           Add Review
         </Button>
       );
 
-    /*
-     * DECLINED / CANCELED
-     */
     case "DECLINED":
     case "CANCELED":
     default:
       return null;
   }
 }
-
-/* -------------------------------------------------------------------------- */
-/* Loading                                                                    */
-/* -------------------------------------------------------------------------- */
 
 function BookingsSkeleton() {
   return (
@@ -437,10 +417,7 @@ function BookingsSkeleton() {
       >
         <div className="space-y-4">
           {[1, 2, 3].map((item) => (
-            <Skeleton
-              key={item}
-              className="h-36 w-full"
-            />
+            <Skeleton key={item} className="h-36 w-full" />
           ))}
         </div>
       </SectionCard>
@@ -448,52 +425,26 @@ function BookingsSkeleton() {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Empty State                                                                */
-/* -------------------------------------------------------------------------- */
-
 function EmptyBookings() {
   return (
     <div className="rounded-xl border border-dashed bg-muted/20 py-16 text-center">
-      <h3 className="text-lg font-semibold">
-        No bookings found
-      </h3>
-
+      <h3 className="text-lg font-semibold">No bookings found</h3>
       <p className="mt-2 text-sm text-muted-foreground">
-        You haven&apos;t booked any services yet. Once you create a
-        booking, it will appear here.
+        You haven&apos;t booked any services yet. Once you create a booking, it
+        will appear here.
       </p>
     </div>
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Info                                                                       */
-/* -------------------------------------------------------------------------- */
-
-function Info({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border bg-background p-3">
-      <p className="text-xs text-muted-foreground">
-        {label}
-      </p>
-
-      <p className="mt-1 break-all text-sm font-medium">
-        {value}
-      </p>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 break-all text-sm font-medium">{value}</p>
     </div>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/* Date                                                                       */
-/* -------------------------------------------------------------------------- */
 
 function formatDateTime(dateString: string) {
   const date = new Date(dateString);

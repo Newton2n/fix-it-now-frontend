@@ -19,7 +19,7 @@ export type BookingStatus =
   | "PAID"
   | "IN_PROGRESS"
   | "COMPLETED"
-  | "CANCELLED";
+  | "CANCELED";
 
 export type UserStatus = "ACTIVE" | "INACTIVE" | "BLOCKED";
 
@@ -58,6 +58,8 @@ export interface Booking {
   customerId: string;
   technicianId: string;
   serviceId: string;
+  location: string;
+  customerNote?: string;
   status: BookingStatus;
   scheduledAt: string;
   notes?: string;
