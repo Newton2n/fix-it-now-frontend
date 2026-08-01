@@ -18,7 +18,7 @@ import { getLoginTechnicianProfile } from "@/actions/technician.action";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import type { TechnicianProfile } from "@/types/api";
+import type { TechnicianProfile } from "@/types/technician";
 
 export default function TechnicianProfilePage() {
   const router = useRouter();
@@ -188,10 +188,7 @@ export default function TechnicianProfilePage() {
             }
           >
             {editing ? (
-              // EDIT MODE
-              // IMPORTANT:
-              // Availability is NOT included here.
-              // Availability has its own page/form.
+              
               <TechnicianProfileForm
                 mode="edit"
                 initialData={profile}

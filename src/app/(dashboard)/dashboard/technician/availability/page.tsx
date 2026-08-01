@@ -13,12 +13,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { getLoginTechnicianProfile } from "@/actions/technician.action";
 
-import {
-  TechnicianAvailabilityForm,
-  type Availability,
-} from "@/components/forms/technician-availability-form";
+import { TechnicianAvailabilityForm } from "@/components/forms/technician-availability-form";
 
-import type { TechnicianProfile } from "@/types/api";
+import type {
+  TChangeAvailabilityPayload,
+  TechnicianProfile,
+} from "@/types/technician";
 
 const DAYS = [
   "monday",
@@ -27,6 +27,7 @@ const DAYS = [
   "thursday",
   "friday",
   "saturday",
+  "sunday"
 ];
 
 export default function TechnicianAvailabilityPage() {
@@ -89,9 +90,7 @@ export default function TechnicianAvailabilityPage() {
             return;
           }
 
-          setError(
-            result.message || "Unable to load your technician profile.",
-          );
+          setError(result.message || "Unable to load your technician profile.");
           return;
         }
 
@@ -210,7 +209,8 @@ export default function TechnicianAvailabilityPage() {
     );
   }
 
-  const availability = (profile.availability as Availability) || {};
+  const availability =
+    (profile.availability as TChangeAvailabilityPayload["availability"]) || {};
   const hasAvailability = Object.keys(availability).length > 0;
 
   // Editing existing availability
@@ -296,10 +296,16 @@ export default function TechnicianAvailabilityPage() {
         description="Manage the days and hours when customers can book your services."
       />
 
-      <SectionCard title="Weekly Availability" description="Your current working schedule.">
+      <SectionCard
+        title="Weekly Availability"
+        description="Your current working schedule."
+      >
         <div className="space-y-3">
           {DAYS.map((day) => {
-            const schedule = availability[day];
+            const schedule =
+              availability[
+                day as keyof TChangeAvailabilityPayload["availability"]
+              ];
 
             return (
               <div

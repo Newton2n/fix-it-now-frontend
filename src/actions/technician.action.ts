@@ -7,9 +7,11 @@ import {
   TChangeAvailabilityPayload,
   TCreateTechnicianProfile,
 } from "@/types/technician";
+import { revalidateTag } from "next/cache";
 
 const backendUrl = process.env.BACKEND_API;
 
+// get technician profile by id
 export const getTechnicianProfileById = async (
   id: string,
 ): Promise<ActionResponse<TechnicianProfile>> => {
@@ -49,6 +51,7 @@ export const getTechnicianProfileById = async (
   }
 };
 
+// get log in technician profile
 export const getLoginTechnicianProfile = async () => {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
@@ -99,6 +102,7 @@ export const getLoginTechnicianProfile = async () => {
   }
 };
 
+// create technician profile
 export const createTechnicianProfile = async (
   data: TCreateTechnicianProfile,
 ): Promise<ActionResponse<TCreateTechnicianProfile>> => {
@@ -138,6 +142,10 @@ export const createTechnicianProfile = async (
         errorDetails: result.errorDetails || [],
       };
     }
+    //revalidate log in technician action
+    revalidateTag("login-technician", {
+      expire: 0,
+    });
 
     return {
       success: true,
@@ -155,9 +163,12 @@ export const createTechnicianProfile = async (
   }
 };
 
+//update technician profile
+
 export const updateTechnicianProfile = async (
-  data: Partial<Omit<TechnicianProfile, "availability">>,
+  data: Omit<TechnicianProfile, "availability">,
 ): Promise<ActionResponse<TechnicianProfile>> => {
+  console.log("update technician profile payload", data);
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -194,6 +205,10 @@ export const updateTechnicianProfile = async (
       };
     }
 
+    //revalidate log in technician action
+    revalidateTag("login-technician", {
+      expire: 0,
+    });
     return {
       success: true,
       message: "Technician profile updated successfully.",
@@ -210,9 +225,11 @@ export const updateTechnicianProfile = async (
   }
 };
 
+//update availability
 export const updateTechnicianAvailability = async (
-  availability: TChangeAvailabilityPayload,
+  payload: TChangeAvailabilityPayload,
 ): Promise<ActionResponse<TechnicianProfile>> => {
+  console.log("update technician availability", payload);
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -244,12 +261,12 @@ export const updateTechnicianAvailability = async (
         "Content-Type": "application/json",
         Cookie: `accessToken=${accessToken}`,
       },
-      body: JSON.stringify({
-        availability,
-      }),
+      body: JSON.stringify(payload),
     });
 
     const result = await res.json();
+
+    console.log("update technician availability result", result);
 
     if (!result.success) {
       return {
@@ -258,7 +275,10 @@ export const updateTechnicianAvailability = async (
         errorDetails: result.errorDetails || [],
       };
     }
-
+    //revalidate log in technician action
+    revalidateTag("login-technician", {
+      expire: 0,
+    });
     return {
       success: true,
       message:

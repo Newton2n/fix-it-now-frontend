@@ -1,6 +1,6 @@
 "use client";
 
-import type { TechnicianProfile } from "@/types/api";
+import type { TechnicianProfile } from "@/types/technician";
 
 import { TechnicianCreateForm } from "./technician-create-form";
 import { TechnicianProfileEditForm } from "./technician-profile-edit-form";
