@@ -44,7 +44,7 @@ export default function CategoryCard({
           Category ID
         </p>
 
-        <p className="max-w-[160px] truncate text-xs font-mono text-muted-foreground">
+        <p className="max-w-40 truncate text-xs font-mono text-muted-foreground">
           {id}
         </p>
       </CardContent>

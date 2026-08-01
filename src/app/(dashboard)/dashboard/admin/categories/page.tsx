@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { MoreVertical, Plus, Trash2, Edit, Eye } from "lucide-react";
+import { toast } from "sonner";
+
 import { getAllCategory, deleteCategory } from "@/actions/admin.action";
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
@@ -18,15 +22,13 @@ import {
 } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
 import { CategoryForm } from "@/components/forms/category-form";
-import { toast } from "sonner";
-import { MoreVertical, Plus, Trash2, Edit } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Category } from "@/types/api";
+import type { Category } from "@/types/category";
 
 type CategoryResult = {
   meta: {
@@ -44,7 +46,9 @@ export default function AdminCategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
@@ -122,7 +126,7 @@ export default function AdminCategoriesPage() {
         <SectionCard title="Category List" description="Loading...">
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-24" />
+              <Skeleton key={i} className="h-28" />
             ))}
           </div>
         </SectionCard>
@@ -150,10 +154,7 @@ export default function AdminCategoriesPage() {
                   Add a new service category to the platform
                 </DialogDescription>
               </DialogHeader>
-              <CategoryForm
-                mode="create"
-                onSuccess={handleCreateSuccess}
-              />
+              <CategoryForm mode="create" onSuccess={handleCreateSuccess} />
             </DialogContent>
           </Dialog>
         }
@@ -170,10 +171,10 @@ export default function AdminCategoriesPage() {
             {categories.map((category) => (
               <div
                 key={category.id}
-                className="rounded-xl border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                className="rounded-xl border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
               >
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="flex-1 space-y-3">
+                <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0 flex-1 space-y-3 pr-10 lg:pr-0">
                     <div className="space-y-1">
                       <p className="text-xs uppercase tracking-wide text-muted-foreground">
                         Category
@@ -183,13 +184,17 @@ export default function AdminCategoriesPage() {
                       </h3>
                     </div>
 
-                    {category.description && (
-                      <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
+                    {category.description ? (
+                      <p className="max-w-3xl whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground">
                         {category.description}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        No description added.
                       </p>
                     )}
 
-                    <div className="grid gap-2 md:grid-cols-2">
+                    <div className="grid gap-2 sm:grid-cols-2 lg:max-w-2xl">
                       <Info
                         label="Created"
                         value={formatDateTime(category.createdAt)}
@@ -199,16 +204,29 @@ export default function AdminCategoriesPage() {
                         value={formatDateTime(category.updatedAt)}
                       />
                     </div>
+
+                    <div className="pt-1">
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/categories/${category.id}`}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View services
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
 
-                  <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
+                  <div className="absolute right-0 top-0 flex shrink-0 flex-col items-end gap-3 lg:static lg:items-end">
                     <Badge variant="secondary" className="rounded-full px-3">
                       Active
                     </Badge>
 
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button size="sm" variant="ghost">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-9 w-9 p-0"
+                        >
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -254,9 +272,7 @@ export default function AdminCategoriesPage() {
           <DialogContent className="max-h-screen overflow-y-auto sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Edit Category</DialogTitle>
-              <DialogDescription>
-                Update category information
-              </DialogDescription>
+              <DialogDescription>Update category information</DialogDescription>
             </DialogHeader>
             <CategoryForm
               mode="edit"
@@ -281,13 +297,7 @@ export default function AdminCategoriesPage() {
   );
 }
 
-function Info({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border bg-background p-3">
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

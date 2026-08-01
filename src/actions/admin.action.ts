@@ -3,31 +3,9 @@
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { jwtUtils } from "@/utils/jwt";
+import { CategoryInput, TechnicianStatusInput, UserStatusInput } from "@/schema/category/category.schema";
 
 const backendUrl = process.env.BACKEND_API;
-
-type UserStatus = "ACTIVE" | "INACTIVE" | "BLOCKED";
-type TechnicianStatus = "PENDING_APPROVAL" | "VERIFIED" | "SUSPENDED";
-
-type CategoryInput = {
-  name: string;
-  description?: string;
-};
-
-type UserStatusInput = {
-  status: UserStatus;
-};
-
-type TechnicianStatusInput = {
-  status: TechnicianStatus;
-};
-
-type AdminResponse<T = unknown> = {
-  success: boolean;
-  message: string;
-  data?: T;
-  errorDetails?: unknown[];
-};
 
 const emptyPaginatedResult = {
   meta: {
@@ -481,8 +459,7 @@ export const updateUserStatus = async (
   userId: string,
   data: UserStatusInput,
 ) => {
-
-  console.log("update user status in admin",userId,data)
+  console.log("update user status in admin", userId, data);
   if (!userId) {
     return {
       success: false,
@@ -510,17 +487,14 @@ export const updateUserStatus = async (
   }
 
   try {
-    const response = await fetch(
-      `${backendUrl}/api/admin/users/${userId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: `accessToken=${auth.accessToken}`,
-        },
-        body: JSON.stringify(data),
+    const response = await fetch(`${backendUrl}/api/admin/users/${userId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: `accessToken=${auth.accessToken}`,
       },
-    );
+      body: JSON.stringify(data),
+    });
 
     const result = await response.json();
 
@@ -533,8 +507,8 @@ export const updateUserStatus = async (
     }
 
     // revalidate all users in admin dashboard
-    revalidateTag("all-users-admin",{
-      expire :0
+    revalidateTag("all-users-admin", {
+      expire: 0,
     });
 
     return {
@@ -560,7 +534,9 @@ export const banUser = async (userId: string) =>
 export const unbanUser = async (userId: string) =>
   updateUserStatus(userId, { status: "ACTIVE" });
 
+// create category
 export const createCategory = async (data: CategoryInput) => {
+  console.log("create category in admin", data);
   if (!data.name?.trim()) {
     return {
       success: false,
@@ -580,7 +556,7 @@ export const createCategory = async (data: CategoryInput) => {
   }
 
   try {
-    const response = await fetch(`${backendUrl}/api/category`, {
+    const response = await fetch(`${backendUrl}/api/categories/admin`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -602,7 +578,14 @@ export const createCategory = async (data: CategoryInput) => {
       };
     }
 
-    revalidateTag("all-category-admin", "max");
+    // revalidate all categories in admin dashboard
+    revalidateTag("all-category-admin", {
+      expire: 0,
+    });
+    // revalidate all categories in home page
+    revalidateTag("all-category-home", {
+      expire: 0,
+    });
 
     return {
       success: true,

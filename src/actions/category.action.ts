@@ -1,6 +1,5 @@
 "use server";
-import { jwtUtils } from "@/utils/jwt";
-import { cookies } from "next/headers";
+
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -8,7 +7,11 @@ export const getAllCategories = async () => {
   try {
     const res = await fetch(`${backendUrl}/api/categories`, {
       method: "GET",
-      cache: "no-store",
+      cache: "force-cache",
+      next: { 
+        revalidate: 60 * 60 * 72,
+        tags: ["all-category-home"],
+      }
     });
 
     const result = await res.json();
