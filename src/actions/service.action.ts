@@ -1,8 +1,12 @@
 "use server";
+import { TCreateService } from "@/types/service";
 import { jwtUtils } from "@/utils/jwt";
+import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const backendUrl = process.env.BACKEND_API;
+
+//get all services
 export const getAllService = async () => {
   const res = await fetch(`${backendUrl}/api/service`, {
     cache: "force-cache",
@@ -29,6 +33,7 @@ export const getAllServiceByCategoryId = async (id: string) => {
     return result;
   }
 };
+// get all service by login technician
 export const getAllServiceByLoginTechnician = async () => {
   const cookieStore = await cookies();
 
@@ -50,7 +55,7 @@ export const getAllServiceByLoginTechnician = async () => {
       Cookie: `accessToken=${accessToken}`,
     },
     next: {
-      revalidate: 60 * 60 * 2,
+      revalidate: 60 * 60 * 24,
       tags: ["all-service-by-login-Technician"],
     },
   });
@@ -61,6 +66,7 @@ export const getAllServiceByLoginTechnician = async () => {
   }
 };
 
+// get single service details
 export const getSingleService = async (id: string) => {
   if (!id) {
     return {
@@ -98,7 +104,11 @@ export const getSingleService = async (id: string) => {
   }
 };
 
-export const createService = async (data: any) => {
+//create service 
+export const createService = async (data: TCreateService) => {
+
+  console.log("create service payload",data)
+
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -133,7 +143,22 @@ export const createService = async (data: any) => {
         errorDetails: result.errorDetails || [],
       };
     }
+    
+    //revalidate all service in login technician
+    revalidateTag("all-service-by-login-Technician",{
+      expire :0,
 
+    })
+    //revalidate all service by category section
+    revalidateTag("all-service-by-category",{
+      expire :0,
+
+    })
+    // revalidate all service in home page
+    revalidateTag("all-service",{
+      expire :0,
+
+    })
     return {
       success: true,
       message: "Service created successfully.",
@@ -148,6 +173,9 @@ export const createService = async (data: any) => {
     };
   }
 };
+
+
+
 
 export const updateService = async (id: string, data: any) => {
   if (!id) {
