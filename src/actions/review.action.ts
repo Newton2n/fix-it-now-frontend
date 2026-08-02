@@ -1,5 +1,6 @@
 "use server";
 
+import { OneReviewResponse } from "@/types/review";
 import { jwtUtils } from "@/utils/jwt";
 import { cookies } from "next/headers";
 
@@ -100,15 +101,93 @@ export const getAllReviewDetailsFromLoginUser = async () => {
   }
 };
 
+// get single review
+export const getReviewByBookingId = async (
+  bookingId: string,
+): Promise<OneReviewResponse> => {
+  const cookieStore = await cookies();
 
+  const accessToken = cookieStore.get("accessToken")?.value;
 
+  if (!accessToken) {
+    return {
+      success: false,
+      statusCode: 401,
+      message: "You are not authenticated.",
+      errorDetails: [
+        {
+          field: "auth",
+          message: "Access token is missing.",
+        },
+      ],
+    };
+  }
+
+  const verify = jwtUtils.verifyToken(
+    accessToken,
+    process.env.JWT_ACCESS_SECRET!,
+  );
+
+  if (!verify.success) {
+    return {
+      success: false,
+      statusCode: 401,
+      message: "Your session is invalid or expired.",
+      errorDetails: [
+        {
+          field: "auth",
+          message: "Token verification failed.",
+        },
+      ],
+    };
+  }
+
+  try {
+    const response = await fetch(`${backendUrl}/api/review/${bookingId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: `accessToken=${accessToken}`,
+      },
+      cache: "no-store",
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        statusCode: result.statusCode || response.status,
+        message: result.message || "Unable to load review.",
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Get review by booking ID error:", error);
+
+    return {
+      success: false,
+      statusCode: 500,
+      message: "Unable to connect to the server. Please try again.",
+      errorDetails: [
+        {
+          field: "server",
+          message: "Failed to fetch review.",
+        },
+      ],
+    };
+  }
+};
+
+//create review
 export const createReview = async (payload: {
   bookingId: string;
   rating: number;
   description: string;
 }) => {
-
-  console.log("create review payload",payload)
+  console.log("create review payload", payload);
   // const cookieStore = await cookies();
   // const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -166,8 +245,7 @@ export const updateReview = async (
     description: string;
   },
 ) => {
-
-  console.log("edit review payload",reviewId,data)
+  console.log("edit review payload", reviewId, data);
   // const cookieStore = await cookies();
   // const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -266,5 +344,3 @@ export const deleteReview = async (reviewId: string) => {
     };
   }
 };
-
-

@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { ExternalLink, Star } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 import {
   getAllBookingsFromLoginUser,
   cancelBooking,
 } from "@/actions/bookings.action";
-
-import { getAllReviewDetailsFromLoginUser } from "@/actions/review.action";
 
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
@@ -26,17 +28,12 @@ import {
 
 import { ReviewForm } from "@/components/forms/review-form";
 
-import { toast } from "sonner";
-import Link from "next/link";
-
 import type { Booking, BookingStatus } from "@/types/api";
-import { useRouter } from "next/navigation";
-import { ExternalLink } from "lucide-react";
 
 export default function CustomerBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [reviews, setReviews] = useState<Set<string>>(new Set());
   const router = useRouter();
+
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -56,34 +53,21 @@ export default function CustomerBookingsPage() {
     bookingId: null,
   });
 
+  // Get bookings
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchBookings = async () => {
       try {
-        const [bookingsResult, reviewsResult] = await Promise.all([
-          getAllBookingsFromLoginUser(),
-          getAllReviewDetailsFromLoginUser(),
-        ]);
+        const result = await getAllBookingsFromLoginUser();
 
-        console.log("Customer bookings:", bookingsResult);
-        console.log("Customer reviews:", reviewsResult);
+        console.log("Customer bookings:", result);
 
-        if (!bookingsResult?.success) {
-          toast.error(bookingsResult?.message || "Failed to load bookings.");
+        if (!result?.success) {
+          toast.error(result?.message || "Failed to load bookings.");
           return;
         }
 
-        if (Array.isArray(bookingsResult.data)) {
-          setBookings(bookingsResult.data);
-        }
-
-        if (Array.isArray(reviewsResult)) {
-          const reviewedBookingIds = new Set<string>(
-            reviewsResult.map(
-              (review: { bookingId: string }) => review.bookingId,
-            ),
-          );
-
-          setReviews(reviewedBookingIds);
+        if (Array.isArray(result.data)) {
+          setBookings(result.data);
         }
       } catch (error) {
         console.error("Failed to fetch customer bookings:", error);
@@ -93,9 +77,10 @@ export default function CustomerBookingsPage() {
       }
     };
 
-    fetchData();
+    fetchBookings();
   }, []);
 
+  // Cancel booking
   const handleCancelBooking = async () => {
     const bookingId = confirmDialog.bookingId;
 
@@ -136,31 +121,24 @@ export default function CustomerBookingsPage() {
     }
   };
 
+  // Review submitted
   const handleReviewSuccess = () => {
-    const bookingId = reviewDialog.bookingId;
-
-    if (bookingId) {
-      setReviews((currentReviews) => {
-        const updatedReviews = new Set(currentReviews);
-        updatedReviews.add(bookingId);
-        return updatedReviews;
-      });
-    }
-
     setReviewDialog({
       open: false,
       bookingId: null,
     });
 
     toast.success("Review submitted successfully.");
+
+    // Refresh the booking data so the new review appears.
+    window.location.reload();
   };
 
-  // Handle Payment 
+  // Go to payment page
   const handlePayNow = (bookingId: string) => {
     if (!bookingId) return;
 
-    // Redirect to the payment page for the specific booking
-    return router.push(`/dashboard/customer/payment/${bookingId}`);
+    router.push(`/dashboard/customer/payment/${bookingId}`);
   };
 
   if (loading) {
@@ -190,7 +168,6 @@ export default function CustomerBookingsPage() {
               <BookingCard
                 key={booking.id}
                 booking={booking}
-                hasReview={reviews.has(booking.id)}
                 onCancel={() =>
                   setConfirmDialog({
                     open: true,
@@ -213,7 +190,7 @@ export default function CustomerBookingsPage() {
         )}
       </SectionCard>
 
-      {/* Cancel Booking Confirmation */}
+      {/* Cancel booking confirmation */}
       {confirmDialog.bookingId && (
         <ConfirmDialog
           title="Cancel booking?"
@@ -235,7 +212,7 @@ export default function CustomerBookingsPage() {
         />
       )}
 
-      {/* Review Dialog */}
+      {/* Review dialog */}
       {reviewDialog.bookingId && (
         <Dialog
           open={reviewDialog.open}
@@ -251,6 +228,7 @@ export default function CustomerBookingsPage() {
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Add Review</DialogTitle>
+
               <DialogDescription>
                 Share your experience with this service.
               </DialogDescription>
@@ -268,10 +246,9 @@ export default function CustomerBookingsPage() {
   );
 }
 
-// Booking Card
+// Booking card
 interface BookingCardProps {
   booking: Booking;
-  hasReview: boolean;
   onCancel: () => void;
   onReview: () => void;
   onPayNow: () => void;
@@ -280,7 +257,6 @@ interface BookingCardProps {
 
 function BookingCard({
   booking,
-  hasReview,
   onCancel,
   onReview,
   onPayNow,
@@ -289,25 +265,35 @@ function BookingCard({
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex-1 space-y-4 min-w-0">
+        <div className="min-w-0 flex-1 space-y-4">
+          {/* Booking ID */}
           <div>
             <p className="text-sm text-muted-foreground">Booking</p>
+
             <p className="break-all font-medium text-foreground">
               {booking.id}
             </p>
           </div>
 
+          {/* Booking information */}
           <div className="grid gap-3 sm:grid-cols-2">
             <Info
               label="Scheduled"
               value={formatDateTime(booking.scheduledAt)}
             />
-            <Info label="Location" value={booking.location || "Not provided"} />
-            
-            {/* Service ID with a responsive mobile-safe view button layout */}
-            <div className="rounded-lg border bg-background p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 min-w-0">
+
+            <Info
+              label="Location"
+              value={booking.location || "Not provided"}
+            />
+
+            {/* Service */}
+            <div className="flex min-w-0 flex-col gap-2.5 rounded-lg border bg-background p-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-muted-foreground">Service ID</p>
+                <p className="text-xs text-muted-foreground">
+                  Service ID
+                </p>
+
                 <p className="mt-1 truncate text-sm font-medium">
                   {booking.serviceId}
                 </p>
@@ -317,7 +303,7 @@ function BookingCard({
                 asChild
                 variant="outline"
                 size="sm"
-                className="w-full sm:w-auto shrink-0 gap-1.5 h-8 text-xs"
+                className="h-8 w-full shrink-0 gap-1.5 text-xs sm:w-auto"
               >
                 <Link href={`/services/${booking.serviceId}`}>
                   View Service
@@ -330,17 +316,32 @@ function BookingCard({
               label="Your Note"
               value={booking.customerNote || "No note"}
             />
-            <Info label="Created" value={formatDateTime(booking.createdAt)} />
-            <Info label="Updated" value={formatDateTime(booking.updatedAt)} />
+
+            <Info
+              label="Created"
+              value={formatDateTime(booking.createdAt)}
+            />
+
+            <Info
+              label="Updated"
+              value={formatDateTime(booking.updatedAt)}
+            />
           </div>
+
+          {/* Review */}
+          {booking.review && (
+            <ReviewSummary review={booking.review} />
+          )}
         </div>
 
+        {/* Status and actions */}
         <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
-          <BookingStatusBadge status={booking.status as BookingStatus} />
+          <BookingStatusBadge
+            status={booking.status as BookingStatus}
+          />
 
           <BookingActions
             booking={booking}
-            hasReview={hasReview}
             onCancel={onCancel}
             onReview={onReview}
             onPayNow={onPayNow}
@@ -352,9 +353,46 @@ function BookingCard({
   );
 }
 
+// Review summary
+function ReviewSummary({
+  review,
+}: {
+  review: NonNullable<Booking["review"]>;
+}) {
+  return (
+    <div className="rounded-lg border bg-muted/20 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-medium">Your Review</p>
+
+        <div className="flex items-center gap-1">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star
+              key={star}
+              className={
+                star <= review.rating
+                  ? "size-4 fill-yellow-400 text-yellow-400"
+                  : "size-4 text-muted-foreground"
+              }
+            />
+          ))}
+        </div>
+      </div>
+
+      {review.description && (
+        <p className="mt-2 text-sm text-muted-foreground">
+          {review.description}
+        </p>
+      )}
+
+      <p className="mt-2 text-xs text-muted-foreground">
+        Reviewed {formatDateTime(review.createdAt)}
+      </p>
+    </div>
+  );
+}
+
 interface BookingActionsProps {
   booking: Booking;
-  hasReview: boolean;
   onCancel: () => void;
   onReview: () => void;
   onPayNow: () => void;
@@ -363,7 +401,6 @@ interface BookingActionsProps {
 
 function BookingActions({
   booking,
-  hasReview,
   onCancel,
   onReview,
   onPayNow,
@@ -394,7 +431,11 @@ function BookingActions({
             {isLoading ? "Cancelling..." : "Cancel Booking"}
           </Button>
 
-          <Button size="sm" onClick={onPayNow} disabled={isLoading}>
+          <Button
+            size="sm"
+            onClick={onPayNow}
+            disabled={isLoading}
+          >
             Pay Now
           </Button>
         </div>
@@ -402,14 +443,16 @@ function BookingActions({
 
     case "PAID":
       return (
-        <span className="text-sm text-muted-foreground">Payment completed</span>
+        <span className="text-sm text-muted-foreground">
+          Payment completed
+        </span>
       );
 
     case "IN_PROGRESS":
       return null;
 
     case "COMPLETED":
-      if (hasReview) {
+      if (booking.review) {
         return (
           <span className="text-sm text-muted-foreground">
             Review submitted
@@ -418,7 +461,11 @@ function BookingActions({
       }
 
       return (
-        <Button size="sm" onClick={onReview} disabled={isLoading}>
+        <Button
+          size="sm"
+          onClick={onReview}
+          disabled={isLoading}
+        >
           Add Review
         </Button>
       );
@@ -444,7 +491,10 @@ function BookingsSkeleton() {
       >
         <div className="space-y-4">
           {[1, 2, 3].map((item) => (
-            <Skeleton key={item} className="h-36 w-full" />
+            <Skeleton
+              key={item}
+              className="h-36 w-full"
+            />
           ))}
         </div>
       </SectionCard>
@@ -455,20 +505,34 @@ function BookingsSkeleton() {
 function EmptyBookings() {
   return (
     <div className="rounded-xl border border-dashed bg-muted/20 py-16 text-center">
-      <h3 className="text-lg font-semibold">No bookings found</h3>
+      <h3 className="text-lg font-semibold">
+        No bookings found
+      </h3>
+
       <p className="mt-2 text-sm text-muted-foreground">
-        You haven&apos;t booked any services yet. Once you create a booking, it
-        will appear here.
+        You haven&apos;t booked any services yet. Once you create
+        a booking, it will appear here.
       </p>
     </div>
   );
 }
 
-function Info({ label, value }: { label: string; value: string }) {
+function Info({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
   return (
-    <div className="rounded-lg border bg-background p-3 min-w-0">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 break-all text-sm font-medium">{value}</p>
+    <div className="min-w-0 rounded-lg border bg-background p-3">
+      <p className="text-xs text-muted-foreground">
+        {label}
+      </p>
+
+      <p className="mt-1 break-all text-sm font-medium">
+        {value}
+      </p>
     </div>
   );
 }
