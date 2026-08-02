@@ -124,20 +124,22 @@ export default function CustomerReviewsPage() {
     }
   };
 
-  const handleReviewUpdated = (updatedReview: {
+  const handleReviewUpdated = (updatedReview?: {
+    id?: string;
     rating: number;
     description?: string;
+    updatedAt?: string;
   }) => {
-    if (!editingReview) return;
+    if (!updatedReview?.id) return;
 
     setReviews((currentReviews) =>
       currentReviews.map((review) =>
-        review.id === editingReview.id
+        review.id === updatedReview.id
           ? {
               ...review,
               rating: updatedReview.rating,
               description: updatedReview.description ?? "",
-              updatedAt: new Date().toISOString(),
+              updatedAt: updatedReview.updatedAt ?? new Date().toISOString(),
             }
           : review,
       ),

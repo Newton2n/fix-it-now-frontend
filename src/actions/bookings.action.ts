@@ -3,8 +3,6 @@
 import { cookies } from "next/headers";
 import { jwtUtils } from "@/utils/jwt";
 import { getMe } from "./auth.action";
-import { revalidateTag } from "next/cache";
-import { Booking } from "@/schema/booking/booking.schema";
 import { ActionResponse } from "@/types/api";
 import { GetBookingDetailsResponse } from "@/types/booking";
 
