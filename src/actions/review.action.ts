@@ -310,7 +310,9 @@ export const updateReview = async (
   }
 };
 
+// delete review
 export const deleteReview = async (reviewId: string) => {
+  console.log("review delete", reviewId);
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 

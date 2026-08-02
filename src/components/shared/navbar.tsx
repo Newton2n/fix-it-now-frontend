@@ -11,8 +11,11 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
 import { logout } from "@/actions/auth.action";
+
 import { Button, buttonVariants } from "@/components/ui/button";
+
 import {
   Sheet,
   SheetContent,
@@ -20,6 +23,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,10 +32,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+import {
+  Avatar,
+  AvatarFallback,
+} from "@/components/ui/avatar";
+
+import ThemeMode from "@/components/theme-mode";
+
 import { cn } from "@/lib/utils";
 
-export type Role = "CUSTOMER" | "TECHNICIAN" | "ADMIN" | null;
+export type Role =
+  | "CUSTOMER"
+  | "TECHNICIAN"
+  | "ADMIN"
+  | null;
 
 type NavbarProps = {
   role?: Role;
@@ -44,37 +59,69 @@ type NavLink = {
 };
 
 const BASE_LINKS: NavLink[] = [
-  { href: "/", label: "Home" },
-  { href: "/services", label: "Services" },
-  { href: "/categories", label: "Categories" },
+  {
+    href: "/",
+    label: "Home",
+  },
+  {
+    href: "/services",
+    label: "Services",
+  },
+  {
+    href: "/categories",
+    label: "Categories",
+  },
 ];
 
 const ROLE_CONFIG: Record<
   Exclude<Role, null>,
-  { dashboardHref: string; links: NavLink[] }
+  {
+    dashboardHref: string;
+    links: NavLink[];
+  }
 > = {
   CUSTOMER: {
     dashboardHref: "/dashboard/customer",
-    links: [{ href: "/dashboard/customer", label: "My Dashboard" }],
+    links: [
+      {
+        href: "/dashboard/customer",
+        label: "My Dashboard",
+      },
+    ],
   },
+
   TECHNICIAN: {
     dashboardHref: "/dashboard/technician",
     links: [
-      { href: "/dashboard/technician", label: "Dashboard" },
-      { href: "/dashboard/technician/bookings", label: "Bookings" },
+      {
+        href: "/dashboard/technician",
+        label: "Dashboard",
+      },
+      {
+        href: "/dashboard/technician/bookings",
+        label: "Bookings",
+      },
     ],
   },
+
   ADMIN: {
     dashboardHref: "/dashboard/admin",
     links: [
-      { href: "/dashboard/admin", label: "Admin Panel" },
-      { href: "/dashboard/admin/categories", label: "Categories" },
+      {
+        href: "/dashboard/admin",
+        label: "Admin Panel",
+      },
+      {
+        href: "/dashboard/admin/categories",
+        label: "Categories",
+      },
     ],
   },
 };
 
 function getInitials(name?: string | null) {
   if (!name) return "U";
+
   return name
     .trim()
     .split(/\s+/)
@@ -84,18 +131,33 @@ function getInitials(name?: string | null) {
     .toUpperCase();
 }
 
-function AuthButtons({ className }: { className?: string }) {
+function AuthButtons({
+  className,
+}: {
+  className?: string;
+}) {
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       <Link
         href="/login"
-        className={cn(buttonVariants({ variant: "outline" }), "w-full")}
+        className={cn(
+          buttonVariants({
+            variant: "outline",
+          }),
+          "w-full",
+        )}
       >
         Login
       </Link>
+
       <Link
         href="/register"
-        className={cn(buttonVariants({ variant: "default" }), "w-full")}
+        className={cn(
+          buttonVariants({
+            variant: "default",
+          }),
+          "w-full",
+        )}
       >
         Register
       </Link>
@@ -113,13 +175,17 @@ function AccountMenu({
   onLogout: () => void;
 }) {
   const isLoggedIn = Boolean(userName);
-  const dashboardHref = role ? ROLE_CONFIG[role].dashboardHref : null;
+
+  const dashboardHref = role
+    ? ROLE_CONFIG[role].dashboardHref
+    : null;
+
   const profileLink =
     role === "ADMIN"
       ? "/dashboard/admin/profile"
       : role === "CUSTOMER"
-      ? "/dashboard/customer/profile"
-      : "/dashboard/technician/profile";
+        ? "/dashboard/customer/profile"
+        : "/dashboard/technician/profile";
 
   return (
     <DropdownMenu>
@@ -127,38 +193,52 @@ function AccountMenu({
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-full outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="size-9 rounded-full outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          aria-label="Open account menu"
         >
           {isLoggedIn ? (
-            <Avatar className="h-9 w-9">
-              <AvatarFallback>{getInitials(userName)}</AvatarFallback>
+            <Avatar className="size-9">
+              <AvatarFallback>
+                {getInitials(userName)}
+              </AvatarFallback>
             </Avatar>
           ) : (
-            <UserIcon className="h-5 w-5" />
+            <UserIcon className="size-5" />
           )}
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent
+        align="end"
+        sideOffset={8}
+        className="w-52"
+      >
         {isLoggedIn ? (
           <>
             <DropdownMenuLabel className="truncate">
               {userName}
             </DropdownMenuLabel>
+
             <DropdownMenuSeparator />
 
             {dashboardHref && (
               <DropdownMenuItem asChild>
-                <Link href={dashboardHref} className="flex items-center gap-2">
-                  <LayoutDashboard className="h-4 w-4" />
+                <Link
+                  href={dashboardHref}
+                  className="flex items-center gap-2"
+                >
+                  <LayoutDashboard className="size-4" />
                   Dashboard
                 </Link>
               </DropdownMenuItem>
             )}
 
             <DropdownMenuItem asChild>
-              <Link href={profileLink} className="flex items-center gap-2">
-                <UserIcon className="h-4 w-4" />
+              <Link
+                href={profileLink}
+                className="flex items-center gap-2"
+              >
+                <UserIcon className="size-4" />
                 Profile
               </Link>
             </DropdownMenuItem>
@@ -169,22 +249,28 @@ function AccountMenu({
               className="flex cursor-pointer items-center gap-2 text-destructive focus:text-destructive"
               onClick={onLogout}
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="size-4" />
               Logout
             </DropdownMenuItem>
           </>
         ) : (
           <>
             <DropdownMenuItem asChild>
-              <Link href="/login" className="flex items-center gap-2">
-                <LogIn className="h-4 w-4" />
+              <Link
+                href="/login"
+                className="flex items-center gap-2"
+              >
+                <LogIn className="size-4" />
                 Login
               </Link>
             </DropdownMenuItem>
 
             <DropdownMenuItem asChild>
-              <Link href="/register" className="flex items-center gap-2">
-                <UserPlus className="h-4 w-4" />
+              <Link
+                href="/register"
+                className="flex items-center gap-2"
+              >
+                <UserPlus className="size-4" />
                 Register
               </Link>
             </DropdownMenuItem>
@@ -200,15 +286,22 @@ function MobileMenu({
   role,
   userName,
   onLogout,
-}: NavbarProps & { links: NavLink[]; onLogout: () => void }) {
-  const dashboardHref = role ? ROLE_CONFIG[role].dashboardHref : null;
+}: NavbarProps & {
+  links: NavLink[];
+  onLogout: () => void;
+}) {
+  const dashboardHref = role
+    ? ROLE_CONFIG[role].dashboardHref
+    : null;
+
   const isLoggedIn = Boolean(userName);
+
   const profileLink =
     role === "ADMIN"
       ? "/dashboard/admin/profile"
       : role === "CUSTOMER"
-      ? "/dashboard/customer/profile"
-      : "/dashboard/technician/profile";
+        ? "/dashboard/customer/profile"
+        : "/dashboard/technician/profile";
 
   return (
     <Sheet>
@@ -216,68 +309,84 @@ function MobileMenu({
         <Button
           variant="outline"
           size="icon"
-          className="md:hidden"
+          className="size-9 md:hidden"
           aria-label="Open menu"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="size-5" />
         </Button>
       </SheetTrigger>
 
-      <SheetContent side="right" className="w-80">
-        <SheetHeader>
+      <SheetContent
+        side="right"
+        className="w-75 sm:w-85"
+      >
+        <SheetHeader className="border-b pb-4">
           <SheetTitle className="flex items-center gap-2">
-            <UserIcon className="h-4 w-4" />
+            <UserIcon className="size-4" />
             Menu
           </SheetTitle>
         </SheetHeader>
 
-        <div className="mt-6 flex flex-col gap-4">
+        <div className="flex flex-col gap-6 pt-6">
           <nav className="flex flex-col gap-1">
             {links.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-md px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
+                className="rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          <div className="mt-4 border-t pt-4">
+          <div className="border-t pt-5">
             {isLoggedIn ? (
-              <div className="flex flex-col gap-2">
-                <div className="text-sm text-muted-foreground">
-                  Signed in as{" "}
-                  <span className="font-medium text-foreground">
+              <div className="flex flex-col gap-2.5">
+                <div className="mb-2 rounded-lg bg-muted/50 px-3 py-3">
+                  <p className="text-xs text-muted-foreground">
+                    Signed in as
+                  </p>
+
+                  <p className="mt-1 truncate text-sm font-medium">
                     {userName}
-                  </span>
+                  </p>
                 </div>
 
                 {dashboardHref && (
                   <Link
                     href={dashboardHref}
                     className={cn(
-                      buttonVariants({ variant: "outline" }),
-                      "w-full"
+                      buttonVariants({
+                        variant: "outline",
+                      }),
+                      "w-full justify-start",
                     )}
                   >
+                    <LayoutDashboard className="mr-2 size-4" />
                     Dashboard
                   </Link>
                 )}
 
                 <Link
                   href={profileLink}
-                  className={cn(buttonVariants({ variant: "ghost" }), "w-full")}
+                  className={cn(
+                    buttonVariants({
+                      variant: "ghost",
+                    }),
+                    "w-full justify-start",
+                  )}
                 >
+                  <UserIcon className="mr-2 size-4" />
                   Profile
                 </Link>
 
                 <Button
                   variant="destructive"
-                  className="w-full"
+                  className="w-full justify-start"
                   onClick={onLogout}
                 >
+                  <LogOut className="mr-2 size-4" />
                   Logout
                 </Button>
               </div>
@@ -291,13 +400,18 @@ function MobileMenu({
   );
 }
 
-export default function Navbar({ role = null, userName = null }: NavbarProps) {
+export default function Navbar({
+  role = null,
+  userName = null,
+}: NavbarProps) {
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
       await logout();
+
       toast.success("Logged out successfully.");
+
       router.push("/login");
       router.refresh();
     } catch {
@@ -305,15 +419,26 @@ export default function Navbar({ role = null, userName = null }: NavbarProps) {
     }
   };
 
-  const links = [...BASE_LINKS, ...(role ? ROLE_CONFIG[role].links : [])];
+  const links = [
+    ...BASE_LINKS,
+    ...(role ? ROLE_CONFIG[role].links : []),
+  ];
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl font-bold text-primary">FixItNow</span>
+    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Logo */}
+        <Link
+          href="/"
+          className="shrink-0"
+          aria-label="FixItNow home"
+        >
+          <span className="text-xl font-bold tracking-tight text-primary">
+            FixItNow
+          </span>
         </Link>
 
+        {/* Desktop navigation */}
         <nav className="hidden items-center gap-6 md:flex">
           {links.map((item) => (
             <Link
@@ -326,17 +451,32 @@ export default function Navbar({ role = null, userName = null }: NavbarProps) {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <div className="hidden md:block">
-            <AccountMenu role={role} userName={userName} onLogout={handleLogout} />
+        {/* Right side */}
+        <div className="flex items-center gap-3">
+          {/* Desktop controls */}
+          <div className="hidden items-center gap-4 md:flex">
+            {/* Theme button */}
+            <ThemeMode />
+
+            {/* User button */}
+            <AccountMenu
+              role={role}
+              userName={userName}
+              onLogout={handleLogout}
+            />
           </div>
 
-          <MobileMenu
-            links={links}
-            role={role}
-            userName={userName}
-            onLogout={handleLogout}
-          />
+          {/* Mobile controls */}
+          <div className="flex items-center gap-2 md:hidden">
+            <ThemeMode />
+
+            <MobileMenu
+              links={links}
+              role={role}
+              userName={userName}
+              onLogout={handleLogout}
+            />
+          </div>
         </div>
       </div>
     </header>

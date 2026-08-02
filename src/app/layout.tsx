@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import Navbar from "../components/shared/navbar";
 import Footer from "@/components/shared/footer";
 import { Toaster } from "sonner";
 import { Suspense } from "react";
 import NavbarSkeleton from "@/components/shared/navbar-skeleton";
 import AuthNavbar from "@/components/shared/auth-navbar";
+import { ThemeProvider } from "@/components/theme-provider";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,18 +45,25 @@ export default async function RootLayout({
       )}
     >
       <body className="min-h-screen w-full overflow-x-hidden bg-background text-foreground">
-        <div className="flex min-h-screen w-full flex-col">
-          <Suspense fallback={<NavbarSkeleton />}>
-            <AuthNavbar />
-          </Suspense>
-          <main className="flex-1 w-full">
-            <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
-              {children}
-            </div>
-          </main>
-          <Footer />
-        </div>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="flex min-h-screen w-full flex-col">
+            <Suspense fallback={<NavbarSkeleton />}>
+              <AuthNavbar />
+            </Suspense>
+            <main className="flex-1 w-full">
+              <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
+                {children}
+              </div>
+            </main>
+            <Footer />
+          </div>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
