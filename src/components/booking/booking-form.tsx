@@ -2,29 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  CalendarDays,
-  Clock3,
-  Loader2,
-  UserRound,
-  MapPin,
-} from "lucide-react";
-import {
-  format,
-  isBefore,
-  startOfDay,
-} from "date-fns";
+import { CalendarDays, Clock3, Loader2, UserRound, MapPin } from "lucide-react";
+import { format, isBefore, startOfDay } from "date-fns";
 import Image from "next/image";
 
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
@@ -37,10 +22,7 @@ type AvailabilitySlot = {
   end: string;
 };
 
-type TechnicianAvailability = Record<
-  string,
-  AvailabilitySlot
->;
+type TechnicianAvailability = Record<string, AvailabilitySlot>;
 
 type Service = {
   id: string;
@@ -94,9 +76,7 @@ function normalizeTime(time: string) {
 function timeToMinutes(time: string) {
   const normalized = normalizeTime(time);
 
-  let [hours, minutes] = normalized
-    .split(":")
-    .map(Number);
+  let [hours, minutes] = normalized.split(":").map(Number);
 
   if (Number.isNaN(hours)) {
     return 0;
@@ -128,35 +108,23 @@ function getDayName(date: Date): DayName {
   return DAYS[date.getDay()];
 }
 
-function generateTimeSlots(
-  start: string,
-  end: string,
-) {
+function generateTimeSlots(start: string, end: string) {
   const startMinutes = timeToMinutes(start);
   const endMinutes = timeToMinutes(end);
 
   const slots: string[] = [];
 
-  for (
-    let current = startMinutes;
-    current < endMinutes;
-    current += 30
-  ) {
+  for (let current = startMinutes; current < endMinutes; current += 30) {
     slots.push(minutesToTime(current));
   }
 
   return slots;
 }
 
-function createScheduledAt(
-  date: Date,
-  time: string,
-) {
+function createScheduledAt(date: Date, time: string) {
   const [timeValue, period] = time.split(" ");
 
-  let [hours, minutes] = timeValue
-    .split(":")
-    .map(Number);
+  let [hours, minutes] = timeValue.split(":").map(Number);
 
   if (period === "PM" && hours !== 12) {
     hours += 12;
@@ -168,12 +136,7 @@ function createScheduledAt(
 
   const scheduledAt = new Date(date);
 
-  scheduledAt.setHours(
-    hours,
-    minutes,
-    0,
-    0,
-  );
+  scheduledAt.setHours(hours, minutes, 0, 0);
 
   return scheduledAt;
 }
@@ -187,60 +150,42 @@ export default function BookingForm({
 }: BookingFormProps) {
   const router = useRouter();
 
-  const [selectedDate, setSelectedDate] =
-    useState<Date>();
+  const [selectedDate, setSelectedDate] = useState<Date>();
 
-  const [selectedTime, setSelectedTime] =
-    useState<string>();
+  const [selectedTime, setSelectedTime] = useState<string>();
 
-  const [selectedLocation, setSelectedLocation] =
-    useState<string>();
+  const [selectedLocation, setSelectedLocation] = useState<string>();
 
-  const [customerNote, setCustomerNote] =
-    useState("");
+  const [customerNote, setCustomerNote] = useState("");
 
-  const [isSubmitting, setIsSubmitting] =
-    useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-
-   // Technician available weekdays
+  // Technician available weekdays
 
   const availableDays = useMemo(() => {
-    return DAYS.filter(
-      (day) => technician.availability?.[day],
-    );
+    return DAYS.filter((day) => technician.availability?.[day]);
   }, [technician.availability]);
 
+  // Technician service areas
 
-   // Technician service areas
-  
   const serviceAreas = useMemo(() => {
     return technician.serviceArea ?? [];
   }, [technician.serviceArea]);
 
- 
   const isDateDisabled = (date: Date) => {
     const today = startOfDay(new Date());
 
-    if (
-      isBefore(
-        startOfDay(date),
-        today,
-      )
-    ) {
+    if (isBefore(startOfDay(date), today)) {
       return true;
     }
 
     const dayName = getDayName(date);
 
-    return !technician.availability?.[
-      dayName
-    ];
+    return !technician.availability?.[dayName];
   };
 
-  
   // Generate 30-minute slots
- 
+
   const availableTimeSlots = useMemo(() => {
     if (!selectedDate) {
       return [];
@@ -248,28 +193,18 @@ export default function BookingForm({
 
     const dayName = getDayName(selectedDate);
 
-    const availability =
-      technician.availability?.[dayName];
+    const availability = technician.availability?.[dayName];
 
     if (!availability) {
       return [];
     }
 
-    return generateTimeSlots(
-      availability.start,
-      availability.end,
-    );
-  }, [
-    selectedDate,
-    technician.availability,
-  ]);
+    return generateTimeSlots(availability.start, availability.end);
+  }, [selectedDate, technician.availability]);
 
- 
-   //Date selection
-  
-  const handleDateChange = (
-    date: Date | undefined,
-  ) => {
+  //Date selection
+
+  const handleDateChange = (date: Date | undefined) => {
     if (!isCustomer) {
       return;
     }
@@ -280,47 +215,33 @@ export default function BookingForm({
     setSelectedTime(undefined);
   };
 
-  
-   // Submit booking
-   
+  // Submit booking
+
   const handleSubmit = async () => {
     if (!isCustomer) {
-      toast.error(
-        "Only customers can create bookings.",
-      );
+      toast.error("Only customers can create bookings.");
       return;
     }
 
     if (!selectedDate) {
-      toast.error(
-        "Please select a date.",
-      );
+      toast.error("Please select a date.");
       return;
     }
 
     if (!selectedTime) {
-      toast.error(
-        "Please select a time slot.",
-      );
+      toast.error("Please select a time slot.");
       return;
     }
 
     if (!selectedLocation) {
-      toast.error(
-        "Please select a service location.",
-      );
+      toast.error("Please select a service location.");
       return;
     }
 
-    const scheduledAt = createScheduledAt(
-      selectedDate,
-      selectedTime,
-    );
+    const scheduledAt = createScheduledAt(selectedDate, selectedTime);
 
     if (scheduledAt <= new Date()) {
-      toast.error(
-        "Please select a future time.",
-      );
+      toast.error("Please select a future time.");
       return;
     }
 
@@ -329,53 +250,32 @@ export default function BookingForm({
     try {
       const payload = {
         serviceId: service.id,
-        scheduledAt:
-          scheduledAt.toISOString(),
+        scheduledAt: scheduledAt.toISOString(),
         location: selectedLocation,
-        customerNote:
-          customerNote.trim() || undefined,
+        customerNote: customerNote.trim() || undefined,
       };
 
-      console.log(
-        "Creating booking:",
-        payload,
-      );
+      console.log("Creating booking:", payload);
 
-      const result =
-        await createBooking(payload);
+      const result = await createBooking(payload);
 
-      
       if (!result?.success) {
-        toast.error(
-          result?.message ||
-            "Unable to create booking.",
-        );
+        toast.error(result?.message || "Unable to create booking.");
 
         return;
       }
 
-     
       // Booking successful
-      
-      toast.success(
-        "Booking request submitted successfully.",
-      );
 
-     
-       // Send customer to booking list
-       
-      router.push(
-        "/dashboard/customer/bookings",
-      );
+      toast.success("Booking request submitted successfully.");
+
+      // Send customer to booking list
+
+      router.push("/dashboard/customer/bookings");
     } catch (error) {
-      console.error(
-        "Create booking error:",
-        error,
-      );
+      console.error("Create booking error:", error);
 
-      toast.error(
-        "Something went wrong while creating the booking.",
-      );
+      toast.error("Something went wrong while creating the booking.");
     } finally {
       setIsSubmitting(false);
     }
@@ -384,25 +284,20 @@ export default function BookingForm({
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-
         {/* 
             LEFT SIDE
         */}
 
         <div className="space-y-6">
-
           {/* Technician */}
           <Card>
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-
                 {/* Profile Image */}
                 <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-muted">
                   {technicianProfilePicture ? (
                     <Image
-                      src={
-                        technicianProfilePicture
-                      }
+                      src={technicianProfilePicture}
                       alt={technicianName}
                       width={48}
                       height={48}
@@ -416,42 +311,27 @@ export default function BookingForm({
                 {/* Technician Info */}
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="font-semibold">{technicianName}</h2>
 
-                    <h2 className="font-semibold">
-                      {technicianName}
-                    </h2>
-
-                    {technician.status ===
-                      "VERIFIED" && (
-                      <Badge variant="secondary">
-                        Verified
-                      </Badge>
+                    {technician.status === "VERIFIED" && (
+                      <Badge variant="secondary">Verified</Badge>
                     )}
                   </div>
 
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {
-                      technician.yearsOfExperience
-                    }{" "}
-                    years experience
+                    {technician.yearsOfExperience} years experience
                   </p>
                 </div>
               </div>
 
               {/* Skills */}
-              {technician.skills?.length >
-                0 && (
+              {technician.skills?.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {technician.skills.map(
-                    (skill) => (
-                      <Badge
-                        key={skill}
-                        variant="outline"
-                      >
-                        {skill}
-                      </Badge>
-                    ),
-                  )}
+                  {technician.skills.map((skill) => (
+                    <Badge key={skill} variant="outline">
+                      {skill}
+                    </Badge>
+                  ))}
                 </div>
               )}
             </CardContent>
@@ -469,43 +349,30 @@ export default function BookingForm({
               </CardTitle>
 
               <p className="text-sm text-muted-foreground">
-                Select where you want the technician
-                to provide the service.
+                Select where you want the technician to provide the service.
               </p>
             </CardHeader>
 
             <CardContent>
               {serviceAreas.length > 0 ? (
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {serviceAreas.map(
-                    (area) => {
-                      const isSelected =
-                        selectedLocation ===
-                        area;
+                  {serviceAreas.map((area) => {
+                    const isSelected = selectedLocation === area;
 
-                      return (
-                        <Button
-                          key={area}
-                          type="button"
-                          variant={
-                            isSelected
-                              ? "default"
-                              : "outline"
-                          }
-                          className="w-full capitalize"
-                          disabled={!isCustomer}
-                          onClick={() =>
-                            setSelectedLocation(
-                              area,
-                            )
-                          }
-                        >
-                          <MapPin className="mr-2 size-4" />
-                          {area}
-                        </Button>
-                      );
-                    },
-                  )}
+                    return (
+                      <Button
+                        key={area}
+                        type="button"
+                        variant={isSelected ? "default" : "outline"}
+                        className="w-full capitalize"
+                        disabled={!isCustomer}
+                        onClick={() => setSelectedLocation(area)}
+                      >
+                        <MapPin className="mr-2 size-4" />
+                        {area}
+                      </Button>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="rounded-lg border border-dashed p-6 text-center">
@@ -514,8 +381,7 @@ export default function BookingForm({
                   </p>
 
                   <p className="mt-1 text-xs text-muted-foreground">
-                    This technician has not
-                    configured any service area.
+                    This technician has not configured any service area.
                   </p>
                 </div>
               )}
@@ -537,41 +403,26 @@ export default function BookingForm({
             <CardContent>
               {availableDays.length > 0 ? (
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-                  {availableDays.map(
-                    (day) => {
-                      const availability =
-                        technician
-                          .availability[
-                          day
-                        ];
+                  {availableDays.map((day) => {
+                    const availability = technician.availability[day];
 
-                      return (
-                        <div
-                          key={day}
-                          className="rounded-lg border bg-muted/30 p-3"
-                        >
-                          <p className="text-sm font-medium capitalize">
-                            {day}
-                          </p>
+                    return (
+                      <div
+                        key={day}
+                        className="rounded-lg border bg-muted/30 p-3"
+                      >
+                        <p className="text-sm font-medium capitalize">{day}</p>
 
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {
-                              availability.start
-                            }{" "}
-                            -{" "}
-                            {
-                              availability.end
-                            }
-                          </p>
-                        </div>
-                      );
-                    },
-                  )}
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {availability.start} - {availability.end}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  This technician has no
-                  available days.
+                  This technician has no available days.
                 </p>
               )}
             </CardContent>
@@ -583,13 +434,10 @@ export default function BookingForm({
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">
-                Choose a date
-              </CardTitle>
+              <CardTitle className="text-lg">Choose a date</CardTitle>
 
               <p className="text-sm text-muted-foreground">
-                Select one of the technician&apos;s
-                available days.
+                Select one of the technician&apos;s available days.
               </p>
             </CardHeader>
 
@@ -597,16 +445,10 @@ export default function BookingForm({
               <Calendar
                 mode="single"
                 selected={selectedDate}
-                onSelect={
-                  handleDateChange
-                }
-                disabled={
-                  !isCustomer
-                    ? () => true
-                    : isDateDisabled
-                }
+                onSelect={handleDateChange}
+                disabled={!isCustomer ? () => true : isDateDisabled}
                 className="rounded-md border"
-                fromDate={new Date()}
+                startMonth={new Date()}
               />
             </CardContent>
           </Card>
@@ -624,47 +466,29 @@ export default function BookingForm({
                 </CardTitle>
 
                 <p className="text-sm text-muted-foreground">
-                  {format(
-                    selectedDate,
-                    "EEEE, MMMM d, yyyy",
-                  )}
+                  {format(selectedDate, "EEEE, MMMM d, yyyy")}
                 </p>
               </CardHeader>
 
               <CardContent>
-                {availableTimeSlots.length >
-                0 ? (
+                {availableTimeSlots.length > 0 ? (
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-                    {availableTimeSlots.map(
-                      (time) => {
-                        const isSelected =
-                          selectedTime ===
-                          time;
+                    {availableTimeSlots.map((time) => {
+                      const isSelected = selectedTime === time;
 
-                        return (
-                          <Button
-                            key={time}
-                            type="button"
-                            variant={
-                              isSelected
-                                ? "default"
-                                : "outline"
-                            }
-                            className="w-full"
-                            disabled={
-                              !isCustomer
-                            }
-                            onClick={() =>
-                              setSelectedTime(
-                                time,
-                              )
-                            }
-                          >
-                            {time}
-                          </Button>
-                        );
-                      },
-                    )}
+                      return (
+                        <Button
+                          key={time}
+                          type="button"
+                          variant={isSelected ? "default" : "outline"}
+                          className="w-full"
+                          disabled={!isCustomer}
+                          onClick={() => setSelectedTime(time)}
+                        >
+                          {time}
+                        </Button>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="rounded-lg border border-dashed p-6 text-center">
@@ -673,8 +497,7 @@ export default function BookingForm({
                     </p>
 
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Please select another
-                      available date.
+                      Please select another available date.
                     </p>
                   </div>
                 )}
@@ -688,24 +511,17 @@ export default function BookingForm({
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">
-                Additional note
-              </CardTitle>
+              <CardTitle className="text-lg">Additional note</CardTitle>
 
               <p className="text-sm text-muted-foreground">
-                Add anything the technician should
-                know before the appointment.
+                Add anything the technician should know before the appointment.
               </p>
             </CardHeader>
 
             <CardContent>
               <Textarea
                 value={customerNote}
-                onChange={(event) =>
-                  setCustomerNote(
-                    event.target.value,
-                  )
-                }
+                onChange={(event) => setCustomerNote(event.target.value)}
                 placeholder="Example: Please bring the necessary tools."
                 rows={4}
                 maxLength={500}
@@ -725,37 +541,26 @@ export default function BookingForm({
 
         <div className="lg:sticky lg:top-6 lg:h-fit">
           <Card>
-
             <CardHeader>
-              <CardTitle>
-                Booking summary
-              </CardTitle>
+              <CardTitle>Booking summary</CardTitle>
             </CardHeader>
 
             <CardContent className="space-y-5">
-
               {/* Service */}
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Service
-                </p>
+                <p className="text-sm text-muted-foreground">Service</p>
 
-                <p className="mt-1 font-medium">
-                  {service.title}
-                </p>
+                <p className="mt-1 font-medium">{service.title}</p>
               </div>
 
               <Separator />
 
               {/* Price */}
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Price
-                </p>
+                <p className="text-sm text-muted-foreground">Price</p>
 
                 <p className="mt-1 text-2xl font-bold">
-                  {service.price}{" "}
-                  {service.currency}
+                  {service.price} {service.currency}
                 </p>
               </div>
 
@@ -770,8 +575,7 @@ export default function BookingForm({
                 <p className="mt-1 flex items-center gap-2 font-medium capitalize">
                   <MapPin className="size-4 text-muted-foreground" />
 
-                  {selectedLocation ||
-                    "Not selected"}
+                  {selectedLocation || "Not selected"}
                 </p>
               </div>
 
@@ -779,29 +583,21 @@ export default function BookingForm({
 
               {/* Date */}
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Selected date
-                </p>
+                <p className="text-sm text-muted-foreground">Selected date</p>
 
                 <p className="mt-1 font-medium">
                   {selectedDate
-                    ? format(
-                        selectedDate,
-                        "EEEE, MMMM d, yyyy",
-                      )
+                    ? format(selectedDate, "EEEE, MMMM d, yyyy")
                     : "Not selected"}
                 </p>
               </div>
 
               {/* Time */}
               <div>
-                <p className="text-sm text-muted-foreground">
-                  Selected time
-                </p>
+                <p className="text-sm text-muted-foreground">Selected time</p>
 
                 <p className="mt-1 font-medium">
-                  {selectedTime ||
-                    "Not selected"}
+                  {selectedTime || "Not selected"}
                 </p>
               </div>
 
@@ -813,8 +609,7 @@ export default function BookingForm({
                   </p>
 
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Only customers can make a
-                    booking.
+                    Only customers can make a booking.
                   </p>
                 </div>
               )}
@@ -822,13 +617,10 @@ export default function BookingForm({
               {/* Service unavailable */}
               {!service.isAvailable && (
                 <div className="rounded-lg border border-dashed bg-muted/30 p-3 text-center">
-                  <p className="text-sm font-medium">
-                    Service unavailable
-                  </p>
+                  <p className="text-sm font-medium">Service unavailable</p>
 
                   <p className="mt-1 text-xs text-muted-foreground">
-                    This service is currently
-                    unavailable.
+                    This service is currently unavailable.
                   </p>
                 </div>
               )}
@@ -836,13 +628,10 @@ export default function BookingForm({
               {/* Technician unavailable */}
               {!technician.isAvailable && (
                 <div className="rounded-lg border border-dashed bg-muted/30 p-3 text-center">
-                  <p className="text-sm font-medium">
-                    Technician unavailable
-                  </p>
+                  <p className="text-sm font-medium">Technician unavailable</p>
 
                   <p className="mt-1 text-xs text-muted-foreground">
-                    This technician is currently
-                    unavailable.
+                    This technician is currently unavailable.
                   </p>
                 </div>
               )}
@@ -874,10 +663,8 @@ export default function BookingForm({
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">
-                Your booking will be sent to the
-                technician for approval.
+                Your booking will be sent to the technician for approval.
               </p>
-
             </CardContent>
           </Card>
         </div>

@@ -66,6 +66,7 @@ export interface Booking {
   price: number;
   createdAt: string;
   updatedAt: string;
+  review: Review | null;
 }
 
 export interface Review {
@@ -74,7 +75,7 @@ export interface Review {
   customerId: string;
   technicianId: string;
   rating: number;
-  comment: string;
+  description: string;
   createdAt: string;
   updatedAt: string;
 }

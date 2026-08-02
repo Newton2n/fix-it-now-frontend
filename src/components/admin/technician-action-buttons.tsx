@@ -11,7 +11,8 @@ import {
   unverifyTechnician,
   suspendTechnician,
 } from "@/actions/admin.action";
-import type { TechnicianProfile } from "@/types/api";
+import { TechnicianProfile } from "@/types/technician";
+
 
 type ActionType = "verify" | "unverify" | "suspend";
 

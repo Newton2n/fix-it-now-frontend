@@ -1,7 +1,7 @@
 import ProfilePage, {
-  type UserProfile,
 } from "@/components/dashboard/profile-page";
 import { getMe } from "@/actions/auth.action";
+import { UserProfile } from "@/types/user";
 
 export default async function CustomerProfilePage() {
   const result = await getMe();

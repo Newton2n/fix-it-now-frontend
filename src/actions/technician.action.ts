@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { jwtUtils } from "@/utils/jwt";
-import type { ActionResponse} from "@/types/api";
+import type { ActionResponse } from "@/types/api";
 import type { TechnicianProfile } from "@/types/technician";
 import {
   TChangeAvailabilityPayload,
@@ -13,9 +13,7 @@ import { revalidateTag } from "next/cache";
 const backendUrl = process.env.BACKEND_API;
 
 // get technician profile by id
-export const getTechnicianProfileById = async (
-  id: string,
-) => {
+export const getTechnicianProfileById = async (id: string) => {
   if (!id) {
     return { success: false, message: "technician id required" };
   }
@@ -166,9 +164,12 @@ export const createTechnicianProfile = async (
 
 //update technician profile
 
-export const updateTechnicianProfile = async (
-  data: Omit<TechnicianProfile, "availability">,
-): Promise<ActionResponse<TechnicianProfile>> => {
+export const updateTechnicianProfile = async (data: {
+  bio: string;
+  skills: string[];
+  serviceArea: string[];
+  yearsOfExperience: number;
+}): Promise<ActionResponse<TechnicianProfile>> => {
   console.log("update technician profile payload", data);
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;

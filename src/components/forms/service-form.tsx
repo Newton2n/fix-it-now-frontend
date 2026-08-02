@@ -21,9 +21,10 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { createService, updateService } from "@/actions/service.action";
-import type { Service, Category } from "@/types/api";
+import type { Service} from "@/types/api";
 import { setFormErrors } from "@/lib/form-utils";
 import { createServiceSchema } from "@/schema/service/service.schema";
+import { Category } from "@/types/category";
 
 type ServiceFormData = z.infer<typeof createServiceSchema>;
 

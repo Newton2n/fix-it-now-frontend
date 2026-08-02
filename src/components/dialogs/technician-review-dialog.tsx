@@ -13,8 +13,7 @@ import { ConfirmDialog } from "@/components/dialogs/confirm-dialog"
 import { TechnicianVerificationBadge } from "@/components/status-badges"
 import { verifyTechnician, unverifyTechnician } from "@/actions/admin.action"
 import { toast } from "sonner"
-import { Loader2 } from "lucide-react"
-import type { TechnicianProfile } from "@/types/api"
+import type { TechnicianProfile } from "@/types/technician"
 
 interface TechnicianReviewDialogProps {
   open: boolean
@@ -82,7 +81,7 @@ export function TechnicianReviewDialog({
             {/* Verification Status */}
             <div>
               <h3 className="font-semibold mb-2">Verification Status</h3>
-              <TechnicianVerificationBadge status={technician.verificationStatus} />
+              <TechnicianVerificationBadge status={technician.status} />
             </div>
 
             {/* Profile Information */}
@@ -95,19 +94,14 @@ export function TechnicianReviewDialog({
                   label="Skills"
                   value={technician.skills?.join(", ") || "N/A"}
                 />
-                <InfoItem label="Experience" value={technician.experience} />
-                {technician.hourlyRate && (
-                  <InfoItem
-                    label="Hourly Rate"
-                    value={`$${technician.hourlyRate}/hour`}
-                  />
-                )}
+                <InfoItem label="Experience" value={String(technician.yearsOfExperience)} />
+                
               </div>
             </div>
 
             {/* Actions */}
             <div className="flex gap-2 pt-4 border-t">
-              {technician.verificationStatus === "PENDING" && (
+              {technician.status === "PENDING" && (
                 <>
                   <Button
                     variant="outline"
@@ -126,7 +120,7 @@ export function TechnicianReviewDialog({
                   </Button>
                 </>
               )}
-              {technician.verificationStatus === "VERIFIED" && (
+              {technician.status === "VERIFIED" && (
                 <Button
                   variant="destructive"
                   onClick={() => setUnverifyDialogOpen(true)}
@@ -136,13 +130,13 @@ export function TechnicianReviewDialog({
                   Remove Verification
                 </Button>
               )}
-              {technician.verificationStatus === "UNVERIFIED" && (
+              {technician.status === "SUSPENDED" && (
                 <Button
                   onClick={() => setVerifyDialogOpen(true)}
                   disabled={isLoading}
                   className="w-full"
                 >
-                  Verify
+                  Contact support
                 </Button>
               )}
             </div>

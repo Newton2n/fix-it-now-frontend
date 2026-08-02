@@ -1,57 +1,18 @@
-import { z } from "zod"
-import type { FieldValues, UseFormSetError } from "react-hook-form"
+import type { FieldValues, Path, UseFormSetError } from "react-hook-form";
 
-/**
- * Set form field errors from API response
- */
+// Set form field errors from API response
+
 export function setFormErrors<T extends FieldValues>(
   errorDetails: Array<{ field?: string; message: string }> | undefined,
-  setError: UseFormSetError<T>
+  setError: UseFormSetError<T>,
 ) {
-  if (!errorDetails) return
+  if (!errorDetails) return;
 
   errorDetails.forEach((error) => {
     if (error.field) {
-      setError(error.field as keyof T, {
+      setError(error.field as Path<T>, {
         message: error.message,
-      })
+      });
     }
-  })
+  });
 }
-
-/**
- * Common validation schemas
- */
-
-export const passwordSchema = z
-  .string()
-  .min(8, "Password must be at least 8 characters")
-  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-  .regex(/[0-9]/, "Password must contain at least one number")
-
-export const emailSchema = z
-  .string()
-  .email("Invalid email address")
-
-export const phoneSchema = z
-  .string()
-  .regex(/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/, "Invalid phone number")
-  .optional()
-  .or(z.literal(""))
-
-export const urlSchema = z
-  .string()
-  .url("Invalid URL")
-  .optional()
-  .or(z.literal(""))
-
-export const priceSchema = z
-  .number()
-  .positive("Price must be greater than 0")
-  .or(z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format").transform(Number))
-
-export const ratingSchema = z
-  .number()
-  .min(1, "Rating must be at least 1")
-  .max(5, "Rating must be at most 5")

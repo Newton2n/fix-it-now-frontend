@@ -304,7 +304,12 @@ function ReviewActions({ onEdit, onDelete }: ReviewActionsProps) {
 interface EditReviewDialogProps {
   review: Review | null;
   onClose: () => void;
-  onSuccess: (data: { rating: number; description?: string }) => void;
+  onSuccess: (data?: { 
+    id?: string; 
+    rating: number; 
+    description?: string; 
+    updatedAt?: string; 
+  }) => void;
 }
 
 function EditReviewDialog({
