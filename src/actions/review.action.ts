@@ -100,59 +100,63 @@ export const getAllReviewDetailsFromLoginUser = async () => {
   }
 };
 
-export const submitReview = async (data: {
+
+
+export const createReview = async (payload: {
   bookingId: string;
   rating: number;
   description: string;
 }) => {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
 
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verify.success) {
-    return {
-      success: false,
-      message: "You do not have permission to perform this action.",
-      errorDetails: [],
-    };
-  }
+  console.log("create review payload",payload)
+  // const cookieStore = await cookies();
+  // const accessToken = cookieStore.get("accessToken")?.value;
 
-  try {
-    const res = await fetch(`${backendUrl}/api/review`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: `accessToken=${accessToken}`,
-      },
-      body: JSON.stringify(data),
-    });
+  // const verify = jwtUtils.verifyToken(
+  //   accessToken as string,
+  //   process.env.JWT_ACCESS_SECRET!,
+  // );
+  // if (!verify.success) {
+  //   return {
+  //     success: false,
+  //     message: "You do not have permission to perform this action.",
+  //     errorDetails: [],
+  //   };
+  // }
 
-    const result = await res.json();
+  // try {
+  //   const res = await fetch(`${backendUrl}/api/review`, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Cookie: `accessToken=${accessToken}`,
+  //     },
+  //     body: JSON.stringify(data),
+  //   });
 
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Unable to submit review.",
-        errorDetails: result.errorDetails || [],
-      };
-    }
+  //   const result = await res.json();
 
-    return {
-      success: true,
-      message: "Review submitted successfully.",
-      data: result.data,
-    };
-  } catch (error) {
-    console.error("Submit review error:", error);
-    return {
-      success: false,
-      message: "Unable to connect to the server. Please try again.",
-      errorDetails: [],
-    };
-  }
+  //   if (!result.success) {
+  //     return {
+  //       success: false,
+  //       message: result.message || "Unable to submit review.",
+  //       errorDetails: result.errorDetails || [],
+  //     };
+  //   }
+
+  //   return {
+  //     success: true,
+  //     message: "Review submitted successfully.",
+  //     data: result.data,
+  //   };
+  // } catch (error) {
+  //   console.error("Submit review error:", error);
+  //   return {
+  //     success: false,
+  //     message: "Unable to connect to the server. Please try again.",
+  //     errorDetails: [],
+  //   };
+  // }
 };
 
 export const updateReview = async (
@@ -162,54 +166,56 @@ export const updateReview = async (
     description: string;
   },
 ) => {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
 
-  const verify = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verify.success) {
-    return {
-      success: false,
-      message: "You do not have permission to perform this action.",
-      errorDetails: [],
-    };
-  }
+  console.log("edit review payload",reviewId,data)
+  // const cookieStore = await cookies();
+  // const accessToken = cookieStore.get("accessToken")?.value;
 
-  try {
-    const res = await fetch(`${backendUrl}/api/review/${reviewId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: `accessToken=${accessToken}`,
-      },
-      body: JSON.stringify(data),
-    });
+  // const verify = jwtUtils.verifyToken(
+  //   accessToken as string,
+  //   process.env.JWT_ACCESS_SECRET!,
+  // );
+  // if (!verify.success) {
+  //   return {
+  //     success: false,
+  //     message: "You do not have permission to perform this action.",
+  //     errorDetails: [],
+  //   };
+  // }
 
-    const result = await res.json();
+  // try {
+  //   const res = await fetch(`${backendUrl}/api/review/${reviewId}`, {
+  //     method: "PATCH",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Cookie: `accessToken=${accessToken}`,
+  //     },
+  //     body: JSON.stringify(data),
+  //   });
 
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Unable to update review.",
-        errorDetails: result.errorDetails || [],
-      };
-    }
+  //   const result = await res.json();
 
-    return {
-      success: true,
-      message: "Review updated successfully.",
-      data: result.data,
-    };
-  } catch (error) {
-    console.error("Update review error:", error);
-    return {
-      success: false,
-      message: "Unable to connect to the server. Please try again.",
-      errorDetails: [],
-    };
-  }
+  //   if (!result.success) {
+  //     return {
+  //       success: false,
+  //       message: result.message || "Unable to update review.",
+  //       errorDetails: result.errorDetails || [],
+  //     };
+  //   }
+
+  //   return {
+  //     success: true,
+  //     message: "Review updated successfully.",
+  //     data: result.data,
+  //   };
+  // } catch (error) {
+  //   console.error("Update review error:", error);
+  //   return {
+  //     success: false,
+  //     message: "Unable to connect to the server. Please try again.",
+  //     errorDetails: [],
+  //   };
+  // }
 };
 
 export const deleteReview = async (reviewId: string) => {
@@ -260,3 +266,5 @@ export const deleteReview = async (reviewId: string) => {
     };
   }
 };
+
+
