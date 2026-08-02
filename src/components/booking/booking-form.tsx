@@ -202,27 +202,23 @@ export default function BookingForm({
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 
-  /**
-   * Technician available weekdays
-   */
+
+   // Technician available weekdays
+
   const availableDays = useMemo(() => {
     return DAYS.filter(
       (day) => technician.availability?.[day],
     );
   }, [technician.availability]);
 
-  /**
-   * Technician service areas
-   */
+
+   // Technician service areas
+  
   const serviceAreas = useMemo(() => {
     return technician.serviceArea ?? [];
   }, [technician.serviceArea]);
 
-  /**
-   * Disable:
-   * - Previous dates
-   * - Dates where technician is unavailable
-   */
+ 
   const isDateDisabled = (date: Date) => {
     const today = startOfDay(new Date());
 
@@ -242,9 +238,9 @@ export default function BookingForm({
     ];
   };
 
-  /**
-   * Generate 30-minute slots
-   */
+  
+  // Generate 30-minute slots
+ 
   const availableTimeSlots = useMemo(() => {
     if (!selectedDate) {
       return [];
@@ -268,9 +264,9 @@ export default function BookingForm({
     technician.availability,
   ]);
 
-  /**
-   * Date selection
-   */
+ 
+   //Date selection
+  
   const handleDateChange = (
     date: Date | undefined,
   ) => {
@@ -284,9 +280,9 @@ export default function BookingForm({
     setSelectedTime(undefined);
   };
 
-  /**
-   * Submit booking
-   */
+  
+   // Submit booking
+   
   const handleSubmit = async () => {
     if (!isCustomer) {
       toast.error(
@@ -348,12 +344,7 @@ export default function BookingForm({
       const result =
         await createBooking(payload);
 
-      /**
-       * Backend error
-       *
-       * Example:
-       * Time slot already booked
-       */
+      
       if (!result?.success) {
         toast.error(
           result?.message ||
@@ -363,16 +354,16 @@ export default function BookingForm({
         return;
       }
 
-      /**
-       * Booking successful
-       */
+     
+      // Booking successful
+      
       toast.success(
         "Booking request submitted successfully.",
       );
 
-      /**
-       * Send customer to booking list
-       */
+     
+       // Send customer to booking list
+       
       router.push(
         "/dashboard/customer/bookings",
       );
@@ -394,9 +385,9 @@ export default function BookingForm({
     <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
 
-        {/* =====================================================
+        {/* 
             LEFT SIDE
-        ====================================================== */}
+        */}
 
         <div className="space-y-6">
 
@@ -466,9 +457,9 @@ export default function BookingForm({
             </CardContent>
           </Card>
 
-          {/* =================================================
+          {/* 
               SERVICE AREA
-          ================================================== */}
+           */}
 
           <Card>
             <CardHeader>
@@ -531,9 +522,9 @@ export default function BookingForm({
             </CardContent>
           </Card>
 
-          {/* =================================================
+          {/* 
               AVAILABLE DAYS
-          ================================================== */}
+          */}
 
           <Card>
             <CardHeader>
@@ -586,9 +577,9 @@ export default function BookingForm({
             </CardContent>
           </Card>
 
-          {/* =================================================
+          {/* 
               DATE PICKER
-          ================================================== */}
+          */}
 
           <Card>
             <CardHeader>
@@ -620,9 +611,9 @@ export default function BookingForm({
             </CardContent>
           </Card>
 
-          {/* =================================================
+          {/* 
               TIME SLOTS
-          ================================================== */}
+          */}
 
           {selectedDate && (
             <Card>
@@ -691,9 +682,9 @@ export default function BookingForm({
             </Card>
           )}
 
-          {/* =================================================
+          {/* 
               CUSTOMER NOTE
-          ================================================== */}
+           */}
 
           <Card>
             <CardHeader>
@@ -728,9 +719,9 @@ export default function BookingForm({
           </Card>
         </div>
 
-        {/* =====================================================
+        {/* 
             RIGHT SIDE
-        ====================================================== */}
+         */}
 
         <div className="lg:sticky lg:top-6 lg:h-fit">
           <Card>

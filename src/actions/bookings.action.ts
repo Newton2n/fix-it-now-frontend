@@ -4,6 +4,9 @@ import { cookies } from "next/headers";
 import { jwtUtils } from "@/utils/jwt";
 import { getMe } from "./auth.action";
 import { revalidateTag } from "next/cache";
+import { Booking } from "@/schema/booking/booking.schema";
+import { ActionResponse } from "@/types/api";
+import { GetBookingDetailsResponse } from "@/types/booking";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -422,6 +425,63 @@ export const createBooking = async (
       success: false,
       message: "Unable to connect to the server. Please try again.",
       statusCode: 500,
+    };
+  }
+};
+
+
+export const getBookingById = async (
+  bookingId: string,
+): Promise<ActionResponse<GetBookingDetailsResponse>> => {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
+
+  if (!accessToken) {
+    return {
+      success: false,
+      message: "Please log in to continue.",
+      errorDetails: [],
+    };
+  }
+
+  try {
+    const res = await fetch(
+      `${backendUrl}/api/booking/${bookingId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `accessToken=${accessToken}`,
+        },
+        cache: "no-store",
+      },
+    );
+
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      return {
+        success: false,
+        message:
+          result.message || "Unable to get booking details.",
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    return {
+      success: true,
+      message:
+        result.message || "Booking retrieved successfully.",
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Get booking by ID error:", error);
+
+    return {
+      success: false,
+      message:
+        "Unable to connect to the server. Please try again.",
+      errorDetails: [],
     };
   }
 };

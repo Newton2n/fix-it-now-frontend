@@ -64,18 +64,41 @@ export type BookedSlot = {
   scheduledAt: string;
 };
 
-
-
 export type AvailabilityTime = {
   start: string;
   end: string;
 };
 
-
-
 export type TechnicianService = Service;
 
+export type BookingDetailsService = {
+  id: string;
+  categoryId: string;
+  technicianId: string;
+  title: string;
+  description: string;
+  price: number;
+  currency: string;
+  isAvailable: boolean;
+  thumbnailImage: string;
+  galleryImages: string[];
+  createdAt: string;
+  updatedAt: string;
+};
 
+export type BookingDetails = {
+  id: string;
+  customerId: string;
+  serviceId: string;
+  status: string;
+  scheduledAt: string;
+  location: string;
+  customerNote: string | null;
+  createdAt: string;
+  updatedAt: string;
+  service: BookingDetailsService;
+};
 
-
-
+export type GetBookingDetailsResponse = {
+  booking: BookingDetails;
+};

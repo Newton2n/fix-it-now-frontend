@@ -29,11 +29,12 @@ import { ReviewForm } from "@/components/forms/review-form";
 import { toast } from "sonner";
 
 import type { Booking, BookingStatus } from "@/types/api";
+import { useRouter } from "next/navigation";
 
 export default function CustomerBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [reviews, setReviews] = useState<Set<string>>(new Set());
-
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -152,10 +153,12 @@ export default function CustomerBookingsPage() {
     toast.success("Review submitted successfully.");
   };
 
-  // Handle Payment due work
+  // Handle Payment 
   const handlePayNow = (bookingId: string) => {
-    toast.info(`Pay now clicked for booking ${bookingId}`);
-    console.log("pay now", bookingId);
+    if (!bookingId) return;
+
+    // Redirect to the payment page for the specific booking
+    return router.push(`/dashboard/customer/payment/${bookingId}`);
   };
 
   if (loading) {
