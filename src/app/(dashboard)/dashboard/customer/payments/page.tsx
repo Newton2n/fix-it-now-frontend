@@ -1,13 +1,23 @@
+import { Suspense } from "react";
 import { getAllPaymentDetailsFromLoginUser } from "@/actions/payment.action";
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Payment } from "@/types/payment";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { VariantProps } from "class-variance-authority";
 
-type PaymentStatus = "SUCCEEDED" | "PENDING" | "FAILED" | "CANCELED";
+type PaymentStatus = "SUCCEEDED" | "PENDING" | "FAILED";
 
-export default async function CustomerPaymentsPage() {
+export default function CustomerPaymentsPage() {
+  return (
+    <Suspense fallback={<CustomerPaymentsSkeleton />}>
+      <CustomerPaymentsContent />
+    </Suspense>
+  );
+}
+
+async function CustomerPaymentsContent() {
   const result = await getAllPaymentDetailsFromLoginUser();
 
   if (!result.success) {
@@ -151,9 +161,6 @@ function getStatusVariant(
     case "FAILED":
       return "destructive";
 
-    case "CANCELED":
-      return "outline";
-
     default:
       return "secondary";
   }
@@ -174,4 +181,13 @@ function formatDateTime(dateString: string) {
   }
 
   return date.toLocaleString();
+}
+
+function CustomerPaymentsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-10 w-48" />
+      <Skeleton className="h-100 w-full rounded-xl" />
+    </div>
+  );
 }

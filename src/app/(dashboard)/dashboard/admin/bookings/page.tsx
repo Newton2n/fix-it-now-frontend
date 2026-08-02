@@ -1,28 +1,11 @@
+import { Suspense } from "react";
 import { getAllBooking } from "@/actions/admin.action";
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge } from "@/components/ui/badge";
-
-type BookingStatus =
-  | "REQUESTED"
-  | "ACCEPTED"
-  | "DECLINED"
-  | "CANCELED"
-  | "PAID"
-  | "IN_PROGRESS"
-  | "COMPLETED";
-
-type Booking = {
-  id: string;
-  customerId: string;
-  serviceId: string;
-  status: BookingStatus;
-  scheduledAt: string;
-  location: string;
-  customerNote: string;
-  createdAt: string;
-  updatedAt: string;
-};
+import { Skeleton } from "@/components/ui/skeleton";
+import { BookingDetails } from "@/types/booking";
+import { BookingStatus } from "@/types/api";
 
 type BookingResult = {
   meta: {
@@ -31,10 +14,18 @@ type BookingResult = {
     totalRow: number;
     totalPage: number;
   };
-  data: Booking[];
+  data: BookingDetails[];
 };
 
-export default async function AdminBookingsPage() {
+export default function AdminBookingsPage() {
+  return (
+    <Suspense fallback={<AdminBookingsSkeleton />}>
+      <AdminBookingsContent />
+    </Suspense>
+  );
+}
+
+async function AdminBookingsContent() {
   const result = await getAllBooking();
 
   if (!result.success) {
@@ -133,7 +124,7 @@ export default async function AdminBookingsPage() {
                       value={formatDateTime(booking.scheduledAt)}
                     />
                     <Info label="Location" value={booking.location} />
-                    <Info label="Customer Note" value={booking.customerNote} />
+                    <Info label="Customer Note" value={booking.customerNote!} />
                     <Info
                       label="Created At"
                       value={formatDateTime(booking.createdAt)}
@@ -214,13 +205,10 @@ function getStatusVariant(status: BookingStatus) {
     case "ACCEPTED":
       return "outline";
     case "PAID":
-      return "default";
     case "IN_PROGRESS":
-      return "default";
     case "COMPLETED":
       return "default";
     case "DECLINED":
-      return "destructive";
     case "CANCELED":
       return "destructive";
     default:
@@ -230,4 +218,19 @@ function getStatusVariant(status: BookingStatus) {
 
 function formatDateTime(dateString: string) {
   return new Date(dateString).toLocaleString();
+}
+
+function AdminBookingsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-10 w-48" />
+      <div className="grid gap-4 md:grid-cols-4">
+        <Skeleton className="h-24 w-full rounded-xl" />
+        <Skeleton className="h-24 w-full rounded-xl" />
+        <Skeleton className="h-24 w-full rounded-xl" />
+        <Skeleton className="h-24 w-full rounded-xl" />
+      </div>
+      <Skeleton className="h-100 w-full rounded-xl" />
+    </div>
+  );
 }

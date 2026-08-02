@@ -1,11 +1,21 @@
+import { Suspense } from "react";
 import ServiceCard from "@/components/service/service-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getAllService } from "@/actions/service.action";
 import { ServicesResponse } from "@/schema/service/service.schema";
 
-export default async function ServicesPage() {
+export default function ServicesPage() {
+  return (
+    <Suspense fallback={<ServicesPageSkeleton />}>
+      <ServicesPageContent />
+    </Suspense>
+  );
+}
+
+async function ServicesPageContent() {
   const getServices: ServicesResponse = await getAllService();
 
   const services = getServices?.data?.result?.data || [];
@@ -70,6 +80,36 @@ export default async function ServicesPage() {
               technician="Professional Technician"
             />
           ))}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function ServicesPageSkeleton() {
+  return (
+    <main className="min-h-screen bg-background">
+      <section className="border-b bg-muted/30">
+        <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 space-y-3">
+          <Skeleton className="h-6 w-32 rounded-full" />
+          <Skeleton className="h-10 w-96" />
+          <Skeleton className="h-5 w-full max-w-xl" />
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-8 md:px-6 space-y-6">
+        <Skeleton className="h-20 w-full rounded-2xl" />
+        <div className="flex gap-2">
+          <Skeleton className="h-9 w-16 rounded-md" />
+          <Skeleton className="h-9 w-24 rounded-md" />
+          <Skeleton className="h-9 w-24 rounded-md" />
+          <Skeleton className="h-9 w-20 rounded-md" />
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <Skeleton className="h-80 w-full rounded-xl" />
+          <Skeleton className="h-80 w-full rounded-xl" />
+          <Skeleton className="h-80 w-full rounded-xl" />
+          <Skeleton className="h-80 w-full rounded-xl" />
         </div>
       </section>
     </main>

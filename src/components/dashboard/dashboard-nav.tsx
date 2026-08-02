@@ -1,7 +1,6 @@
 import {
   LayoutDashboard,
   Users,
-  Wrench,
   CalendarDays,
   CreditCard,
   Star,

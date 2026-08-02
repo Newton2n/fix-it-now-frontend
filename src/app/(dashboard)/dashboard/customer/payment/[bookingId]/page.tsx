@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -14,6 +15,7 @@ import SectionCard from "@/components/dashboard/section-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ProceedToPaymentButton } from "@/components/booking/payment-button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type PaymentPageProps = {
   params: Promise<{
@@ -21,9 +23,15 @@ type PaymentPageProps = {
   }>;
 };
 
-export default async function PaymentPage({
-  params,
-}: PaymentPageProps) {
+export default function PaymentPage({ params }: PaymentPageProps) {
+  return (
+    <Suspense fallback={<PaymentPageSkeleton />}>
+      <PaymentPageContent params={params} />
+    </Suspense>
+  );
+}
+
+async function PaymentPageContent({ params }: PaymentPageProps) {
   const { bookingId } = await params;
 
   const result = await getBookingById(bookingId);
@@ -71,13 +79,9 @@ export default async function PaymentPage({
               </div>
 
               <div className="min-w-0">
-                <p className="text-sm text-muted-foreground">
-                  Service
-                </p>
+                <p className="text-sm text-muted-foreground">Service</p>
 
-                <h2 className="mt-1 text-lg font-semibold">
-                  {service.title}
-                </h2>
+                <h2 className="mt-1 text-lg font-semibold">{service.title}</h2>
 
                 <p className="mt-1 text-sm text-muted-foreground">
                   {service.description}
@@ -91,28 +95,20 @@ export default async function PaymentPage({
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <CalendarDays className="size-4" />
 
-                  <span className="text-sm">
-                    Scheduled Date
-                  </span>
+                  <span className="text-sm">Scheduled Date</span>
                 </div>
 
-                <p className="mt-2 font-medium">
-                  {date}
-                </p>
+                <p className="mt-2 font-medium">{date}</p>
               </div>
 
               <div className="rounded-lg border p-4">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Clock3 className="size-4" />
 
-                  <span className="text-sm">
-                    Scheduled Time
-                  </span>
+                  <span className="text-sm">Scheduled Time</span>
                 </div>
 
-                <p className="mt-2 font-medium">
-                  {time}
-                </p>
+                <p className="mt-2 font-medium">{time}</p>
               </div>
 
               {/* Location */}
@@ -120,14 +116,10 @@ export default async function PaymentPage({
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <MapPin className="size-4" />
 
-                  <span className="text-sm">
-                    Service Location
-                  </span>
+                  <span className="text-sm">Service Location</span>
                 </div>
 
-                <p className="mt-2 font-medium">
-                  {booking.location}
-                </p>
+                <p className="mt-2 font-medium">{booking.location}</p>
               </div>
             </div>
 
@@ -152,8 +144,8 @@ export default async function PaymentPage({
                 </p>
 
                 <p className="mt-1 text-sm text-muted-foreground">
-                  You can make the payment once the technician
-                  accepts your booking.
+                  You can make the payment once the technician accepts your
+                  booking.
                 </p>
               </div>
             )}
@@ -162,15 +154,11 @@ export default async function PaymentPage({
 
         {/* Payment Summary */}
         <Card className="h-fit p-6">
-          <h2 className="text-lg font-semibold">
-            Payment Summary
-          </h2>
+          <h2 className="text-lg font-semibold">Payment Summary</h2>
 
           <div className="mt-6 space-y-4">
             <div className="flex items-start justify-between gap-4">
-              <span className="text-sm text-muted-foreground">
-                Service
-              </span>
+              <span className="text-sm text-muted-foreground">Service</span>
 
               <span className="text-right text-sm font-medium">
                 {service.title}
@@ -178,9 +166,7 @@ export default async function PaymentPage({
             </div>
 
             <div className="flex justify-between gap-4">
-              <span className="text-sm text-muted-foreground">
-                Price
-              </span>
+              <span className="text-sm text-muted-foreground">Price</span>
 
               <span className="text-sm font-medium">
                 {service.price} {service.currency}
@@ -189,9 +175,7 @@ export default async function PaymentPage({
 
             <div className="border-t pt-4">
               <div className="flex items-center justify-between">
-                <span className="font-semibold">
-                  Total
-                </span>
+                <span className="font-semibold">Total</span>
 
                 <span className="text-xl font-bold">
                   {service.price} {service.currency}
@@ -202,11 +186,7 @@ export default async function PaymentPage({
 
           {/* Actions */}
           <div className="mt-6 space-y-3">
-            <Button
-              asChild
-              variant="outline"
-              className="w-full"
-            >
+            <Button asChild variant="outline" className="w-full">
               <Link href="/dashboard/customer/bookings">
                 <ArrowLeft className="mr-2 size-4" />
                 Back to Bookings
@@ -214,11 +194,7 @@ export default async function PaymentPage({
             </Button>
 
             {/* Only accepted bookings can be paid */}
-            {canPay && (
-              <ProceedToPaymentButton
-                bookingId={booking.id}
-              />
-            )}
+            {canPay && <ProceedToPaymentButton bookingId={booking.id} />}
           </div>
 
           <p className="mt-4 text-center text-xs text-muted-foreground">
@@ -227,6 +203,18 @@ export default async function PaymentPage({
               : "Payment will become available after your booking is accepted."}
           </p>
         </Card>
+      </div>
+    </div>
+  );
+}
+
+function PaymentPageSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-10 w-64" />
+      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+        <Skeleton className="h-112.5 w-full rounded-xl" />
+        <Skeleton className="h-95 w-full rounded-xl" />
       </div>
     </div>
   );

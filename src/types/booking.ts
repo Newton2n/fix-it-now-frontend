@@ -86,11 +86,20 @@ export type BookingDetailsService = {
   updatedAt: string;
 };
 
+type BookingStatus =
+  | "REQUESTED"
+  | "ACCEPTED"
+  | "DECLINED"
+  | "CANCELED"
+  | "PAID"
+  | "IN_PROGRESS"
+  | "COMPLETED";
+
 export type BookingDetails = {
   id: string;
   customerId: string;
   serviceId: string;
-  status: string;
+  status: BookingStatus;
   scheduledAt: string;
   location: string;
   customerNote: string | null;

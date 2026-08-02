@@ -1,9 +1,18 @@
-import ProfilePage, {
-} from "@/components/dashboard/profile-page";
+import { Suspense } from "react";
+import ProfilePage from "@/components/dashboard/profile-page";
 import { getMe } from "@/actions/auth.action";
 import { UserProfile } from "@/types/user";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default async function CustomerProfilePage() {
+export default function CustomerProfilePage() {
+  return (
+    <Suspense fallback={<ProfileSkeleton />}>
+      <CustomerProfileContent />
+    </Suspense>
+  );
+}
+
+async function CustomerProfileContent() {
   const result = await getMe();
 
   if (!result.success || !result.data) {
@@ -30,4 +39,13 @@ export default async function CustomerProfilePage() {
   };
 
   return <ProfilePage user={user} canEdit />;
+}
+
+function ProfileSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-100 w-full rounded-xl" />
+    </div>
+  );
 }

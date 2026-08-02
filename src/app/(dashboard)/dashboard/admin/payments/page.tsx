@@ -1,22 +1,12 @@
+import { Suspense } from "react";
 import { getAllPayments } from "@/actions/admin.action";
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Payment } from "@/types/payment";
 
-type PaymentStatus = "SUCCEEDED" | "PENDING" | "FAILED" | "REFUNDED";
-
-type Payment = {
-  id: string;
-  transactionId: string;
-  bookingId: string;
-  amount: number;
-  currency: string;
-  paymentMethod: string;
-  provider: string;
-  status: PaymentStatus;
-  createdAt: string;
-  updatedAt: string;
-};
+type PaymentStatus = "SUCCEEDED" | "PENDING" | "FAILED";
 
 type PaymentResult = {
   meta: {
@@ -28,7 +18,15 @@ type PaymentResult = {
   data: Payment[];
 };
 
-export default async function AdminPaymentsPage() {
+export default function AdminPaymentsPage() {
+  return (
+    <Suspense fallback={<AdminPaymentsSkeleton />}>
+      <AdminPaymentsContent />
+    </Suspense>
+  );
+}
+
+async function AdminPaymentsContent() {
   const result = await getAllPayments();
 
   if (!result.success) {
@@ -77,7 +75,10 @@ export default async function AdminPaymentsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard label="Total Payments" value={meta.totalRow} />
         <StatCard label="Successful Revenue" value={`USD ${totalRevenue}`} />
-        <StatCard label="Successful Payments" value={payments.filter((p) => p.status === "SUCCEEDED").length} />
+        <StatCard
+          label="Successful Payments"
+          value={payments.filter((p) => p.status === "SUCCEEDED").length}
+        />
       </div>
 
       <SectionCard
@@ -181,8 +182,6 @@ function getStatusLabel(status: PaymentStatus) {
       return "Pending";
     case "FAILED":
       return "Failed";
-    case "REFUNDED":
-      return "Refunded";
     default:
       return status;
   }
@@ -196,8 +195,6 @@ function getStatusVariant(status: PaymentStatus) {
       return "secondary";
     case "FAILED":
       return "destructive";
-    case "REFUNDED":
-      return "outline";
     default:
       return "secondary";
   }
@@ -205,4 +202,18 @@ function getStatusVariant(status: PaymentStatus) {
 
 function formatDateTime(dateString: string) {
   return new Date(dateString).toLocaleString();
+}
+
+function AdminPaymentsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-10 w-48" />
+      <div className="grid gap-4 md:grid-cols-3">
+        <Skeleton className="h-24 w-full rounded-xl" />
+        <Skeleton className="h-24 w-full rounded-xl" />
+        <Skeleton className="h-24 w-full rounded-xl" />
+      </div>
+      <Skeleton className="h-[400px] w-full rounded-xl" />
+    </div>
+  );
 }

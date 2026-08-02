@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import { getTechnicianProfileById } from "@/actions/technician.action";
 import { getUserById } from "@/actions/user.action";
 import TechnicianServicesGrid from "@/components/profile/technician-services-grid";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   CalendarDays,
   CheckCircle2,
@@ -71,17 +73,28 @@ type TechnicianProfile = {
   service: Service[];
 };
 
+type TechnicianProfilePageProps = {
+  params: Promise<{ id: string }>;
+};
+
 const formatDay = (day: string) => {
   return day.charAt(0).toUpperCase() + day.slice(1);
 };
 
-export default async function TechnicianProfilePage({
+export default function TechnicianProfilePage({
   params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+}: TechnicianProfilePageProps) {
+  return (
+    <Suspense fallback={<TechnicianProfileSkeleton />}>
+      <TechnicianProfileContent params={params} />
+    </Suspense>
+  );
+}
 
+async function TechnicianProfileContent({
+  params,
+}: TechnicianProfilePageProps) {
+  const { id } = await params;
 
   const techRes = await getTechnicianProfileById(id);
 
@@ -89,7 +102,7 @@ export default async function TechnicianProfilePage({
     techRes?.data?.result ?? null;
 
   if (!technician) {
-    return notFound()
+    return notFound();
   }
 
   const userRes = await getUserById(technician.userId);
@@ -118,8 +131,6 @@ export default async function TechnicianProfilePage({
     );
   }
 
-
-
   const services: Service[] = technician.service ?? [];
 
   const availability =
@@ -136,8 +147,6 @@ export default async function TechnicianProfilePage({
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-     
-
       <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
         {/* Cover */}
         <div className="h-24 bg-linear-to-r from-muted via-muted/60 to-background sm:h-32 lg:h-40" />
@@ -228,14 +237,8 @@ export default async function TechnicianProfilePage({
         </div>
       </section>
 
-      
-
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
-      
-
         <div className="min-w-0 space-y-6">
-        
-
           <Card>
             <CardHeader>
               <h2 className="text-xl font-semibold tracking-tight">
@@ -283,8 +286,6 @@ export default async function TechnicianProfilePage({
               )}
             </CardContent>
           </Card>
-
-        
 
           {availabilityEntries.length > 0 && (
             <Card>
@@ -334,8 +335,6 @@ export default async function TechnicianProfilePage({
             </Card>
           )}
 
-         
-
           <Card>
             <CardHeader>
               <h2 className="text-xl font-semibold tracking-tight">
@@ -354,8 +353,6 @@ export default async function TechnicianProfilePage({
             </CardContent>
           </Card>
         </div>
-
-    
 
         <aside className="space-y-6 lg:sticky lg:top-6">
           {/* Technician details */}
@@ -417,7 +414,7 @@ export default async function TechnicianProfilePage({
 
                 <div>
                   <p className="text-sm font-medium">
-                   Years of Experience
+                    Years of Experience
                   </p>
 
                   <p className="mt-0.5 text-xs text-muted-foreground">
@@ -475,6 +472,44 @@ export default async function TechnicianProfilePage({
               </p>
             </CardContent>
           </Card>
+        </aside>
+      </div>
+    </main>
+  );
+}
+
+function TechnicianProfileSkeleton() {
+  return (
+    <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+      <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+        <div className="h-24 bg-muted sm:h-32 lg:h-40" />
+        <div className="px-5 pb-6 sm:px-8 sm:pb-8">
+          <div className="-mt-12 flex flex-col gap-5 sm:-mt-14 md:flex-row md:items-end md:justify-between">
+            <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-end">
+              <Skeleton className="size-24 shrink-0 rounded-full border-4 border-background sm:size-28" />
+              <div className="space-y-2 pb-1">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-32" />
+                <div className="flex gap-4">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
+              </div>
+            </div>
+            <Skeleton className="h-8 w-36 rounded-full" />
+          </div>
+        </div>
+      </section>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+        <div className="space-y-6">
+          <Skeleton className="h-48 w-full rounded-xl" />
+          <Skeleton className="h-64 w-full rounded-xl" />
+          <Skeleton className="h-80 w-full rounded-xl" />
+        </div>
+        <aside className="space-y-6">
+          <Skeleton className="h-96 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
         </aside>
       </div>
     </main>
