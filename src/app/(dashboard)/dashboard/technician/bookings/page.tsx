@@ -255,6 +255,7 @@ function BookingCard({ booking, onAction, isLoading }: BookingCardProps) {
             <Info label="Scheduled" value={formatDateTime(booking.scheduledAt)} />
             <Info label="Created" value={formatDateTime(booking.createdAt)} />
             <Info label="Updated" value={formatDateTime(booking.updatedAt)} />
+            <Info label="Customer Note" value={booking.customerNote || "No note provided."} />
           </div>
         </div>
 
@@ -284,6 +285,7 @@ function BookingActions({ booking, onAction, isLoading }: BookingActionsProps) {
         <div className="flex gap-2">
           <Button
             size="sm"
+            className="border border-destructive text-destructive hover:bg-destructive/10 cursor-pointer"
             variant="outline"
             onClick={() => onAction(booking.id, "decline")}
             disabled={isLoading}
@@ -293,6 +295,7 @@ function BookingActions({ booking, onAction, isLoading }: BookingActionsProps) {
 
           <Button
             size="sm"
+            className="cursor-pointer"
             onClick={() => onAction(booking.id, "accept")}
             disabled={isLoading}
           >
@@ -305,6 +308,7 @@ function BookingActions({ booking, onAction, isLoading }: BookingActionsProps) {
       return (
         <Button
           size="sm"
+          className="cursor-pointer"
           onClick={() => onAction(booking.id, "start")}
           disabled={isLoading}
         >
@@ -316,10 +320,11 @@ function BookingActions({ booking, onAction, isLoading }: BookingActionsProps) {
       return (
         <Button
           size="sm"
+          className="cursor-pointer"
           onClick={() => onAction(booking.id, "complete")}
           disabled={isLoading}
         >
-          Complete Job
+          Mark as Complete
         </Button>
       );
 

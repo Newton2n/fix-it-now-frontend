@@ -161,7 +161,7 @@ export const getPaymentDetailsByBookingId = async (
       };
     }
 
-    const res = await fetch(`${backendUrl}/api/payment/booking/${bookingId}`, {
+    const res = await fetch(`${backendUrl}/api/payment/${bookingId}`, {
       method: "GET",
       headers: {
         Cookie: `accessToken=${accessToken}`,

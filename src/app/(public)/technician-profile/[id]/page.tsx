@@ -417,7 +417,7 @@ export default async function TechnicianProfilePage({
 
                 <div>
                   <p className="text-sm font-medium">
-                    Experience
+                   Years of Experience
                   </p>
 
                   <p className="mt-0.5 text-xs text-muted-foreground">

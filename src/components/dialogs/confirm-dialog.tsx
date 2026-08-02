@@ -3,7 +3,6 @@
 import { useState } from "react"
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -72,8 +71,9 @@ export function ConfirmDialog({
           <Button
             onClick={handleConfirm}
             disabled={loading}
+      
             variant={isDestructive ? "destructive" : variant}
-            className="gap-2"
+            className="gap-2 cursor-pointer"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {confirmText}

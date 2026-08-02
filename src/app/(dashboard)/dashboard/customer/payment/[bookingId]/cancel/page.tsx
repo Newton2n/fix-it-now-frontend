@@ -39,6 +39,8 @@ export default async function PaymentCancelPage({
       ? paymentResult.data.result
       : null;
 
+        console.log("booking and payment detail in success cancel page",payment,booking)
+
   return (
     <PaymentResult
       bookingId={bookingId}

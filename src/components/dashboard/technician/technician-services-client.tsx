@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MoreVertical, Plus, Trash2, Edit } from "lucide-react";
+import Image from "next/image";
+import { MoreVertical, Plus, Trash2, Edit, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Service, Category } from "@/types/api";
+import type { Service } from "@/types/api";
+import type { Category } from "@/types/category";
 import { deleteService } from "@/actions/service.action";
 
 type Props = {
@@ -135,14 +137,34 @@ export default function TechnicianServicesClient({
               className="rounded-xl border bg-card p-4 shadow-sm transition hover:shadow-md"
             >
               <div className="space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-sm text-muted-foreground">
-                      Service Title
-                    </p>
-                    <h3 className="truncate text-lg font-semibold">
-                      {service.title}
-                    </h3>
+                {/* Header with Compact Thumbnail, Title, and Action Dropdown */}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    {/* Small fixed-size responsive thumbnail */}
+                    <div className="relative size-14 sm:size-16 shrink-0 overflow-hidden rounded-lg border bg-muted">
+                      {service.thumbnailImage ? (
+                        <Image
+                          src={service.thumbnailImage}
+                          alt={service.title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 56px, 64px"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                          <ImageIcon className="size-5" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="min-w-0">
+                      <p className="text-sm text-muted-foreground">
+                        Service Title
+                      </p>
+                      <h3 className="truncate text-lg font-semibold">
+                        {service.title}
+                      </h3>
+                    </div>
                   </div>
 
                   <DropdownMenu>

@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import {
   ArrowLeft,
-  CalendarCheck,
   CalendarDays,
   CheckCircle2,
   CircleX,
@@ -60,6 +59,7 @@ function getPaymentStatusClass(
 function getResultContent(
   payment: PaymentDetails | null,
 ) {
+  console.log("Payment details in result page",payment)
   if (payment?.status === "SUCCEEDED") {
     return {
       title: "Payment Successful",
@@ -99,7 +99,6 @@ function getResultContent(
 }
 
 export function PaymentResult({
-  bookingId,
   booking,
   payment,
 }: PaymentResultProps) {
@@ -353,18 +352,6 @@ export function PaymentResult({
 
           {/* Actions */}
           <div className="mt-6 space-y-3">
-            <Button
-              asChild
-              className="w-full"
-            >
-              <Link
-                href={`/dashboard/customer/bookings/${bookingId}`}
-              >
-                <CalendarCheck className="mr-2 size-4" />
-                View Booking
-              </Link>
-            </Button>
-
             <Button
               asChild
               variant="outline"

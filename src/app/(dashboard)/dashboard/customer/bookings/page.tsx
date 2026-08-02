@@ -27,9 +27,11 @@ import {
 import { ReviewForm } from "@/components/forms/review-form";
 
 import { toast } from "sonner";
+import Link from "next/link";
 
 import type { Booking, BookingStatus } from "@/types/api";
 import { useRouter } from "next/navigation";
+import { ExternalLink } from "lucide-react";
 
 export default function CustomerBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -287,7 +289,7 @@ function BookingCard({
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex-1 space-y-4">
+        <div className="flex-1 space-y-4 min-w-0">
           <div>
             <p className="text-sm text-muted-foreground">Booking</p>
             <p className="break-all font-medium text-foreground">
@@ -301,9 +303,31 @@ function BookingCard({
               value={formatDateTime(booking.scheduledAt)}
             />
             <Info label="Location" value={booking.location || "Not provided"} />
-            <Info label="Service ID" value={booking.serviceId} />
+            
+            {/* Service ID with a responsive mobile-safe view button layout */}
+            <div className="rounded-lg border bg-background p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 min-w-0">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-muted-foreground">Service ID</p>
+                <p className="mt-1 truncate text-sm font-medium">
+                  {booking.serviceId}
+                </p>
+              </div>
+
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="w-full sm:w-auto shrink-0 gap-1.5 h-8 text-xs"
+              >
+                <Link href={`/services/${booking.serviceId}`}>
+                  View Service
+                  <ExternalLink className="size-3.5" />
+                </Link>
+              </Button>
+            </div>
+
             <Info
-              label="Customer Note"
+              label="Your Note"
               value={booking.customerNote || "No note"}
             />
             <Info label="Created" value={formatDateTime(booking.createdAt)} />
@@ -442,7 +466,7 @@ function EmptyBookings() {
 
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border bg-background p-3">
+    <div className="rounded-lg border bg-background p-3 min-w-0">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 break-all text-sm font-medium">{value}</p>
     </div>

@@ -6,7 +6,6 @@ import {
   MapPin,
   Clock,
   UserRound,
-  CheckCircle2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -47,7 +46,7 @@ export default async function ServiceDetailPage({
         <div className="grid gap-8 lg:grid-cols-2">
 
           {/* Image */}
-          <div className="relative h-80 overflow-hidden rounded-2xl border bg-muted md:h-[480px]">
+          <div className="relative h-80 overflow-hidden rounded-2xl border bg-muted md:h-120">
             <Image
               src={service.thumbnailImage || fallbackImage}
               alt={service.title}

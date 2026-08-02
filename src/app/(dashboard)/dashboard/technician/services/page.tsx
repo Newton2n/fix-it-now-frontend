@@ -3,7 +3,7 @@ import SectionCard from "@/components/dashboard/section-card";
 import { getAllServiceByLoginTechnician } from "@/actions/service.action";
 import { getAllCategories } from "@/actions/category.action";
 import type { Service } from "@/types/api";
-import type { Category } from "@/types/api";
+import type { Category } from "@/types/category";
 import TechnicianServicesClient from "@/components/dashboard/technician/technician-services-client";
 
 export default async function TechnicianServicesPage() {

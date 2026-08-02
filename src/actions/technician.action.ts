@@ -15,7 +15,7 @@ const backendUrl = process.env.BACKEND_API;
 // get technician profile by id
 export const getTechnicianProfileById = async (
   id: string,
-): Promise<ActionResponse<TechnicianProfile>> => {
+) => {
   if (!id) {
     return { success: false, message: "technician id required" };
   }
