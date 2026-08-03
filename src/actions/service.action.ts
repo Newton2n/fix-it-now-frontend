@@ -19,75 +19,49 @@ type GetAllServiceParams = {
   sortOrder?: "asc" | "desc";
 };
 
-export const getAllService = async (
-  params: GetAllServiceParams = {},
-) => {
+export const getAllService = async (params: GetAllServiceParams = {}) => {
   try {
-    const parsedParams =
-      ServiceSearchFiltersSchema.parse(params);
+    const parsedParams = ServiceSearchFiltersSchema.parse(params);
 
     const searchParams = new URLSearchParams();
 
     if (parsedParams.search) {
-      searchParams.set(
-        "search",
-        parsedParams.search,
-      );
+      searchParams.set("search", parsedParams.search);
     }
 
-    searchParams.set(
-      "page",
-      String(parsedParams.page),
-    );
+    searchParams.set("page", String(parsedParams.page));
 
-    searchParams.set(
-      "limit",
-      String(parsedParams.limit),
-    );
+    searchParams.set("limit", String(parsedParams.limit));
 
-    searchParams.set(
-      "sortBy",
-      parsedParams.sortBy,
-    );
+    searchParams.set("sortBy", parsedParams.sortBy);
 
-    searchParams.set(
-      "sortOrder",
-      parsedParams.sortOrder,
-    );
+    searchParams.set("sortOrder", parsedParams.sortOrder);
 
     if (parsedParams.categoryId) {
-      searchParams.set(
-        "categoryId",
-        parsedParams.categoryId,
-      );
+      searchParams.set("categoryId", parsedParams.categoryId);
     }
 
     if (parsedParams.minPrice !== undefined) {
-      searchParams.set(
-        "minPrice",
-        String(parsedParams.minPrice),
-      );
+      searchParams.set("minPrice", String(parsedParams.minPrice));
     }
 
     if (parsedParams.maxPrice !== undefined) {
-      searchParams.set(
-        "maxPrice",
-        String(parsedParams.maxPrice),
-      );
+      searchParams.set("maxPrice", String(parsedParams.maxPrice));
     }
 
     if (parsedParams.isAvailable) {
-      searchParams.set(
-        "isAvailable",
-        parsedParams.isAvailable,
-      );
+      searchParams.set("isAvailable", parsedParams.isAvailable);
     }
 
     const res = await fetch(
       `${backendUrl}/api/service?${searchParams.toString()}`,
       {
         method: "GET",
-        cache: "no-store",
+        cache: "force-cache",
+        next: {
+          tags: ["all-service"],
+          revalidate: 60 * 60 * 72,
+        },
       },
     );
 
@@ -96,11 +70,8 @@ export const getAllService = async (
     if (!res.ok || !result.success) {
       return {
         success: false,
-        message:
-          result.message ||
-          "Unable to fetch services.",
-        errorDetails:
-          result.errorDetails || [],
+        message: result.message || "Unable to fetch services.",
+        errorDetails: result.errorDetails || [],
       };
     }
 
@@ -110,20 +81,18 @@ export const getAllService = async (
 
     return {
       success: false,
-      message:
-        "Unable to connect to the server. Please try again.",
+      message: "Unable to connect to the server. Please try again.",
       errorDetails: [],
     };
   }
 };
 
-
 export const getAllServiceByCategoryId = async (id: string) => {
   const res = await fetch(`${backendUrl}/api/service/category/${id}`, {
     cache: "force-cache",
     next: {
-      revalidate: 60 * 60 * 2,
-      tags: ["all-service-by-category"],
+      revalidate: 60 * 60 * 24,
+      tags: ["services-by-category"],
     },
   });
   const result = await res.json();
@@ -141,21 +110,17 @@ export const getAllServiceByLoginTechnician = async () => {
     accessToken as string,
     process.env.JWT_ACCESS_SECRET!,
   );
-  if (!verify.success && verify.data?.role !== "TECHNICIAN") {
+  if (!verify.success || verify.data?.role !== "TECHNICIAN") {
     return {
       success: false,
       message: "sorry you are have no permission",
     };
   }
   const res = await fetch(`${backendUrl}/api/technicians/services`, {
-    cache: "force-cache",
     headers: {
       Cookie: `accessToken=${accessToken}`,
     },
-    next: {
-      revalidate: 60 * 60 * 24,
-      tags: ["all-service-by-login-Technician"],
-    },
+    cache: "no-store",
   });
   const result = await res.json();
   console.log("get all service from login in technician response", result);
@@ -241,12 +206,9 @@ export const createService = async (data: TCreateService) => {
       };
     }
 
-    //revalidate all service in login technician
-    revalidateTag("all-service-by-login-Technician", {
-      expire: 0,
-    });
+    
     //revalidate all service by category section
-    revalidateTag("all-service-by-category", {
+    revalidateTag("services-by-category", {
       expire: 0,
     });
     // revalidate all service in home page
@@ -313,12 +275,9 @@ export const updateService = async (id: string, data: TUpdateService) => {
       };
     }
 
-    //revalidate all service in login technician
-    revalidateTag("all-service-by-login-Technician", {
-      expire: 0,
-    });
+    
     //revalidate all service by category section
-    revalidateTag("all-service-by-category", {
+    revalidateTag("services-by-category", {
       expire: 0,
     });
     // revalidate all service in home page
@@ -383,12 +342,9 @@ export const deleteService = async (id: string) => {
       };
     }
 
-    //revalidate all service in login technician
-    revalidateTag("all-service-by-login-Technician", {
-      expire: 0,
-    });
+  
     //revalidate all service by category section
-    revalidateTag("all-service-by-category", {
+    revalidateTag("services-by-category", {
       expire: 0,
     });
     // revalidate all service in home page

@@ -51,10 +51,8 @@ export const getAllReviewDetailsFromLoginUser = async () => {
       headers: {
         Cookie: `accessToken=${accessToken}`,
       },
-      cache: "force-cache",
-      next: {
-        tags: ["login-user-reviews"],
-      },
+      cache: "no-store",
+     
     });
 
     const result = await res.json();
@@ -226,10 +224,7 @@ export const createReview = async (payload: {
         errorDetails: result.errorDetails || [],
       };
     }
-    // revalidate login user reviews
-    revalidateTag("login-user-reviews", {
-      expire: 0,
-    });
+    
     console.log("review has been done", result);
     return {
       success: true,
@@ -289,10 +284,7 @@ export const updateReview = async (
         errorDetails: result.errorDetails || [],
       };
     }
-    // revalidate login user review
-    revalidateTag("login-user-reviews", {
-      expire: 0,
-    });
+    
 
     console.log("review updated successfully", result);
     return {

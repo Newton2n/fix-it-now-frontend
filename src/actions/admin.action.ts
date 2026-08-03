@@ -78,7 +78,7 @@ export const getAllCategory = async () => {
       method: "GET",
       cache: "force-cache",
       next: {
-        revalidate: 60 * 60 * 2,
+        revalidate: 60 * 60 * 72,
         tags: ["all-category-admin"],
       },
       headers: {
@@ -321,7 +321,7 @@ export const getAllTechnicianProfile = async () => {
       method: "GET",
       cache: "force-cache",
       next: {
-        revalidate: 60 * 60 * 2,
+        revalidate: 60 * 60 * 12,
         tags: ["all-technician-admin"],
       },
       headers: {
@@ -429,6 +429,9 @@ export const updateTechnicianStatus = async (
     revalidateTag("all-technician-admin", {
       expire: 0,
     });
+    revalidateTag("all-technician-home", {
+      expire: 0,
+    });
 
     return {
       success: true,
@@ -514,6 +517,8 @@ export const updateUserStatus = async (
     revalidateTag("all-users-admin", {
       expire: 0,
     });
+      //revalidating  admin technician details
+    revalidateTag("all-technician-admin", { expire: 0 });
 
     return {
       success: true,

@@ -112,8 +112,9 @@ export const updateNormalProfile = async (id: string, payload: TUpdateUser) => {
       };
     }
 
-    revalidateTag("login-user", { expire: 0 });
-
+    revalidateTag("all-users-admin", {
+      expire: 0,
+    });
     return {
       success: true,
       message: result.message || "User profile updated successfully.",

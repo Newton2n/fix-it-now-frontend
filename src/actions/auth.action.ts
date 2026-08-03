@@ -111,11 +111,7 @@ export const getMe = async () => {
       headers: {
         Cookie: `accessToken=${accessToken}`,
       },
-      cache: "force-cache",
-      next: {
-        revalidate: 60 * 60 * 24,
-        tags: ["login-user"],
-      },
+      cache: "no-store",
     });
 
     const result = await res.json();
@@ -144,14 +140,6 @@ export const logout = async () => {
 
   cookieStore.delete("accessToken");
   cookieStore.delete("refreshToken");
-
-  revalidateTag("login-user", {
-    expire: 0,
-  });
-
-  revalidateTag("login-technician", {
-    expire: 0,
-  });
 
   // Clear client-side router cache for the entire layout tree
   revalidatePath("/", "layout");

@@ -5,6 +5,8 @@ import {
   PaymentDetailsResponse,
 } from "@/types/payment";
 import { jwtUtils } from "@/utils/jwt";
+import { revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
 const backendUrl = process.env.BACKEND_API;
@@ -126,6 +128,11 @@ export const createCheckoutSession = async (
       };
     }
     console.log("checkout response", result);
+
+    //revalidate admin payment
+    revalidateTag("all-payments-admin", {
+      expire: 0,
+    });
     return {
       success: true,
       message: result.message || "Checkout session created",

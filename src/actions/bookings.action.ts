@@ -5,6 +5,7 @@ import { jwtUtils } from "@/utils/jwt";
 import { getMe } from "./auth.action";
 import { ActionResponse } from "@/types/api";
 import { GetBookingDetailsResponse } from "@/types/booking";
+import { revalidateTag } from "next/cache";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -205,6 +206,11 @@ export const updateTechnicianBookingStatus = async (
       };
     }
 
+    //revalidating admin booking
+    revalidateTag("all-bookings-admin", {
+      expire: 0,
+    });
+
     return {
       success: true,
       message: result.message || "Booking updated successfully.",
@@ -319,6 +325,11 @@ export const cancelBooking = async (bookingId: string) => {
       };
     }
 
+    //revalidating admin booking
+    revalidateTag("all-bookings-admin", {
+      expire: 0,
+    });
+
     return {
       success: true,
       message: result.message || "Booking cancelled successfully.",
@@ -409,6 +420,10 @@ export const createBooking = async (
         errorDetails: result.errorDetails || [],
       };
     }
+    //revalidating admin booking
+    revalidateTag("all-bookings-admin", {
+      expire: 0,
+    });
 
     return {
       success: true,
@@ -427,7 +442,6 @@ export const createBooking = async (
   }
 };
 
-
 export const getBookingById = async (
   bookingId: string,
 ): Promise<ActionResponse<GetBookingDetailsResponse>> => {
@@ -443,33 +457,28 @@ export const getBookingById = async (
   }
 
   try {
-    const res = await fetch(
-      `${backendUrl}/api/booking/${bookingId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: `accessToken=${accessToken}`,
-        },
-        cache: "no-store",
+    const res = await fetch(`${backendUrl}/api/booking/${bookingId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: `accessToken=${accessToken}`,
       },
-    );
+      cache: "no-store",
+    });
 
     const result = await res.json();
 
     if (!res.ok || !result.success) {
       return {
         success: false,
-        message:
-          result.message || "Unable to get booking details.",
+        message: result.message || "Unable to get booking details.",
         errorDetails: result.errorDetails || [],
       };
     }
 
     return {
       success: true,
-      message:
-        result.message || "Booking retrieved successfully.",
+      message: result.message || "Booking retrieved successfully.",
       data: result.data,
     };
   } catch (error) {
@@ -477,8 +486,7 @@ export const getBookingById = async (
 
     return {
       success: false,
-      message:
-        "Unable to connect to the server. Please try again.",
+      message: "Unable to connect to the server. Please try again.",
       errorDetails: [],
     };
   }

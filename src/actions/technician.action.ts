@@ -73,11 +73,7 @@ export const getLoginTechnicianProfile = async () => {
       headers: {
         Cookie: `accessToken=${accessToken}`,
       },
-      cache: "force-cache",
-      next: {
-        tags: ["login-technician"],
-        revalidate: 60 * 60 * 24,
-      },
+      cache: "no-store",
     });
 
     const result = await res.json();
@@ -141,10 +137,10 @@ export const createTechnicianProfile = async (
         errorDetails: result.errorDetails || [],
       };
     }
-    //revalidate log in technician action
-    revalidateTag("login-technician", {
-      expire: 0,
-    });
+    //revalidating  home page
+    revalidateTag("all-technician-home", { expire: 0 });
+    //revalidating  admin technician details
+    revalidateTag("all-technician-admin", { expire: 0 });
 
     return {
       success: true,
@@ -206,11 +202,11 @@ export const updateTechnicianProfile = async (data: {
         errorDetails: result.errorDetails || [],
       };
     }
+    //revalidating  home page
+    revalidateTag("all-technician-home", { expire: 0 });
+    //revalidating  admin technician details
+    revalidateTag("all-technician-admin", { expire: 0 });
 
-    //revalidate log in technician action
-    revalidateTag("login-technician", {
-      expire: 0,
-    });
     return {
       success: true,
       message: "Technician profile updated successfully.",
@@ -277,10 +273,13 @@ export const updateTechnicianAvailability = async (
         errorDetails: result.errorDetails || [],
       };
     }
-    //revalidate log in technician action
-    revalidateTag("login-technician", {
-      expire: 0,
-    });
+
+    //revalidating  home page
+    revalidateTag("all-technician-home", { expire: 0 });
+
+    //revalidating  admin technician details
+    revalidateTag("all-technician-admin", { expire: 0 });
+    
     return {
       success: true,
       message:
@@ -298,11 +297,6 @@ export const updateTechnicianAvailability = async (
   }
 };
 
-
-
-
-
-
 type TechnicianFilters = {
   search?: string;
   page?: number;
@@ -315,12 +309,9 @@ type TechnicianFilters = {
   sortOrder?: "asc" | "desc";
 };
 
-
 //get all technician public
 
-export const getAllTechnicians = async (
-  filters: TechnicianFilters = {}
-) => {
+export const getAllTechnicians = async (filters: TechnicianFilters = {}) => {
   try {
     const params = new URLSearchParams();
 
@@ -364,7 +355,11 @@ export const getAllTechnicians = async (
 
     const res = await fetch(url, {
       method: "GET",
-      cache: "no-store",
+      cache: "force-cache",
+      next: {
+        tags: ["all-technician-home"],
+        revalidate: 60 * 60 * 12,
+      },
     });
 
     const result = await res.json();
@@ -372,8 +367,7 @@ export const getAllTechnicians = async (
     if (!res.ok || !result.success) {
       return {
         success: false,
-        message:
-          result.message || "Unable to fetch technicians.",
+        message: result.message || "Unable to fetch technicians.",
         data: [],
         meta: {
           page: 1,
@@ -386,8 +380,7 @@ export const getAllTechnicians = async (
 
     return {
       success: true,
-      message:
-        result.message || "Technicians retrieved successfully.",
+      message: result.message || "Technicians retrieved successfully.",
       data: result.data?.result?.data || [],
       meta: result.data?.result?.meta || {
         page: 1,
@@ -412,4 +405,3 @@ export const getAllTechnicians = async (
     };
   }
 };
-
