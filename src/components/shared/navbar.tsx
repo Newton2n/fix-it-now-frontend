@@ -415,7 +415,7 @@ export default function Navbar({
       router.push("/login");
       router.refresh();
     } catch {
-      toast.error("Failed to logout.");
+      // toast.error("Failed to logout.");
     }
   };
 
