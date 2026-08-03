@@ -71,6 +71,10 @@ const BASE_LINKS: NavLink[] = [
     href: "/categories",
     label: "Categories",
   },
+  {
+    href: "/technicians",
+    label: "Technicians",
+  },
 ];
 
 const ROLE_CONFIG: Record<

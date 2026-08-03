@@ -147,7 +147,7 @@ async function ServiceDetailContent({
                   variant="outline"
                 >
                   <Link
-                    href={`/technician-profile/${service.technicianId}`}
+                    href={`/technicians/${service.technicianId}`}
                   >
                     View Technician Profile
                   </Link>
