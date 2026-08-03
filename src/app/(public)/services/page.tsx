@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { getAllService } from "@/actions/service.action";
 import { getAllCategories } from "@/actions/category.action";
+import { Service } from "@/types/service";
 
 type ServicesPageProps = {
   searchParams: Promise<{
@@ -176,7 +177,7 @@ async function ServicesContent({
       {/* Services */}
       {services.length > 0 ? (
         <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {services.map((service) => (
+          {services.map((service :Service) => (
             <ServiceCard
               key={service.id}
               id={service.id}
