@@ -2,94 +2,27 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Users,
-  Wrench,
-  CalendarDays,
-  CreditCard,
-  Star,
-  FolderKanban,
-  ClipboardList,
-  type LucideIcon,
-  DollarSign,
-  UserCog,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type Role = "ADMIN" | "CUSTOMER" | "TECHNICIAN";
-
-type NavItem = {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-};
-
-const dashboardNav: Record<Role, NavItem[]> = {
-  ADMIN: [
-    { href: "/dashboard/admin", label: "Overview", icon: LayoutDashboard },
-    { href: "/dashboard/admin/profile", label: "Profile", icon: Users },
-    { href: "/dashboard/admin/users", label: "Users", icon: Users },
-    { href: "/dashboard/admin/technicians", label: "Technician", icon: Wrench },
-    {
-      href: "/dashboard/admin/bookings",
-      label: "Bookings",
-      icon: ClipboardList,
-    },
-    {
-      href: "/dashboard/admin/categories",
-      label: "Categories",
-      icon: FolderKanban,
-    },
-    { href: "/dashboard/admin/payments", label: "Payments", icon: DollarSign },
-  ],
-  CUSTOMER: [
-    { href: "/dashboard/customer", label: "Overview", icon: LayoutDashboard },
-    {
-      href: "/dashboard/customer/bookings",
-      label: "Bookings",
-      icon: CalendarDays,
-    },
-    {
-      href: "/dashboard/customer/payments",
-      label: "Payments",
-      icon: CreditCard,
-    },
-    { href: "/dashboard/customer/profile", label: "Profile", icon: Users },
-    { href: "/dashboard/customer/reviews", label: "Reviews", icon: Star },
-  ],
-  TECHNICIAN: [
-    { href: "/dashboard/technician", label: "Overview", icon: LayoutDashboard },
-    { href: "/dashboard/technician/profile", label: "Profile", icon: Users },
-    { href: "/dashboard/technician/technician-profile", label: "Technician Profile", icon: UserCog },
-    {
-      href: "/dashboard/technician/bookings",
-      label: "Bookings",
-      icon: ClipboardList,
-    },
-    {
-      href: "/dashboard/technician/availability",
-      label: "Availability",
-      icon: CalendarDays,
-    },
-    { href: "/dashboard/technician/services", label: "Services", icon: Wrench },
-  ],
-};
+import {
+  dashboardNav,
+  type Role,
+} from "@/components/dashboard/dashboard-nav";
 
 type DashboardSidebarProps = {
   role: Role;
 };
 
-export default function DashboardSidebar({ role }: DashboardSidebarProps) {
+export default function DashboardSidebar({
+  role,
+}: DashboardSidebarProps) {
   const pathname = usePathname();
   const navItems = dashboardNav[role];
 
   const isActive = (href: string) => {
-    if (
-      href.endsWith("/customer") ||
-      href.endsWith("/admin") ||
-      href.endsWith("/technician")
-    ) {
+    // Dashboard overview should only be active
+    // on the exact dashboard URL.
+    if (href === `/dashboard/${role.toLowerCase()}`) {
       return pathname === href;
     }
 
@@ -102,7 +35,10 @@ export default function DashboardSidebar({ role }: DashboardSidebarProps) {
         <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Dashboard
         </p>
-        <p className="text-lg font-bold capitalize">{role.toLowerCase()}</p>
+
+        <p className="text-lg font-bold capitalize">
+          {role.toLowerCase()}
+        </p>
       </div>
 
       <nav className="flex-1 space-y-1 p-3">

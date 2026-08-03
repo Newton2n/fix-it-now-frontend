@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 import DashboardSidebar from "./dashboard-sidebar";
 import DashboardTopbar from "./dashboard-topbar";
-import { Role } from "./dashboard-nav";
 
+export type Role = "ADMIN" | "CUSTOMER" | "TECHNICIAN";
 type Props = {
   role: Role;
   title: string;
@@ -10,7 +10,12 @@ type Props = {
   children: ReactNode;
 };
 
-export default function DashboardLayout({ role, title, subtitle, children }: Props) {
+export default function DashboardLayout({
+  role,
+  title,
+  subtitle,
+  children,
+}: Props) {
   return (
     <div className="flex min-h-screen bg-muted/20">
       <div className="hidden lg:block">
