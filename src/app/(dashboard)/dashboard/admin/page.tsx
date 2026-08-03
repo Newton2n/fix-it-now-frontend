@@ -15,40 +15,39 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Total Users"
-          value={1240}
+          value="Manage users"
           icon={<Users className="h-5 w-5" />}
         />
 
         <StatCard
           label="Technicians"
-          value={86}
+          value="Manage technicians"
           icon={<Wrench className="h-5 w-5" />}
         />
 
         <StatCard
           label="Bookings"
-          value={420}
+          value="Manage bookings"
           icon={<ClipboardList className="h-5 w-5" />}
         />
 
         <StatCard
           label="Revenue"
-          value="$12,450"
+          value="Manage payments"
           icon={<BadgeDollarSign className="h-5 w-5" />}
         />
       </div>
 
       <SectionCard
         title="Platform Status"
-        description="Quick overview of system health"
+        description="Overview of the platform and its core management features"
       >
         <div className="flex items-center gap-2">
-          <Badge variant="secondary">
-            Healthy
-          </Badge>
+          <Badge variant="secondary">Platform Overview</Badge>
 
           <p className="text-sm text-muted-foreground">
-            All core systems are running normally.
+            Manage users, technicians, categories, services, bookings, and
+            payments from the admin dashboard.
           </p>
         </div>
       </SectionCard>
