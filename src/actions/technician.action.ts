@@ -101,7 +101,7 @@ export const getLoginTechnicianProfile = async () => {
 export const createTechnicianProfile = async (
   data: TCreateTechnicianProfile,
 ): Promise<ActionResponse<TCreateTechnicianProfile>> => {
-  console.log("technician profile creation payload", data);
+ 
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -166,7 +166,7 @@ export const updateTechnicianProfile = async (data: {
   serviceArea: string[];
   yearsOfExperience: number;
 }): Promise<ActionResponse<TechnicianProfile>> => {
-  console.log("update technician profile payload", data);
+  
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -227,7 +227,7 @@ export const updateTechnicianProfile = async (data: {
 export const updateTechnicianAvailability = async (
   payload: TChangeAvailabilityPayload,
 ): Promise<ActionResponse<TechnicianProfile>> => {
-  console.log("update technician availability", payload);
+
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -264,7 +264,7 @@ export const updateTechnicianAvailability = async (
 
     const result = await res.json();
 
-    console.log("update technician availability result", result);
+  
 
     if (!result.success) {
       return {
@@ -279,7 +279,7 @@ export const updateTechnicianAvailability = async (
 
     //revalidating  admin technician details
     revalidateTag("all-technician-admin", { expire: 0 });
-    
+
     return {
       success: true,
       message:

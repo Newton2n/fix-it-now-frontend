@@ -59,7 +59,7 @@ export default function CustomerBookingsPage() {
       try {
         const result = await getAllBookingsFromLoginUser();
 
-        console.log("Customer bookings:", result);
+        
 
         if (!result?.success) {
           toast.error(result?.message || "Failed to load bookings.");

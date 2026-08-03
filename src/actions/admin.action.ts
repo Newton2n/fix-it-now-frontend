@@ -370,7 +370,6 @@ export const updateTechnicianStatus = async (
   technicianId: string,
   data: TechnicianStatusInput,
 ) => {
-  console.log("update technician profile admin", technicianId, data);
   if (!technicianId) {
     return {
       success: false,
@@ -466,7 +465,6 @@ export const updateUserStatus = async (
   userId: string,
   data: UserStatusInput,
 ) => {
-  console.log("update user status in admin", userId, data);
   if (!userId) {
     return {
       success: false,
@@ -545,7 +543,7 @@ export const unbanUser = async (userId: string) =>
 
 // create category
 export const createCategory = async (data: CategoryInput) => {
-  console.log("create category in admin", data);
+  
   if (!data.name?.trim()) {
     return {
       success: false,
@@ -694,7 +692,7 @@ export const updateCategory = async (
 };
 
 export const deleteCategory = async (categoryId: string) => {
-  console.log("delete category in admin", categoryId);
+  
   if (!categoryId) {
     return {
       success: false,

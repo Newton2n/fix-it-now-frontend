@@ -122,7 +122,7 @@ export function ReviewForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit, (errors) => {
-        console.log("FORM VALIDATION ERRORS:", errors);
+        
       })}
       className="space-y-6"
     >

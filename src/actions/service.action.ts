@@ -104,7 +104,7 @@ export const getAllServiceByCategoryId = async (id: string) => {
 export const getAllServiceByLoginTechnician = async () => {
   const cookieStore = await cookies();
 
-  console.log("cookie store", cookieStore);
+  
   const accessToken = cookieStore.get("accessToken")?.value;
   const verify = jwtUtils.verifyToken(
     accessToken as string,
@@ -123,7 +123,7 @@ export const getAllServiceByLoginTechnician = async () => {
     cache: "no-store",
   });
   const result = await res.json();
-  console.log("get all service from login in technician response", result);
+  
   if (result.success) {
     return result;
   }
@@ -139,9 +139,9 @@ export const getSingleService = async (id: string) => {
   }
   const cookieStore = await cookies();
 
-  console.log("cookie store", cookieStore);
+  
   const accessToken = cookieStore.get("accessToken")?.value;
-  console.log("accessToken", accessToken);
+
 
   const verifyAccessToken = jwtUtils.verifyToken(
     accessToken as string,
@@ -161,7 +161,7 @@ export const getSingleService = async (id: string) => {
     },
   });
   const result = await res.json();
-  console.log("single service response", result);
+ 
   if (result.success) {
     return result;
   }
@@ -169,7 +169,7 @@ export const getSingleService = async (id: string) => {
 
 //create service
 export const createService = async (data: TCreateService) => {
-  console.log("create service payload", data);
+
 
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
@@ -232,7 +232,7 @@ export const createService = async (data: TCreateService) => {
 
 //update service
 export const updateService = async (id: string, data: TUpdateService) => {
-  console.log("service update payload", id, data);
+  
   if (!id) {
     return {
       success: false,

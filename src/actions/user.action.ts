@@ -54,7 +54,7 @@ export const updateNormalProfile = async (id: string, payload: TUpdateUser) => {
     };
   }
 
-  console.log("update user profile payload", payload);
+  
 
   const parsed = userUpdateSchema.safeParse(payload);
 

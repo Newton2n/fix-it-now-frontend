@@ -38,7 +38,7 @@ export default function LoginPage() {
     setServerError("");
 
     const result = await login(values);
-    console.log("result of login", result);
+   
 
     if (!result.success) {
       toast.warning("Log in failed",)

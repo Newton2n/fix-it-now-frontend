@@ -58,7 +58,7 @@ export const getAllPaymentDetailsFromLoginUser = async () => {
 
     const result = await res.json();
 
-    console.log("Payment response:", result);
+    
 
     if (!res.ok || !result.success) {
       return {
@@ -93,7 +93,7 @@ export const getAllPaymentDetailsFromLoginUser = async () => {
 export const createCheckoutSession = async (
   bookingId: string,
 ): Promise<CreateCheckoutResponse> => {
-  console.log("checkout payload", bookingId);
+  
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("accessToken")?.value;
@@ -127,7 +127,7 @@ export const createCheckoutSession = async (
         errorDetails: result.errorDetails || [],
       };
     }
-    console.log("checkout response", result);
+   
 
     //revalidate admin payment
     revalidateTag("all-payments-admin", {

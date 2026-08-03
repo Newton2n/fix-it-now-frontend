@@ -57,7 +57,7 @@ export const getAllReviewDetailsFromLoginUser = async () => {
 
     const result = await res.json();
 
-    console.log("Review response:", result);
+    
 
     if (!res.ok || !result.success) {
       return {
@@ -189,7 +189,7 @@ export const createReview = async (payload: {
   rating: number;
   description: string;
 }) => {
-  console.log("create review payload", payload);
+  
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -225,7 +225,7 @@ export const createReview = async (payload: {
       };
     }
     
-    console.log("review has been done", result);
+    
     return {
       success: true,
       message: "Review submitted successfully.",
@@ -249,7 +249,7 @@ export const updateReview = async (
     description: string;
   },
 ) => {
-  console.log("edit review payload", reviewId, data);
+  
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -286,7 +286,7 @@ export const updateReview = async (
     }
     
 
-    console.log("review updated successfully", result);
+    
     return {
       success: true,
       message: "Review updated successfully.",
@@ -304,7 +304,7 @@ export const updateReview = async (
 
 // delete review
 export const deleteReview = async (reviewId: string) => {
-  console.log("review delete", reviewId);
+  
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 

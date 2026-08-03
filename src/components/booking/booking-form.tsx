@@ -255,7 +255,7 @@ export default function BookingForm({
         customerNote: customerNote.trim() || undefined,
       };
 
-      console.log("Creating booking:", payload);
+      
 
       const result = await createBooking(payload);
 

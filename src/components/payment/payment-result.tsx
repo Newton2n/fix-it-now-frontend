@@ -59,7 +59,7 @@ function getPaymentStatusClass(
 function getResultContent(
   payment: PaymentDetails | null,
 ) {
-  console.log("Payment details in result page",payment)
+  
   if (payment?.status === "SUCCEEDED") {
     return {
       title: "Payment Successful",

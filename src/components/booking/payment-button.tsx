@@ -21,7 +21,7 @@ export function ProceedToPaymentButton({
 
     try {
       const result = await createCheckoutSession(bookingId);
-      console.log("checkout result in button", result);
+   
 
       if (!result.success || !result.data?.checkoutUrl) {
         toast.error(result.message || "Unable to start payment.");

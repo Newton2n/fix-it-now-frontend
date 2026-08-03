@@ -11,7 +11,7 @@ import { redirect } from "next/navigation";
 const backendUrl = process.env.BACKEND_API;
 
 export const login = async (data: TLoginFormData) => {
-  console.log(data, "log in form data ");
+  
   try {
     const res = await fetch(`${backendUrl}/api/auth/login`, {
       method: "POST",
@@ -33,7 +33,7 @@ export const login = async (data: TLoginFormData) => {
       };
     }
 
-    console.log("this block is running");
+    
     if (result.success) {
       const cookie = await cookies();
       cookie.set("accessToken", result.data.accessToken, {
@@ -64,7 +64,7 @@ export const login = async (data: TLoginFormData) => {
 export const register = async (data: TRegistrationFormData) => {
   try {
     const { confirmPassword, ...registerData } = data;
-    console.log(confirmPassword);
+    
 
     const res = await fetch(`${backendUrl}/api/auth/register`, {
       method: "POST",
