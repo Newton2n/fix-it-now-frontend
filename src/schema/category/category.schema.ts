@@ -68,3 +68,12 @@ export const updateCategorySchema = z.object({
     .max(255, "description  must be less than 101 letters")
     .optional(),
 });
+
+
+export const CategorySearchSchema = z.object({
+  search: z.string().optional(),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().default(10),
+  sortBy: z.enum(["name", "createdAt"]).default("createdAt"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
+});

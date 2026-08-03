@@ -69,3 +69,18 @@ export const updateServiceSchema = z.object({
   thumbnailImage: z.url().min(1, "Valid url required").optional(),
   galleryImages: z.array(z.url({ error: "Valid url required" })).optional(),
 });
+
+
+
+
+export const ServiceSearchFiltersSchema = z.object({
+  search: z.string().optional(),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().default(10),
+  categoryId: z.uuid().optional(),
+  minPrice: z.coerce.number().nonnegative().optional(),
+  maxPrice: z.coerce.number().nonnegative().optional(),
+  isAvailable: z.string().optional(),
+  sortBy: z.enum(["price", "date"]).default("date"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
+});

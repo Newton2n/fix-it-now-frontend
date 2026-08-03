@@ -5,21 +5,119 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const backendUrl = process.env.BACKEND_API;
+import { ServiceSearchFiltersSchema } from "@/schema/service/service.schema";
 
-//get all services
-export const getAllService = async () => {
-  const res = await fetch(`${backendUrl}/api/service`, {
-    cache: "force-cache",
-    next: {
-      revalidate: 60 * 60 * 4,
-      tags: ["all-service"],
-    },
-  });
-  const result = await res.json();
-  if (result.success) {
+type GetAllServiceParams = {
+  search?: string;
+  page?: number;
+  limit?: number;
+  categoryId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  isAvailable?: string;
+  sortBy?: "price" | "date";
+  sortOrder?: "asc" | "desc";
+};
+
+export const getAllService = async (
+  params: GetAllServiceParams = {},
+) => {
+  try {
+    const parsedParams =
+      ServiceSearchFiltersSchema.parse(params);
+
+    const searchParams = new URLSearchParams();
+
+    if (parsedParams.search) {
+      searchParams.set(
+        "search",
+        parsedParams.search,
+      );
+    }
+
+    searchParams.set(
+      "page",
+      String(parsedParams.page),
+    );
+
+    searchParams.set(
+      "limit",
+      String(parsedParams.limit),
+    );
+
+    searchParams.set(
+      "sortBy",
+      parsedParams.sortBy,
+    );
+
+    searchParams.set(
+      "sortOrder",
+      parsedParams.sortOrder,
+    );
+
+    if (parsedParams.categoryId) {
+      searchParams.set(
+        "categoryId",
+        parsedParams.categoryId,
+      );
+    }
+
+    if (parsedParams.minPrice !== undefined) {
+      searchParams.set(
+        "minPrice",
+        String(parsedParams.minPrice),
+      );
+    }
+
+    if (parsedParams.maxPrice !== undefined) {
+      searchParams.set(
+        "maxPrice",
+        String(parsedParams.maxPrice),
+      );
+    }
+
+    if (parsedParams.isAvailable) {
+      searchParams.set(
+        "isAvailable",
+        parsedParams.isAvailable,
+      );
+    }
+
+    const res = await fetch(
+      `${backendUrl}/api/service?${searchParams.toString()}`,
+      {
+        method: "GET",
+        cache: "no-store",
+      },
+    );
+
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      return {
+        success: false,
+        message:
+          result.message ||
+          "Unable to fetch services.",
+        errorDetails:
+          result.errorDetails || [],
+      };
+    }
+
     return result;
+  } catch (error) {
+    console.error("Get services error:", error);
+
+    return {
+      success: false,
+      message:
+        "Unable to connect to the server. Please try again.",
+      errorDetails: [],
+    };
   }
 };
+
+
 export const getAllServiceByCategoryId = async (id: string) => {
   const res = await fetch(`${backendUrl}/api/service/category/${id}`, {
     cache: "force-cache",

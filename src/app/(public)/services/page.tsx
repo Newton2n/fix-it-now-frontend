@@ -1,70 +1,181 @@
 import { Suspense } from "react";
+
 import ServiceCard from "@/components/service/service-card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import ServiceSearchFilters from "@/components/service/service-search-filters";
+import ServicePagination from "@/components/service/service-pagination";
+
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+
 import { getAllService } from "@/actions/service.action";
-import { ServicesResponse } from "@/schema/service/service.schema";
+import { getAllCategories } from "@/actions/category.action";
 
-export default function ServicesPage() {
-  return (
-    <Suspense fallback={<ServicesPageSkeleton />}>
-      <ServicesPageContent />
-    </Suspense>
-  );
-}
+type ServicesPageProps = {
+  searchParams: Promise<{
+    search?: string;
+    categoryId?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    isAvailable?: string;
+    sortBy?: "price" | "date";
+    sortOrder?: "asc" | "desc";
+    page?: string;
+  }>;
+};
 
-async function ServicesPageContent() {
-  const getServices: ServicesResponse = await getAllService();
+export default async function ServicesPage({
+  searchParams,
+}: ServicesPageProps) {
+  const params = await searchParams;
 
-  const services = getServices?.data?.result?.data || [];
+  const search = params.search || "";
+  const categoryId = params.categoryId || "";
+  const minPrice = params.minPrice
+    ? Number(params.minPrice)
+    : undefined;
+  const maxPrice = params.maxPrice
+    ? Number(params.maxPrice)
+    : undefined;
+
+  const isAvailable = params.isAvailable || "";
+  const sortBy = params.sortBy || "date";
+  const sortOrder = params.sortOrder || "desc";
+  const page = Number(params.page) || 1;
 
   return (
     <main className="min-h-screen bg-background">
+      {/* Hero */}
       <section className="border-b bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 py-10 md:px-6">
           <Badge variant="secondary" className="mb-3">
             Browse Services
           </Badge>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Find the right service for your home
           </h1>
+
           <p className="mt-2 max-w-2xl text-muted-foreground">
             Search, filter, and compare trusted technicians before you book.
           </p>
         </div>
       </section>
 
+      {/* Content */}
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-6">
-        <div className="grid gap-4 rounded-2xl border bg-card p-4 shadow-sm md:grid-cols-4">
-          <Input
-            placeholder="Search service or location..."
-            className="md:col-span-2"
+        <Suspense
+          key={[
+            search,
+            categoryId,
+            minPrice,
+            maxPrice,
+            isAvailable,
+            sortBy,
+            sortOrder,
+            page,
+          ].join("-")}
+          fallback={<ServicesContentSkeleton />}
+        >
+          <ServicesContent
+            search={search}
+            categoryId={categoryId}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            isAvailable={isAvailable}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            page={page}
           />
-          <Button variant="outline">Filter: Category</Button>
-          <Button>Search</Button>
-        </div>
+        </Suspense>
+      </section>
+    </main>
+  );
+}
 
-        <div className="mt-6 flex flex-wrap gap-2">
-          <Button variant="secondary" size="sm">
-            All
-          </Button>
-          <Button variant="outline" size="sm">
-            Plumbing
-          </Button>
-          <Button variant="outline" size="sm">
-            Electrical
-          </Button>
-          <Button variant="outline" size="sm">
-            Cleaning
-          </Button>
-          <Button variant="outline" size="sm">
-            AC Repair
-          </Button>
-        </div>
+type ServicesContentProps = {
+  search: string;
+  categoryId: string;
+  minPrice?: number;
+  maxPrice?: number;
+  isAvailable: string;
+  sortBy: "price" | "date";
+  sortOrder: "asc" | "desc";
+  page: number;
+};
 
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+async function ServicesContent({
+  search,
+  categoryId,
+  minPrice,
+  maxPrice,
+  isAvailable,
+  sortBy,
+  sortOrder,
+  page,
+}: ServicesContentProps) {
+  const [servicesResult, categoriesResult] = await Promise.all([
+    getAllService({
+      search,
+      categoryId: categoryId || undefined,
+      minPrice,
+      maxPrice,
+      isAvailable: isAvailable || undefined,
+      sortBy,
+      sortOrder,
+      page,
+      limit: 12,
+    }),
+
+    getAllCategories({
+      page: 1,
+      limit: 100,
+      sortBy: "name",
+      sortOrder: "asc",
+    }),
+  ]);
+
+  const services =
+    servicesResult?.data?.result?.data || [];
+
+  const meta =
+    servicesResult?.data?.result?.meta;
+
+  const categories =
+    categoriesResult?.data || [];
+
+  return (
+    <>
+      {/* Search + filters */}
+      <ServiceSearchFilters
+        categories={categories}
+        defaultValues={{
+          search,
+          categoryId,
+          minPrice: minPrice?.toString() || "",
+          maxPrice: maxPrice?.toString() || "",
+          isAvailable,
+          sortBy,
+          sortOrder,
+        }}
+      />
+
+      {/* Result count */}
+      <div className="mt-8 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold">
+            Available Services
+          </h2>
+
+          <p className="text-sm text-muted-foreground">
+            {meta?.totalRow || 0} service
+            {(meta?.totalRow || 0) !== 1 ? "s" : ""} found
+          </p>
+        </div>
+      </div>
+
+      {/* Services */}
+      {services.length > 0 ? (
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {services.map((service) => (
             <ServiceCard
               key={service.id}
@@ -72,46 +183,66 @@ async function ServicesPageContent() {
               title={service.title}
               image={
                 service.thumbnailImage ||
-                "https://images.unsplash.com/photo-1605152276897-4f618f831968?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2VydmljZXxlbnwwfHwwfHx8MA%3D%3D"
+                "/placeholder-service.jpg"
               }
               location="Location not specified"
-              rating={5.0}
+              rating={5}
               price={service.price}
               technician="Professional Technician"
             />
           ))}
         </div>
-      </section>
-    </main>
+      ) : (
+        <EmptyServices />
+      )}
+
+      {/* Pagination */}
+      {meta && meta.totalPage > 1 && (
+        <ServicePagination
+          currentPage={meta.currentPage}
+          totalPages={meta.totalPage}
+        />
+      )}
+    </>
   );
 }
 
-function ServicesPageSkeleton() {
+function ServicesContentSkeleton() {
   return (
-    <main className="min-h-screen bg-background">
-      <section className="border-b bg-muted/30">
-        <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 space-y-3">
-          <Skeleton className="h-6 w-32 rounded-full" />
-          <Skeleton className="h-10 w-96" />
-          <Skeleton className="h-5 w-full max-w-xl" />
-        </div>
-      </section>
+    <>
+      <div className="space-y-4 rounded-2xl border bg-card p-4">
+        <Skeleton className="h-10 w-full" />
 
-      <section className="mx-auto max-w-7xl px-4 py-8 md:px-6 space-y-6">
-        <Skeleton className="h-20 w-full rounded-2xl" />
-        <div className="flex gap-2">
-          <Skeleton className="h-9 w-16 rounded-md" />
-          <Skeleton className="h-9 w-24 rounded-md" />
-          <Skeleton className="h-9 w-24 rounded-md" />
-          <Skeleton className="h-9 w-20 rounded-md" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
         </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <Skeleton className="h-80 w-full rounded-xl" />
-          <Skeleton className="h-80 w-full rounded-xl" />
-          <Skeleton className="h-80 w-full rounded-xl" />
-          <Skeleton className="h-80 w-full rounded-xl" />
-        </div>
-      </section>
-    </main>
+      </div>
+
+      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, index) => (
+          <Skeleton
+            key={index}
+            className="h-80 w-full rounded-xl"
+          />
+        ))}
+      </div>
+    </>
+  );
+}
+
+function EmptyServices() {
+  return (
+    <div className="mt-8 rounded-xl border border-dashed bg-muted/20 px-6 py-16 text-center">
+      <h3 className="text-lg font-semibold">
+        No services found
+      </h3>
+
+      <p className="mt-2 text-sm text-muted-foreground">
+        Try changing your search or filters.
+      </p>
+    </div>
   );
 }
