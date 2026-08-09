@@ -23,7 +23,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "FixItNow",
-  description: "Your Trusted Home Service Platform",
+  description: "Your Trusted Service Platform",
 };
 
 export default async function RootLayout({
