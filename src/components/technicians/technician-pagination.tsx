@@ -1,8 +1,15 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
@@ -24,45 +31,50 @@ export default function TechnicianPagination({
   }
 
   const goToPage = (page: number) => {
-    const params = new URLSearchParams(searchParams);
+    if (page < 1 || page > totalPages) {
+      return;
+    }
+
+    const params = new URLSearchParams(
+      searchParams.toString(),
+    );
 
     params.set("page", String(page));
 
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(
+      `${pathname}?${params.toString()}`,
+    );
   };
 
   return (
-    <div className="mt-10 flex items-center justify-center gap-2">
+    <div className="mt-8 flex items-center justify-center gap-2">
       <Button
+        type="button"
         variant="outline"
         size="icon"
         disabled={currentPage === 1}
-        onClick={() => goToPage(currentPage - 1)}
+        onClick={() =>
+          goToPage(currentPage - 1)
+        }
         aria-label="Previous page"
       >
         <ChevronLeft className="size-4" />
       </Button>
 
-      <div className="flex items-center gap-1">
-        {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-          (page) => (
-            <Button
-              key={page}
-              variant={page === currentPage ? "default" : "outline"}
-              size="icon"
-              onClick={() => goToPage(page)}
-            >
-              {page}
-            </Button>
-          ),
-        )}
-      </div>
+      <span className="px-3 text-sm text-muted-foreground">
+        Page {currentPage} of {totalPages}
+      </span>
 
       <Button
+        type="button"
         variant="outline"
         size="icon"
-        disabled={currentPage === totalPages}
-        onClick={() => goToPage(currentPage + 1)}
+        disabled={
+          currentPage === totalPages
+        }
+        onClick={() =>
+          goToPage(currentPage + 1)
+        }
         aria-label="Next page"
       >
         <ChevronRight className="size-4" />

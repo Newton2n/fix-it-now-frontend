@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -16,11 +15,7 @@ import { toast } from "sonner";
 
 import { logout } from "@/actions/auth.action";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { Button } from "@/components/ui/button";
 
@@ -45,11 +40,7 @@ import ThemeMode from "@/components/theme-mode";
 
 import { cn } from "@/lib/utils";
 
-export type Role =
-  | "CUSTOMER"
-  | "TECHNICIAN"
-  | "ADMIN"
-  | null;
+export type Role = "CUSTOMER" | "TECHNICIAN" | "ADMIN" | null;
 
 type NavbarProps = {
   role?: Role;
@@ -175,40 +166,21 @@ function getProfileLink(role: Role) {
   }
 }
 
-function isRouteActive(
-  pathname: string,
-  href: string,
-  exact = false,
-) {
+function isRouteActive(pathname: string, href: string, exact = false) {
   if (exact || href === "/") {
     return pathname === href;
   }
 
-  return (
-    pathname === href ||
-    pathname.startsWith(`${href}/`)
-  );
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function AuthButtons({
-  mobile = false,
-}: {
-  mobile?: boolean;
-}) {
+function AuthButtons({ mobile = false }: { mobile?: boolean }) {
   return (
-    <div
-      className={cn(
-        "flex gap-2",
-        mobile ? "flex-col" : "items-center",
-      )}
-    >
+    <div className={cn("flex gap-2", mobile ? "flex-col" : "items-center")}>
       <Button
         asChild
         variant="outline"
-        className={cn(
-          "cursor-pointer",
-          mobile && "w-full",
-        )}
+        className={cn("cursor-pointer", mobile && "w-full")}
       >
         <Link href="/login">
           <LogIn className="size-4" />
@@ -216,13 +188,7 @@ function AuthButtons({
         </Link>
       </Button>
 
-      <Button
-        asChild
-        className={cn(
-          "cursor-pointer",
-          mobile && "w-full",
-        )}
-      >
+      <Button asChild className={cn("cursor-pointer", mobile && "w-full")}>
         <Link href="/register">
           <UserPlus className="size-4" />
           Register
@@ -245,9 +211,7 @@ function AccountMenu({
     return null;
   }
 
-  const dashboardHref = role
-    ? ROLE_CONFIG[role].dashboardHref
-    : null;
+  const dashboardHref = role ? ROLE_CONFIG[role].dashboardHref : null;
 
   const profileLink = getProfileLink(role);
 
@@ -265,9 +229,7 @@ function AccountMenu({
               alt={`${userName}'s profile picture`}
             />
 
-            <AvatarFallback>
-              {getInitials(userName)}
-            </AvatarFallback>
+            <AvatarFallback>{getInitials(userName)}</AvatarFallback>
           </Avatar>
 
           <span className="hidden max-w-32 truncate pl-1.5 text-sm font-medium lg:block">
@@ -291,15 +253,11 @@ function AccountMenu({
                 alt={`${userName}'s profile picture`}
               />
 
-              <AvatarFallback>
-                {getInitials(userName)}
-              </AvatarFallback>
+              <AvatarFallback>{getInitials(userName)}</AvatarFallback>
             </Avatar>
 
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold">
-                {userName}
-              </p>
+              <p className="truncate text-sm font-semibold">{userName}</p>
 
               {role && (
                 <p className="mt-0.5 text-xs capitalize text-muted-foreground">
@@ -314,10 +272,7 @@ function AccountMenu({
 
         {dashboardHref && (
           <DropdownMenuItem asChild>
-            <Link
-              href={dashboardHref}
-              className="cursor-pointer"
-            >
+            <Link href={dashboardHref} className="cursor-pointer">
               <LayoutDashboard className="size-4" />
               Dashboard
             </Link>
@@ -325,10 +280,7 @@ function AccountMenu({
         )}
 
         <DropdownMenuItem asChild>
-          <Link
-            href={profileLink}
-            className="cursor-pointer"
-          >
+          <Link href={profileLink} className="cursor-pointer">
             <UserIcon className="size-4" />
             Profile
           </Link>
@@ -352,26 +304,16 @@ function MobileMenu({
 
   const isLoggedIn = Boolean(userName);
 
-  const dashboardHref = role
-    ? ROLE_CONFIG[role].dashboardHref
-    : null;
+  const dashboardHref = role ? ROLE_CONFIG[role].dashboardHref : null;
 
-  const profileLink = getProfileLink(role);
+  const profileLink = getProfileLink(role as Role);
 
   const dashboardActive =
     dashboardHref !== null
-      ? isRouteActive(
-          pathname,
-          dashboardHref,
-          true,
-        )
+      ? isRouteActive(pathname, dashboardHref, true)
       : false;
 
-  const profileActive = isRouteActive(
-    pathname,
-    profileLink,
-    true,
-  );
+  const profileActive = isRouteActive(pathname, profileLink, true);
 
   return (
     <Sheet>
@@ -386,10 +328,7 @@ function MobileMenu({
         </Button>
       </SheetTrigger>
 
-      <SheetContent
-        side="right"
-        className="w-[300px] p-0 sm:w-[360px]"
-      >
+      <SheetContent side="right" className="w-[300px] p-0 sm:w-[360px]">
         <SheetHeader className="border-b px-5 py-5 text-left">
           {isLoggedIn ? (
             <div className="flex items-center gap-3">
@@ -399,9 +338,7 @@ function MobileMenu({
                   alt={`${userName}'s profile picture`}
                 />
 
-                <AvatarFallback>
-                  {getInitials(userName)}
-                </AvatarFallback>
+                <AvatarFallback>{getInitials(userName)}</AvatarFallback>
               </Avatar>
 
               <div className="min-w-0">
@@ -417,20 +354,14 @@ function MobileMenu({
               </div>
             </div>
           ) : (
-            <SheetTitle>
-              Navigation
-            </SheetTitle>
+            <SheetTitle>Navigation</SheetTitle>
           )}
         </SheetHeader>
 
         <div className="flex h-[calc(100vh-81px)] flex-col overflow-y-auto">
           <nav className="flex flex-col gap-1 px-4 py-5">
             {links.map((item) => {
-              const active = isRouteActive(
-                pathname,
-                item.href,
-                item.exact,
-              );
+              const active = isRouteActive(pathname, item.href, item.exact);
 
               return (
                 <Button
@@ -446,9 +377,7 @@ function MobileMenu({
                 >
                   <Link
                     href={item.href}
-                    aria-current={
-                      active ? "page" : undefined
-                    }
+                    aria-current={active ? "page" : undefined}
                   >
                     {item.label}
                   </Link>
@@ -466,17 +395,12 @@ function MobileMenu({
                     variant="outline"
                     className={cn(
                       "h-10 w-full cursor-pointer justify-start rounded-md",
-                      dashboardActive &&
-                        "font-semibold text-primary",
+                      dashboardActive && "font-semibold text-primary",
                     )}
                   >
                     <Link
                       href={dashboardHref}
-                      aria-current={
-                        dashboardActive
-                          ? "page"
-                          : undefined
-                      }
+                      aria-current={dashboardActive ? "page" : undefined}
                     >
                       <LayoutDashboard className="size-4" />
                       Dashboard
@@ -496,11 +420,7 @@ function MobileMenu({
                 >
                   <Link
                     href={profileLink}
-                    aria-current={
-                      profileActive
-                        ? "page"
-                        : undefined
-                    }
+                    aria-current={profileActive ? "page" : undefined}
                   >
                     <UserIcon className="size-4" />
                     Profile
@@ -553,10 +473,7 @@ export default function Navbar({
     }
   };
 
-  const links = [
-    ...BASE_LINKS,
-    ...(role ? ROLE_CONFIG[role].links : []),
-  ];
+  const links = [...BASE_LINKS, ...(role ? ROLE_CONFIG[role].links : [])];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -573,11 +490,7 @@ export default function Navbar({
 
         <nav className="hidden items-center gap-1 md:flex">
           {links.map((item) => {
-            const active = isRouteActive(
-              pathname,
-              item.href,
-              item.exact,
-            );
+            const active = isRouteActive(pathname, item.href, item.exact);
 
             return (
               <Button
@@ -593,9 +506,7 @@ export default function Navbar({
               >
                 <Link
                   href={item.href}
-                  aria-current={
-                    active ? "page" : undefined
-                  }
+                  aria-current={active ? "page" : undefined}
                 >
                   {item.label}
                 </Link>
