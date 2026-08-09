@@ -6,7 +6,7 @@ import { getNewAccessToken } from "./utils/access-token";
 import { jwtUtils } from "./utils/jwt";
 
 const AUTH_ROUTES = ["/login", "/register"];
-const PUBLIC_ROUTES = ["/", "/services", "/categories"];
+const PUBLIC_ROUTES = ["/", "/services", "/categories", "/technicians"];
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -75,7 +75,7 @@ export async function proxy(request: NextRequest) {
   }
 
   const isPublicRoute = PUBLIC_ROUTES.some(
-    (route) => pathname === route ,
+    (route) => pathname === route || pathname.startsWith(route + "/"),
   );
 
   const isAuthRoute = AUTH_ROUTES.some(
@@ -107,7 +107,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!api|_next/static|favicon.ico|_next/image|.*\\.png$).*)",
-  ],
+  matcher: ["/((?!api|_next/static|favicon.ico|_next/image|.*\\.png$).*)"],
 };

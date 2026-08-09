@@ -11,15 +11,10 @@ export const getUserById = async (id: string) => {
   if (!id) {
     return { success: false, message: "User id required" };
   }
-  const cookieStore = await cookies();
-
-  const accessToken = cookieStore.get("accessToken")?.value;
 
   try {
     const res = await fetch(`${backendUrl}/api/user/${id}`, {
-      headers: {
-        Cookie: `accessToken=${accessToken}`,
-      },
+      method :"GET",
       cache: "no-store",
     });
 
@@ -53,8 +48,6 @@ export const updateNormalProfile = async (id: string, payload: TUpdateUser) => {
       errorDetails: [],
     };
   }
-
-  
 
   const parsed = userUpdateSchema.safeParse(payload);
 

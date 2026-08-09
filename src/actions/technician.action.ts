@@ -17,15 +17,11 @@ export const getTechnicianProfileById = async (id: string) => {
   if (!id) {
     return { success: false, message: "technician id required" };
   }
-  const cookieStore = await cookies();
 
-  const accessToken = cookieStore.get("accessToken")?.value;
 
   try {
     const res = await fetch(`${backendUrl}/api/technicians/profile/${id}`, {
-      headers: {
-        Cookie: `accessToken=${accessToken}`,
-      },
+      method:"GET",
       cache: "no-store",
     });
 

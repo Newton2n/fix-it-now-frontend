@@ -104,7 +104,6 @@ export const getAllServiceByCategoryId = async (id: string) => {
 export const getAllServiceByLoginTechnician = async () => {
   const cookieStore = await cookies();
 
-  
   const accessToken = cookieStore.get("accessToken")?.value;
   const verify = jwtUtils.verifyToken(
     accessToken as string,
@@ -123,7 +122,7 @@ export const getAllServiceByLoginTechnician = async () => {
     cache: "no-store",
   });
   const result = await res.json();
-  
+
   if (result.success) {
     return result;
   }
@@ -137,31 +136,13 @@ export const getSingleService = async (id: string) => {
       message: "Service id required",
     };
   }
-  const cookieStore = await cookies();
-
-  
-  const accessToken = cookieStore.get("accessToken")?.value;
-
-
-  const verifyAccessToken = jwtUtils.verifyToken(
-    accessToken as string,
-    process.env.JWT_ACCESS_SECRET!,
-  );
-  if (!verifyAccessToken.success) {
-    return {
-      success: false,
-      message: "sorry you are not log in",
-    };
-  }
 
   const res = await fetch(`${backendUrl}/api/service/${id}`, {
+    method :"GET",
     cache: "no-store",
-    headers: {
-      Cookie: `accessToken=${accessToken}`,
-    },
   });
   const result = await res.json();
- 
+
   if (result.success) {
     return result;
   }
@@ -169,8 +150,6 @@ export const getSingleService = async (id: string) => {
 
 //create service
 export const createService = async (data: TCreateService) => {
-
-
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -206,7 +185,6 @@ export const createService = async (data: TCreateService) => {
       };
     }
 
-    
     //revalidate all service by category section
     revalidateTag("services-by-category", {
       expire: 0,
@@ -232,7 +210,6 @@ export const createService = async (data: TCreateService) => {
 
 //update service
 export const updateService = async (id: string, data: TUpdateService) => {
-  
   if (!id) {
     return {
       success: false,
@@ -275,7 +252,6 @@ export const updateService = async (id: string, data: TUpdateService) => {
       };
     }
 
-    
     //revalidate all service by category section
     revalidateTag("services-by-category", {
       expire: 0,
@@ -342,7 +318,6 @@ export const deleteService = async (id: string) => {
       };
     }
 
-  
     //revalidate all service by category section
     revalidateTag("services-by-category", {
       expire: 0,
