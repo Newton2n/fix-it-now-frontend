@@ -63,10 +63,15 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-md">
-        <Card className="border shadow-sm">
-          <CardHeader className="space-y-2 text-center">
+    <main className="flex min-h-[calc(100vh-4rem)] w-full items-center bg-muted/20 px-5 py-10 sm:px-8 lg:px-[clamp(2rem,6vw,7rem)]">
+      <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(22rem,0.75fr)] lg:items-center lg:gap-16">
+        <div className="hidden min-w-0 lg:block">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-primary">Start with FixItNow</p>
+          <h1 className="max-w-xl text-balance text-5xl font-semibold tracking-tight xl:text-6xl">The right person for the job is closer than you think.</h1>
+          <p className="mt-6 max-w-lg text-lg leading-8 text-muted-foreground">Create your account to discover services, manage bookings, and keep your home running smoothly.</p>
+        </div>
+        <Card className="w-full border-border/70 bg-card/95 shadow-xl shadow-primary/5">
+          <CardHeader className="space-y-2 text-center sm:text-left">
             <CardTitle className="text-2xl">Create account</CardTitle>
 
             <CardDescription>

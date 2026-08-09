@@ -55,10 +55,8 @@ export default async function RootLayout({
             <Suspense fallback={<NavbarSkeleton />}>
               <AuthNavbar />
             </Suspense>
-            <main className="flex-1 w-full">
-              <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
-                {children}
-              </div>
+            <main className="min-w-0 flex-1 w-full">
+              {children}
             </main>
             <Footer />
           </div>

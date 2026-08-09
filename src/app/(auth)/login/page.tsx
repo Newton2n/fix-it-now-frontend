@@ -63,12 +63,20 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-md">
-        <Card className="border shadow-sm">
-          <CardHeader className="space-y-2 text-center">
+    <main className="flex min-h-[calc(100vh-4rem)] w-full items-center bg-muted/20 px-5 py-10 sm:px-8 lg:px-[clamp(2rem,6vw,7rem)]">
+      <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(22rem,0.75fr)] lg:items-center lg:gap-16">
+        <div className="hidden min-w-0 lg:block">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-primary">FixItNow</p>
+          <h1 className="max-w-xl text-balance text-5xl font-semibold tracking-tight xl:text-6xl">A little help can change the whole day.</h1>
+          <p className="mt-6 max-w-lg text-lg leading-8 text-muted-foreground">Sign in to book trusted home service professionals and keep every appointment in one place.</p>
+          <div className="mt-10 grid max-w-lg grid-cols-2 gap-3">
+            <div className="rounded-2xl border bg-card p-5"><p className="text-2xl font-semibold text-primary">01</p><p className="mt-2 text-sm text-muted-foreground">Find the right service</p></div>
+            <div className="rounded-2xl border bg-card p-5"><p className="text-2xl font-semibold text-primary">02</p><p className="mt-2 text-sm text-muted-foreground">Book with confidence</p></div>
+          </div>
+        </div>
+        <Card className="w-full border-border/70 bg-card/95 shadow-xl shadow-primary/5">
+          <CardHeader className="space-y-2 text-center sm:text-left">
             <CardTitle className="text-2xl">Welcome back</CardTitle>
-
             <CardDescription>Sign in to your FixItNow account.</CardDescription>
           </CardHeader>
 

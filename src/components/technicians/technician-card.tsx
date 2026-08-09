@@ -38,7 +38,7 @@ export default function TechnicianCard({
   status,
 }: TechnicianCardProps) {
   return (
-    <Card className="flex h-full flex-col overflow-hidden transition hover:-translate-y-1 hover:shadow-md">
+    <Card className="flex h-full min-w-0 flex-col overflow-hidden border-border/60 bg-card transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl">
       <CardHeader>
         <div className="flex items-start gap-4">
           <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">

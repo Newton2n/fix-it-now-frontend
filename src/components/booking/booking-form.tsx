@@ -282,8 +282,8 @@ export default function BookingForm({
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+    <div className="w-full px-5 py-6 sm:px-8 lg:px-[clamp(2rem,6vw,7rem)]">
+      <div className="mx-auto grid w-full max-w-[110rem] gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)]">
         {/* 
             LEFT SIDE
         */}

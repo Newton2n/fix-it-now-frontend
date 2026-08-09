@@ -4,8 +4,8 @@ import { Separator } from "@/components/ui/separator";
 
 export default function Footer() {
   return (
-    <footer className="border-t bg-background">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+    <footer className="border-t bg-muted/20">
+      <div className="w-full px-5 py-10 sm:px-8 sm:py-12 lg:px-[clamp(2rem,6vw,7rem)]">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12">
           {/* Brand */}
           <div className="space-y-4">

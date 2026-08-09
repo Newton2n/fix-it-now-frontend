@@ -9,8 +9,8 @@ type Props = {
 
 export default function SectionCard({ title, description, children }: Props) {
   return (
-    <Card>
-      <CardHeader>
+    <Card className="min-w-0 border-border/60 bg-card/90 shadow-sm">
+      <CardHeader className="gap-2">
         <CardTitle>{title}</CardTitle>
         {description ? <CardDescription>{description}</CardDescription> : null}
       </CardHeader>

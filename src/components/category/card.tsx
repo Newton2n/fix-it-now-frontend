@@ -24,7 +24,7 @@ export default function CategoryCard({
   icon: Icon,
 }: CategoryCardProps) {
   return (
-    <Card className="transition hover:shadow-md">
+    <Card className="group h-full min-w-0 border-border/60 bg-card transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
       <CardHeader>
         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
           <Icon className="h-6 w-6" />

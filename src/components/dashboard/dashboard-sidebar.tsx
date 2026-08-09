@@ -30,7 +30,7 @@ export default function DashboardSidebar({
   };
 
   return (
-    <aside className="flex h-full w-full flex-col border-r bg-background">
+    <aside className="flex h-full w-full min-w-56 flex-col border-r bg-background">
       <div className="border-b px-4 py-4">
         <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Dashboard

@@ -33,7 +33,7 @@ export default function ServiceCard({
 }: ServiceCardProps) {
   return (
     <Link href={`/services/${id}`} className="group block h-full">
-      <Card className="flex h-full overflow-hidden border-border/60 bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <Card className="flex h-full min-w-0 overflow-hidden border-border/60 bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl focus-within:border-primary/50">
         <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
           {image ? (
             <Image

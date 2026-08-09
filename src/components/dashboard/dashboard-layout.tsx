@@ -17,7 +17,7 @@ export default function DashboardLayout({
   children,
 }: Props) {
   return (
-    <div className="flex min-h-screen bg-muted/20">
+    <div className="flex min-h-[calc(100vh-4rem)] w-full min-w-0 bg-muted/20">
       <div className="hidden lg:block">
         <DashboardSidebar role={role} />
       </div>
