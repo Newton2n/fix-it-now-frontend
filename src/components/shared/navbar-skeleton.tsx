@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function NavbarSkeleton() {
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
+      <div className="flex h-16 w-full items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <Skeleton className="h-6 w-24" />
 

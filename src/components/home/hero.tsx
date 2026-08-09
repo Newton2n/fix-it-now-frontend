@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 export default function Hero() {
   return (
     <section className="border-b bg-muted/30">
-      <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 py-10 md:px-6 md:py-14 lg:flex-row lg:items-center lg:justify-between lg:py-20">
+      <div className="mx-auto grid w-full max-w-none gap-10 px-4 py-10 md:px-6 md:py-14 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,520px)] lg:items-center lg:py-20">
         {/* Left Content */}
         <div className="max-w-2xl space-y-6">
           <p className="inline-flex rounded-full border bg-background px-4 py-1 text-sm font-medium text-muted-foreground">
@@ -34,7 +34,7 @@ export default function Hero() {
         </div>
 
         {/* Right Content */}
-        <div className="grid w-full max-w-md grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
           <Link
             href="/services"
             className="group rounded-2xl border bg-card p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"

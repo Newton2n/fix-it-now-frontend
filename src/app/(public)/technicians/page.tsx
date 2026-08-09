@@ -55,22 +55,24 @@ export default async function TechniciansPage({
     <main>
       {/* Hero */}
       <section className="border-b">
-        <div className="mx-auto max-w-7xl px-4 py-12 md:px-6">
-          <p className="text-sm font-medium text-primary">Our Technicians</p>
+        <div className="w-full px-4 py-12 md:px-6">
+          <div className="max-w-4xl">
+            <p className="text-sm font-medium text-primary">Our Technicians</p>
 
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Find a trusted technician
-          </h1>
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Find a trusted technician
+            </h1>
 
-          <p className="mt-2 max-w-2xl text-muted-foreground">
-            Search and filter technicians by skills, experience, availability,
-            and service area.
-          </p>
+            <p className="mt-2 max-w-2xl text-muted-foreground">
+              Search and filter technicians by skills, experience, availability,
+              and service area.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Content */}
-      <section className="mx-auto max-w-7xl px-4 py-8 md:px-6">
+      <section className="w-full px-4 py-8 md:px-6">
         <TechnicianSearchFilters
           defaultValues={{
             search,
@@ -183,7 +185,7 @@ async function TechniciansContent({
       </div>
 
       {/* Cards */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {technicians.map((technician) => (
           <TechnicianWithUser key={technician.id} technician={technician} />
         ))}

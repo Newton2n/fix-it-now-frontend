@@ -46,24 +46,26 @@ export default function CategoriesPage({
     <main className="min-h-screen bg-background">
       {/* Hero */}
       <section className="border-b bg-muted/30">
-        <div className="mx-auto max-w-7xl px-4 py-10 md:px-6">
-          <Badge variant="secondary" className="mb-3">
-            Service Categories
-          </Badge>
+        <div className="w-full px-4 py-10 md:px-6">
+          <div className="max-w-4xl">
+            <Badge variant="secondary" className="mb-3">
+              Service Categories
+            </Badge>
 
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Browse services by category
-          </h1>
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Browse services by category
+            </h1>
 
-          <p className="mt-2 max-w-2xl text-muted-foreground">
-            Explore different home service categories and connect
-            with trusted professionals.
-          </p>
+            <p className="mt-2 max-w-2xl text-muted-foreground">
+              Explore different home service categories and connect
+              with trusted professionals.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Categories */}
-      <section className="mx-auto max-w-7xl px-4 py-8 md:px-6">
+      <section className="w-full px-4 py-8 md:px-6">
         <Suspense fallback={<CategoriesSkeleton />}>
           <CategoriesContent searchParams={searchParams} />
         </Suspense>
@@ -170,7 +172,7 @@ async function CategoriesContent({
       ) : (
         <>
           {/* Category cards */}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {categories.map((category, index) => {
               const Icon =
                 iconMap[index % iconMap.length];
@@ -215,7 +217,7 @@ function CategoriesSkeleton() {
       <Skeleton className="h-5 w-32" />
 
       {/* Cards */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             key={index}

@@ -17,8 +17,8 @@ export default function DashboardLayout({
   children,
 }: Props) {
   return (
-    <div className="flex min-h-screen bg-muted/20">
-      <div className="hidden lg:block">
+    <div className="flex min-h-screen w-full bg-muted/20">
+      <div className="hidden lg:block lg:w-72">
         <DashboardSidebar role={role} />
       </div>
 
