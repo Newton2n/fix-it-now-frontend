@@ -182,14 +182,8 @@ async function ServicesContent({
               key={service.id}
               id={service.id}
               title={service.title}
-              image={
-                service.thumbnailImage ||
-                "https://images.unsplash.com/photo-1605152276897-4f618f831968?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              }
-              location="Location not specified"
-              rating={5}
+              image={service.thumbnailImage}
               price={service.price}
-              technician="Professional Technician"
             />
           ))}
         </div>

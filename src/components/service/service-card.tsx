@@ -16,10 +16,10 @@ type ServiceCardProps = {
   id: string | number;
   title: string;
   image?: string | null;
-  location: string;
-  rating: number;
+  location?: string | null;
+  rating?: number | null;
   price: number;
-  technician: string;
+  technician?: string | null;
 };
 
 export default function ServiceCard({
@@ -50,10 +50,12 @@ export default function ServiceCard({
             </div>
           )}
 
-          <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-background/95 px-2.5 py-1 text-xs font-semibold shadow-sm backdrop-blur">
-            <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-            {/* <span>{rating?.toFixed(1)}</span> */}
-          </div>
+          {rating != null && rating > 0 && (
+            <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-background/95 px-2.5 py-1 text-xs font-semibold shadow-sm backdrop-blur">
+              <Star className="h-3.5 w-3.5 fill-current text-accent-foreground" />
+              <span>{rating.toFixed(1)}</span>
+            </div>
+          )}
         </div>
 
         <CardHeader className="space-y-3 pb-3">
@@ -61,23 +63,26 @@ export default function ServiceCard({
             {title}
           </CardTitle>
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4 shrink-0" />
-            <span className="truncate">{location}</span>
-          </div>
+          {location && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="h-4 w-4 shrink-0" />
+              <span className="truncate">{location}</span>
+            </div>
+          )}
         </CardHeader>
 
         <CardContent className="flex-1 space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
-              <UserRound className="h-4 w-4 text-muted-foreground" />
+          {technician && (
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
+                <UserRound className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">Provided by</p>
+                <p className="truncate text-sm font-medium">{technician}</p>
+              </div>
             </div>
-
-            <div className="min-w-0">
-              <p className="text-xs text-muted-foreground">Provided by</p>
-              <p className="truncate text-sm font-medium">{technician}</p>
-            </div>
-          </div>
+          )}
 
           <div className="flex items-end justify-between border-t pt-4">
             <div>
@@ -85,13 +90,15 @@ export default function ServiceCard({
               <p className="text-lg font-bold text-primary">${price}</p>
             </div>
 
-            <div className="text-right">
-              <p className="text-xs text-muted-foreground">Rating</p>
-              <div className="flex items-center justify-end gap-1">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                {/* <span className="text-sm font-semibold">{rating.toFixed(1)}</span> */}
+            {rating != null && rating > 0 && (
+              <div className="text-right">
+                <p className="text-xs text-muted-foreground">Rating</p>
+                <div className="flex items-center justify-end gap-1">
+                  <Star className="h-4 w-4 fill-current text-accent-foreground" />
+                  <span className="text-sm font-semibold">{rating.toFixed(1)}</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </CardContent>
 
