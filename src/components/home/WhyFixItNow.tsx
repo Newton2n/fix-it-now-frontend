@@ -56,7 +56,7 @@ export function WhyFixItNow() {
           />
           <div className="relative mt-8 hidden overflow-hidden rounded-3xl border border-border bg-card lg:block">
             <Image
-              src="/assets/hero-illustration.png"
+              src="/assets/hero2.png"
               alt=""
               aria-hidden="true"
               loading="lazy"

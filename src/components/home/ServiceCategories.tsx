@@ -1,67 +1,81 @@
 import {
   ArrowRight,
-  Droplets,
-  Hammer,
-  House,
-  Paintbrush,
-  Plug,
-  Snowflake,
-  Sparkles,
   Wrench,
+  Smartphone,
+  Sparkles,
+  Home,
+  Zap,
+  Droplets,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Reveal, SectionHeading } from "./Reveal";
-import { sampleCategories } from "./sample-data";
-import type { ServiceCategory } from "./types";
+import { getAllCategories } from "@/actions/category.action";
+import CategoryCard from "@/components/category/card";
+import type { Category } from "@/schema/category/category.schema";
+import Link from "next/link";
 
-const ICONS: Record<ServiceCategory["icon"], LucideIcon> = {
-  plumbing: Droplets,
-  electrical: Plug,
-  cleaning: Sparkles,
-  ac: Snowflake,
-  painting: Paintbrush,
-  carpentry: Hammer,
-  maintenance: House,
-};
+const iconMap = [
+  Wrench,
+  Smartphone,
+  Sparkles,
+  Home,
+  Zap,
+  Droplets,
+];
 
-export function ServiceCategories({
-  categories = sampleCategories,
-}: {
-  categories?: ServiceCategory[];
-}) {
+export async function ServiceCategories() {
+  const result = await getAllCategories({
+    page: 1,
+    limit: 6,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
+
+  if (!result.success) {
+    return null;
+  }
+
+  const rawCategories: Category[] = result.data ?? [];
+
+  const categories = rawCategories.length >= 6 
+    ? rawCategories.slice(0, 6) 
+    : rawCategories.slice(0, 3);
+
+  if (categories.length === 0) {
+    return null;
+  }
+
   return (
     <section id="categories" className="w-full border-b border-border bg-background py-16 lg:py-24">
-      <div className="section-x mx-auto max-w-[110rem]">
-        <Reveal>
+      <div className="section-x mx-auto max-w-[110rem] px-4 sm:px-6 lg:px-8">
+        <Reveal className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
             eyebrow="Service discovery"
-            title="What do you need help with?"
-            description="Browse categories to find the right kind of professional, then compare services and availability in your area."
+            title="Browse services by category"
+            description="Explore different home service categories and connect with trusted professionals in your area."
           />
+          <Button asChild variant="outline" className="shrink-0 gap-2 self-start sm:self-auto">
+            <Link href="/categories">
+              View all categories
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+          </Button>
         </Reveal>
 
-        <ul className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {/* h-full on the li and card ensures equal height matching across the grid row */}
+        <ul className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
           {categories.map((category, i) => {
-            const Icon = ICONS[category.icon] ?? Wrench;
+            const Icon = iconMap[i % iconMap.length];
             return (
-              <Reveal as="li" key={category.id} delay={Math.min(i, 5) * 60} className="min-w-0">
-                <Card className="group flex h-full min-w-0 cursor-pointer flex-col gap-3 rounded-2xl border-border bg-card p-5 shadow-none transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
-                  <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-secondary text-primary transition-colors duration-200 group-hover:bg-primary group-hover:text-primary-foreground">
-                    <Icon className="size-5" aria-hidden="true" />
-                  </span>
-                  <h3 className="text-base font-semibold tracking-tight">{category.name}</h3>
-                  <p className="min-w-0 flex-1 text-sm leading-relaxed text-muted-foreground">
-                    {category.description}
-                  </p>
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary">
-                    Explore
-                    <ArrowRight
-                      className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
-                      aria-hidden="true"
-                    />
-                  </span>
-                </Card>
+              <Reveal as="li" key={category.id} delay={Math.min(i, 3) * 60} className="min-w-0 h-full flex">
+                <CategoryCard
+                  key={category.id}
+                  id={category.id}
+                  name={category.name}
+                  description={category.description || "Get service by category with professional technicians ready to assist."}
+                  icon={Icon}
+                  className="h-full flex flex-col justify-between"
+                />
               </Reveal>
             );
           })}
