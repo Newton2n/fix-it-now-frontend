@@ -49,19 +49,21 @@ export default function ServiceCard({
           )}
         </div>
 
-        <CardHeader className="space-y-2.5 pb-3 sm:space-y-3 sm:pb-3">
-          <CardTitle className="line-clamp-2 text-base font-semibold leading-snug sm:text-lg">
+        <CardHeader className="space-y-2 pb-2 sm:pb-2">
+          {/* Added break-words to handle extremely long single words or titles smoothly */}
+          <CardTitle className="line-clamp-2 break-words text-base font-semibold leading-snug sm:text-lg">
             {title}
           </CardTitle>
 
-          <div className="flex min-w-0 items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+          <div className="flex w-full items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
             <MapPin className="h-4 w-4 shrink-0" />
-            <span className="truncate">{location}</span>
+            <span className="min-w-0 truncate">{location}</span>
           </div>
         </CardHeader>
 
-        <CardContent className="flex flex-1 flex-col justify-between space-y-4 pt-0">
-          <div className="flex min-w-0 items-center gap-3">
+        {/* Added min-w-0 to the content container and children to enforce proper flexbox truncation */}
+        <CardContent className="flex flex-1 flex-col justify-between space-y-4 pt-0 min-w-0">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
               <UserRound className="h-4 w-4 text-muted-foreground" />
             </div>
@@ -72,7 +74,7 @@ export default function ServiceCard({
             </div>
           </div>
 
-          <div className="flex min-w-0 items-end justify-between border-t pt-3 sm:pt-4">
+          <div className="flex items-end justify-between border-t pt-3 sm:pt-4 min-w-0">
             <div className="min-w-0">
               <p className="text-[11px] sm:text-xs text-muted-foreground leading-tight">Starting from</p>
               <p className="text-base sm:text-lg font-bold text-primary leading-tight truncate">${price}</p>

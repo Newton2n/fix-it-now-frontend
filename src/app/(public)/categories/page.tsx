@@ -1,13 +1,5 @@
 import { Suspense } from "react";
 
-import {
-  Smartphone,
-  Wrench,
-  Sparkles,
-  Home,
-  Zap,
-  Droplets,
-} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -30,14 +22,7 @@ type CategoriesPageProps = {
   }>;
 };
 
-const iconMap = [
-  Wrench,
-  Smartphone,
-  Sparkles,
-  Home,
-  Zap,
-  Droplets,
-];
+
 
 export default function CategoriesPage({
   searchParams,
@@ -174,16 +159,13 @@ async function CategoriesContent({
           {/* Category cards */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {categories.map((category, index) => {
-              const Icon =
-                iconMap[index % iconMap.length];
-
+              
               return (
                 <CategoryCard
                   key={category.id}
                   id={category.id}
                   name={category.name}
                   description={category.description}
-                  icon={Icon}
                 />
               );
             })}

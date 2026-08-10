@@ -1,8 +1,7 @@
 "use server";
 
-import { OneReviewResponse } from "@/types/review";
+import { OneReviewResponse, Review } from "@/types/review";
 import { jwtUtils } from "@/utils/jwt";
-import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const backendUrl = process.env.BACKEND_API;
@@ -349,6 +348,66 @@ export const deleteReview = async (reviewId: string) => {
       success: false,
       message: "Unable to connect to the server. Please try again.",
       errorDetails: [],
+    };
+  }
+};
+
+
+
+//get latest review
+
+type ReviewsResponse = {
+  success: boolean;
+  message: string;
+  data?: {
+    result?: Review[];
+  };
+};
+export const getLatestReviews = async (): Promise<{
+  success: boolean;
+  message: string;
+  data: Review[] | null;
+}> => {
+  try {
+    const response = await fetch(`${backendUrl}/api/review/latest`, {
+      method: "GET",
+      cache: "force-cache",
+      next: {
+        tags: ["latest-reviews"],
+        revalidate: 300, // Revalidates every 5 minutes
+      },
+    });
+
+    if (!response.ok) {
+      return {
+        success: false,
+        message: "Failed to retrieve latest reviews.",
+        data: null,
+      };
+    }
+
+    const result: ReviewsResponse = await response.json();
+
+    if (!result.success || !result.data?.result) {
+      return {
+        success: false,
+        message: result.message || "Failed to retrieve latest reviews.",
+        data: null,
+      };
+    }
+
+    return {
+      success: true,
+      message: result.message,
+      data: result.data.result,
+    };
+  } catch (error) {
+    console.error("getLatestReviews error:", error);
+
+    return {
+      success: false,
+      message: "Failed to retrieve latest reviews.",
+      data: null,
     };
   }
 };

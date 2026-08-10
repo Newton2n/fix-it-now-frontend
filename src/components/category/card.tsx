@@ -1,66 +1,46 @@
 import Link from "next/link";
-import { type LucideIcon } from "lucide-react";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type CategoryCardProps = {
   id: string;
   name: string;
-  description: string;
-  icon: LucideIcon;
+  description?: string | null;
+  className?: string;
 };
 
 export default function CategoryCard({
   id,
   name,
   description,
-  icon: Icon,
+  className,
 }: CategoryCardProps) {
   return (
-    <Card className="transition hover:shadow-md">
-      <CardHeader>
-        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <Icon className="h-6 w-6" />
+    <Link href={`/categories/${id}`} className={cn("block h-full w-full", className)}>
+      <Card className="group flex h-full w-full cursor-pointer flex-col justify-between rounded-2xl border-border bg-card p-5 shadow-none transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm">
+        
+        {/* Top Content Group */}
+        <div className="flex flex-col gap-3">
+          <h3 className="text-base font-semibold tracking-tight text-foreground line-clamp-1">{name}</h3>
+          
+          <p className="min-w-0 text-sm leading-relaxed text-muted-foreground line-clamp-2">
+            {description || "Get service by category with professional technicians ready to assist."}
+          </p>
         </div>
 
-        <CardTitle>
-          {name}
-        </CardTitle>
+        {/* Bottom Action Link */}
+        <div className="pt-4">
+          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary">
+            Explore
+            <ArrowRight
+              className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
+              aria-hidden="true"
+            />
+          </span>
+        </div>
 
-        <CardDescription>
-          {description}
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Category ID
-        </p>
-
-        <p className="max-w-40 truncate text-xs font-mono text-muted-foreground">
-          {id}
-        </p>
-      </CardContent>
-
-      <CardContent className="pt-0">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          asChild
-        >
-          <Link href={`/categories/${id}`}>
-            View Services
-          </Link>
-        </Button>
-      </CardContent>
-    </Card>
+      </Card>
+    </Link>
   );
 }
