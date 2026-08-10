@@ -13,7 +13,8 @@ const PIECES = [
 export function BookingExperience() {
   return (
     <section className="w-full border-b border-border bg-surface py-16 lg:py-24">
-      <div className="section-x mx-auto grid max-w-[110rem] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-16">
+      {/* Expanded container matching ultra-wide 4K display widths (max-w-[1920px]) while preserving internal padding alignment */}
+      <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8 grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-16">
         <Reveal className="min-w-0">
           <SectionHeading
             eyebrow="Booking experience"

@@ -4,7 +4,6 @@ import { AppStats } from "@/types/stats";
 
 const backendUrl = process.env.BACKEND_API;
 
-
 type StatsResponse = {
   success: boolean;
   message: string;
@@ -12,18 +11,19 @@ type StatsResponse = {
     result?: AppStats;
   };
 };
-
-export async function getAppStats(): Promise<{
+export const getAppStats = async (): Promise<{
   success: boolean;
   message: string;
   data: AppStats | null;
-}> {
+}> => {
   try {
-    
-
     const response = await fetch(`${backendUrl}/api/stats/summary`, {
       method: "GET",
-      cache: "no-store",
+      cache: "force-cache",
+      next: {
+        tags: ["stats-summary"],
+        revalidate: 60,
+      },
     });
 
     const result: StatsResponse = await response.json();
@@ -50,4 +50,4 @@ export async function getAppStats(): Promise<{
       data: null,
     };
   }
-}
+};

@@ -1,10 +1,6 @@
-import { ArrowRight, Briefcase, MapPin, Star } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Suspense } from "react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 import { Reveal, SectionHeading } from "./Reveal";
 import { getAllTechnicians } from "@/actions/technician.action";
 import { getUserById } from "@/actions/user.action";
@@ -36,7 +32,6 @@ export async function TechnicianSpotlight() {
 
   const rawTechnicians: Technician[] = result.data ?? [];
 
-  // Strictly enforce 3 or 6 items (take first 6 if available, otherwise take first 3)
   const technicians = rawTechnicians.length >= 6 
     ? rawTechnicians.slice(0, 6) 
     : rawTechnicians.slice(0, 3);
@@ -47,7 +42,6 @@ export async function TechnicianSpotlight() {
 
   return (
     <section id="technicians" className="w-full border-b border-border bg-background py-16 lg:py-24">
-      {/* Expanded container to match ultra-wide 4K display widths (max-w-[1920px]) while preserving internal padding alignment */}
       <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8">
         <Reveal className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
@@ -66,7 +60,10 @@ export async function TechnicianSpotlight() {
         <ul className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
           {technicians.map((technician, i) => (
             <Reveal as="li" key={technician.id} delay={Math.min(i, 3) * 70} className="min-w-0">
-              <TechnicianWithUser technician={technician} />
+              {/* Wrap the async sub-component with Suspense */}
+              <Suspense fallback={<TechnicianCardSkeleton />}>
+                <TechnicianWithUser technician={technician} />
+              </Suspense>
             </Reveal>
           ))}
         </ul>
@@ -97,5 +94,12 @@ async function TechnicianWithUser({ technician }: { technician: Technician }) {
       isAvailable={technician.isAvailable}
       status={technician.status}
     />
+  );
+}
+
+// Optional: Lightweight fallback skeleton while the card streams in
+function TechnicianCardSkeleton() {
+  return (
+    <div className="h-[280px] w-full animate-pulse rounded-xl border border-border bg-muted/40 p-6" />
   );
 }

@@ -6,6 +6,6 @@ export type AppStats = {
   paymentsCount: number;
   userCount: number;
   reviewsCount: number;
-  averageRating1: number;
+  averageRating: number;
 };
 

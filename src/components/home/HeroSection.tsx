@@ -320,15 +320,15 @@ export function HeroSection() {
         </div>
 
         {/* Scroll Down Indicator */}
-        <div className="w-full pb-3 flex justify-center bg-gradient-to-t from-background via-background/60 to-transparent pt-6 hidden sm:flex">
-          <Link 
+        <div className="w-full pb-3 justify-center bg-gradient-to-t from-background via-background/60 to-transparent pt-6 hidden sm:flex">
+          <a 
             href="#categories" 
             aria-label="Scroll down to service categories section"
             className="group flex flex-col items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
           >
             <span>Explore Categories</span>
             <ChevronDown className="size-5 transition-transform duration-300 group-hover:translate-y-1 animate-bounce" />
-          </Link>
+          </a>
         </div>
       </section>
 

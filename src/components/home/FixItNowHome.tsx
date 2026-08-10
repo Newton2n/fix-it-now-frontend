@@ -7,35 +7,41 @@ import { WhyFixItNow } from "./WhyFixItNow";
 import { TechnicianSpotlight } from "./TechnicianSpotlight";
 import { BookingExperience } from "./BookingExperience";
 import { TrustSection } from "./TrustSection";
-import { PlatformStats } from "./PlatformStats";
 import { TechnicianCTA } from "./TechnicianCTA";
 import { FAQSection } from "./FAQSection";
 import { FinalCTA } from "./FinalCTA";
-import type { FeaturedService, PlatformStats as Stats, Review, ServiceCategory, Technician } from "./types";
+
 import { ApplicationStatsSection } from "./application-stats-section";
+import { FeaturedService, ServiceCategory, Technician } from "@/types/home";
+import { Review } from "@/types/review";
+import { AppStats } from "@/types/stats";
 
 export type FixItNowHomeProps = {
   categories?: ServiceCategory[];
   services?: FeaturedService[];
   technicians?: Technician[];
   reviews?: Review[];
-  stats?: Stats;
+  stats?: AppStats;
 };
 
-export function FixItNowHome({ categories, services, technicians, reviews, stats }: FixItNowHomeProps) {
+export function FixItNowHome({
+  categories,
+  services,
+  technicians,
+}: FixItNowHomeProps) {
   return (
     <TooltipProvider delayDuration={200}>
       <div className="flex min-h-screen w-full flex-col overflow-x-hidden bg-background">
         <main className="flex-1">
           <HeroSection />
-          <ApplicationStatsSection/>
-          {categories ? <ServiceCategories/> : <ServiceCategories />}
+          <ApplicationStatsSection />
+          {categories ? <ServiceCategories /> : <ServiceCategories />}
           {services ? <FeaturedServices /> : <FeaturedServices />}
           <HowItWorks />
           <WhyFixItNow />
-          {technicians ? <TechnicianSpotlight/> : <TechnicianSpotlight />}
+          {technicians ? <TechnicianSpotlight /> : <TechnicianSpotlight />}
           <BookingExperience />
-          <TrustSection reviews={reviews ?? []} />
+          <TrustSection />
           <TechnicianCTA />
           <FAQSection />
           <FinalCTA />

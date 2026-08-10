@@ -14,8 +14,12 @@ export const getUserById = async (id: string) => {
 
   try {
     const res = await fetch(`${backendUrl}/api/user/${id}`, {
-      method :"GET",
-      cache: "no-store",
+      method: "GET",
+      cache: "force-cache",
+      next: {
+        tags: ["single-user"],
+        revalidate: 60,
+      },
     });
 
     const result = await res.json();

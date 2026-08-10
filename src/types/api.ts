@@ -1,5 +1,7 @@
 // Common API Response Types
 
+import { Review } from "./review";
+
 export type ActionResponse<T = unknown> = {
   success: boolean;
   message: string;
@@ -69,16 +71,6 @@ export interface Booking {
   review: Review | null;
 }
 
-export interface Review {
-  id: string;
-  bookingId: string;
-  customerId: string;
-  technicianId: string;
-  rating: number;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export interface Payment {
   id: string;
