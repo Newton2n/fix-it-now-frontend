@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { getMe } from "@/actions/auth.action";
-import ProfilePage from "@/components/dashboard/profile-page";
+import ProfilePage from "@/components/profile/profile-page";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminProfilePage() {

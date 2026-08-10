@@ -55,6 +55,7 @@ export const createCategorySchema = z.object({
     .string()
     .min(6, "Description must be at least 6 letters long")
     .max(255, "description  must be less than 101 letters"),
+  
 });
 export const updateCategorySchema = z.object({
   name: z

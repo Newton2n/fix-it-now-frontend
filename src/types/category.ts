@@ -6,6 +6,7 @@ export interface Category {
   name: string;
   description?: string;
   icon?: string;
+  imageUrl? :string,
   createdAt: string;
   updatedAt: string;
 }

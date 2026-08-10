@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import ProfilePage from "@/components/dashboard/profile-page";
+import ProfilePage from "@/components/profile/profile-page";
 import { getMe } from "@/actions/auth.action";
 import { UserProfile } from "@/types/user";
 import { Skeleton } from "@/components/ui/skeleton";
