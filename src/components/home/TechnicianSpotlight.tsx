@@ -47,7 +47,8 @@ export async function TechnicianSpotlight() {
 
   return (
     <section id="technicians" className="w-full border-b border-border bg-background py-16 lg:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      {/* Expanded container to match ultra-wide 4K display widths (max-w-[1920px]) while preserving internal padding alignment */}
+      <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8">
         <Reveal className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
             eyebrow="Technician discovery"

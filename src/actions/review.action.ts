@@ -2,7 +2,6 @@
 
 import { OneReviewResponse } from "@/types/review";
 import { jwtUtils } from "@/utils/jwt";
-import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const backendUrl = process.env.BACKEND_API;

@@ -31,7 +31,7 @@ const STEPS = [
 export function HowItWorks() {
   return (
     <section className="w-full border-b border-border bg-background py-16 lg:py-24">
-      <div className="section-x mx-auto max-w-[110rem]">
+      <div className="section-x mx-auto max-w-[110rem] px-4 sm:px-6 lg:px-8">
         <Reveal>
           <SectionHeading
             eyebrow="How FixItNow works"
@@ -40,23 +40,32 @@ export function HowItWorks() {
           />
         </Reveal>
 
-        <ol className="relative mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-4 xl:gap-6">
+        <ol className="relative mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-8 xl:grid-cols-4">
+          {/* Connecting line for ultra-wide desktop displays */}
           <span
             aria-hidden="true"
             className="absolute left-0 right-0 top-6 hidden h-px bg-border xl:block"
           />
+
           {STEPS.map((step, i) => (
-            <Reveal as="li" key={step.n} delay={i * 90} className="relative min-w-0">
-              <div className="flex items-center gap-3">
-                <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-border bg-card text-primary shadow-sm">
+            <Reveal 
+              as="li" 
+              key={step.n} 
+              delay={i * 90} 
+              className="relative min-w-0 rounded-2xl border border-border/60 bg-card/40 p-6 shadow-sm transition-all duration-300 hover:border-border hover:bg-card hover:shadow-md sm:p-7 xl:border-none xl:bg-transparent xl:p-0 xl:shadow-none"
+            >
+              <div className="flex items-center justify-between xl:justify-start xl:gap-3">
+                <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-border bg-card text-primary shadow-sm xl:bg-background">
                   <step.icon className="size-5" aria-hidden="true" />
                 </span>
-                <span className="font-display text-2xl font-semibold text-muted-foreground/50">
+                <span className="font-display text-2xl font-semibold text-muted-foreground/40 xl:text-muted-foreground/50">
                   {step.n}
                 </span>
               </div>
-              <h3 className="mt-4 text-base font-semibold tracking-tight">{step.title}</h3>
-              <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+              <h3 className="mt-5 text-base font-semibold tracking-tight text-foreground sm:text-lg">
+                {step.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {step.body}
               </p>
             </Reveal>

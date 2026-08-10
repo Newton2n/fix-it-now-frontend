@@ -1,5 +1,4 @@
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Navbar } from "./Navbar";
 import { HeroSection } from "./HeroSection";
 import { ServiceCategories } from "./ServiceCategories";
 import { FeaturedServices } from "./FeaturedServices";
@@ -12,8 +11,8 @@ import { PlatformStats } from "./PlatformStats";
 import { TechnicianCTA } from "./TechnicianCTA";
 import { FAQSection } from "./FAQSection";
 import { FinalCTA } from "./FinalCTA";
-import { Footer } from "./Footer";
 import type { FeaturedService, PlatformStats as Stats, Review, ServiceCategory, Technician } from "./types";
+import { ApplicationStatsSection } from "./application-stats-section";
 
 export type FixItNowHomeProps = {
   categories?: ServiceCategory[];
@@ -27,22 +26,20 @@ export function FixItNowHome({ categories, services, technicians, reviews, stats
   return (
     <TooltipProvider delayDuration={200}>
       <div className="flex min-h-screen w-full flex-col overflow-x-hidden bg-background">
-        {/* <Navbar /> */}
         <main className="flex-1">
           <HeroSection />
-          {categories ? <ServiceCategories categories={categories} /> : <ServiceCategories />}
-          {services ? <FeaturedServices services={services} /> : <FeaturedServices />}
+          <ApplicationStatsSection/>
+          {categories ? <ServiceCategories/> : <ServiceCategories />}
+          {services ? <FeaturedServices /> : <FeaturedServices />}
           <HowItWorks />
           <WhyFixItNow />
-          {technicians ? <TechnicianSpotlight technicians={technicians} /> : <TechnicianSpotlight />}
+          {technicians ? <TechnicianSpotlight/> : <TechnicianSpotlight />}
           <BookingExperience />
           <TrustSection reviews={reviews ?? []} />
-          <PlatformStats stats={stats ?? {}} />
           <TechnicianCTA />
           <FAQSection />
           <FinalCTA />
         </main>
-        {/* <Footer /> */}
       </div>
     </TooltipProvider>
   );

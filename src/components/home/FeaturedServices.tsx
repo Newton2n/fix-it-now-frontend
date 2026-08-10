@@ -4,6 +4,7 @@ import { Reveal, SectionHeading } from "./Reveal";
 import { getAllService } from "@/actions/service.action";
 import ServiceCard from "@/components/service/service-card";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 type MinimalService = {
   id: string;
@@ -30,7 +31,8 @@ export async function FeaturedServices() {
 
   return (
     <section id="services" className="w-full border-b border-border bg-background py-16 lg:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      {/* Expanded container to match ultra-wide 4K display widths (max-w-[1920px]) while preserving internal padding alignment */}
+      <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8">
         <Reveal className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
             eyebrow="Featured services"
@@ -47,7 +49,16 @@ export async function FeaturedServices() {
 
         <ul className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
           {services.map((service, i) => (
-            <Reveal as="li" key={service.id} delay={Math.min(i, 3) * 70} className="min-w-0">
+            <Reveal 
+              as="li" 
+              key={service.id} 
+              delay={Math.min(i, 3) * 70} 
+              className={cn(
+                "min-w-0",
+                // Hides items past index 2 on mobile and tablet screens, showing all on large/desktop screens
+                i >= 3 && "hidden lg:block"
+              )}
+            >
               <ServiceCard
                 key={service.id}
                 id={service.id}

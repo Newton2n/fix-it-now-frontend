@@ -13,6 +13,7 @@ import { getAllCategories } from "@/actions/category.action";
 import CategoryCard from "@/components/category/card";
 import type { Category } from "@/schema/category/category.schema";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 const iconMap = [
   Wrench,
@@ -47,7 +48,8 @@ export async function ServiceCategories() {
 
   return (
     <section id="categories" className="w-full border-b border-border bg-background py-16 lg:py-24">
-      <div className="section-x mx-auto max-w-[110rem] px-4 sm:px-6 lg:px-8">
+      {/* Expanded container to match ultra-wide 4K display widths (max-w-[1920px]) while preserving internal padding alignment */}
+      <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8">
         <Reveal className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
             eyebrow="Service discovery"
@@ -67,7 +69,16 @@ export async function ServiceCategories() {
           {categories.map((category, i) => {
             const Icon = iconMap[i % iconMap.length];
             return (
-              <Reveal as="li" key={category.id} delay={Math.min(i, 3) * 60} className="min-w-0 h-full flex">
+              <Reveal 
+                as="li" 
+                key={category.id} 
+                delay={Math.min(i, 3) * 60} 
+                className={cn(
+                  "min-w-0 h-full flex",
+                  // Hides items past index 2 on mobile and tablet screens, showing all 6 on large/desktop screens
+                  i >= 3 && "hidden lg:flex"
+                )}
+              >
                 <CategoryCard
                   key={category.id}
                   id={category.id}
