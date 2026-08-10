@@ -70,9 +70,9 @@ async function BookingPageContent({ params }: PageProps) {
 
 function BookingPageSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6 space-y-6">
+    <div className="w-full px-4 py-6 space-y-6">
       <Skeleton className="h-12 w-64" />
-      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,420px)]">
         <div className="space-y-6">
           <Skeleton className="h-48 w-full rounded-xl" />
           <Skeleton className="h-64 w-full rounded-xl" />

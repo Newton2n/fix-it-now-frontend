@@ -47,23 +47,25 @@ export default async function ServicesPage({
     <main className="min-h-screen bg-background">
       {/* Hero */}
       <section className="border-b bg-muted/30">
-        <div className="mx-auto max-w-7xl px-4 py-10 md:px-6">
-          <Badge variant="secondary" className="mb-3">
-            Browse Services
-          </Badge>
+        <div className="w-full px-4 py-10 md:px-6">
+          <div className="max-w-4xl">
+            <Badge variant="secondary" className="mb-3">
+              Browse Services
+            </Badge>
 
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Find the right service for your home
-          </h1>
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Find the right service for your home
+            </h1>
 
-          <p className="mt-2 max-w-2xl text-muted-foreground">
-            Search, filter, and compare trusted technicians before you book.
-          </p>
+            <p className="mt-2 max-w-2xl text-muted-foreground">
+              Search, filter, and compare trusted technicians before you book.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Content */}
-      <section className="mx-auto max-w-7xl px-4 py-8 md:px-6">
+      <section className="w-full px-4 py-8 md:px-6">
         <Suspense
           key={[
             search,
@@ -176,7 +178,7 @@ async function ServicesContent({
 
       {/* Services */}
       {services.length > 0 ? (
-        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {services.map((service :Service) => (
             <ServiceCard
               key={service.id}
@@ -187,7 +189,6 @@ async function ServicesContent({
                 "https://images.unsplash.com/photo-1605152276897-4f618f831968?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               }
               location="Location not specified"
-              rating={5}
               price={service.price}
               technician="Professional Technician"
             />

@@ -255,8 +255,6 @@ export default function BookingForm({
         customerNote: customerNote.trim() || undefined,
       };
 
-      
-
       const result = await createBooking(payload);
 
       if (!result?.success) {
@@ -282,8 +280,8 @@ export default function BookingForm({
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+    <div className="w-full px-4 py-6 sm:px-6 lg:px-8">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,420px)]">
         {/* 
             LEFT SIDE
         */}
@@ -355,7 +353,7 @@ export default function BookingForm({
 
             <CardContent>
               {serviceAreas.length > 0 ? (
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {serviceAreas.map((area) => {
                     const isSelected = selectedLocation === area;
 
@@ -472,7 +470,8 @@ export default function BookingForm({
 
               <CardContent>
                 {availableTimeSlots.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {" "}
                     {availableTimeSlots.map((time) => {
                       const isSelected = selectedTime === time;
 

@@ -31,7 +31,7 @@ export function TechnicianCard({
 
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
-            <Link href={`/technician-profile/${technician.id}`}>
+            <Link href={`/technicians/${technician.id}`}>
               View Profile
             </Link>
           </Button>
