@@ -1,23 +1,49 @@
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
-import SectionCard from "@/components/dashboard/section-card";
 
-export default function TechnicianDashboardPage() {
+import TechnicianDashboardOverview from "@/components/dashboard/technician/technician-dashboard-overview";
+import TechnicianBookingChart from "@/components/dashboard/technician/technician-booking-chart";
+import TechnicianRatingCard from "@/components/dashboard/technician/technician-rating-card";
+import TechnicianEarningsCard from "@/components/dashboard/technician/technician-earnings-card";
+import TechnicianRecentBookings from "@/components/dashboard/technician/technician-recent-bookings";
+import TechnicianDashboardError from "@/components/dashboard/technician/technician-dashboard-error";
+import { getTechnicianDashboardStats } from "@/actions/stats.action";
+
+export default async function TechnicianDashboardPage() {
+  const result = await getTechnicianDashboardStats();
+
+  if (!result.success || !result.data) {
+    return (
+      <TechnicianDashboardError
+        message={result.message || "Unable to load technician dashboard data."}
+      />
+    );
+  }
+
+  const dashboardData = result.data;
+
   return (
     <div className="space-y-6">
       <DashboardPageHeader
         title="Technician Dashboard"
-        description="Manage your jobs, services, availability, and earnings."
+        description="Track your services, bookings, earnings and customer feedback."
       />
 
-      <SectionCard
-        title="Technician Overview"
-        description="Manage your services, bookings, availability, and technician profile."
-      >
-        <p className="text-sm text-muted-foreground">
-          You can manage your services, respond to booking requests, update
-          your availability, and manage your technician profile.
-        </p>
-      </SectionCard>
+      <TechnicianDashboardOverview overview={dashboardData.overview} />
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <TechnicianBookingChart overview={dashboardData.overview} />
+
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-1">
+          <TechnicianEarningsCard earnings={dashboardData.overview.earnings} />
+
+          <TechnicianRatingCard
+            averageRating={dashboardData.overview.averageRating}
+            reviewsCount={dashboardData.overview.reviewsCount}
+          />
+        </div>
+      </div>
+
+      <TechnicianRecentBookings bookings={dashboardData.recentBookings} />
     </div>
   );
 }
