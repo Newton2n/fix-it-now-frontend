@@ -58,7 +58,7 @@ async function ServiceDetailContent({ params }: ServiceDetailPageProps) {
     : [];
 
   const reviews: ServiceReview[] = rawReviews.filter(
-    (review): review is ServiceReview =>
+    (review:ServiceReview): review is ServiceReview =>
       review !== null &&
       typeof review === "object" &&
       typeof review.id === "string" &&
