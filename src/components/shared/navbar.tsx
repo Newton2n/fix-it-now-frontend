@@ -39,6 +39,7 @@ import {
 import ThemeMode from "@/components/theme-mode";
 
 import { cn } from "@/lib/utils";
+import BackButton from "./back-button";
 
 export type Role = "CUSTOMER" | "TECHNICIAN" | "ADMIN" | null;
 
@@ -478,6 +479,7 @@ export default function Navbar({
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="flex h-16 w-full items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        {pathname !== "/" && <BackButton label="Back" className="shrink-0" />}
         <Link
           href="/"
           className="shrink-0 cursor-pointer"
