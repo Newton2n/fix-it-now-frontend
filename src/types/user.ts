@@ -1,4 +1,4 @@
-import { userUpdateSchema } from "@/schema/user/user.schema";
+import { updatePasswordSchema, userUpdateSchema } from "@/schema/user/user.schema";
 import { z } from "zod";
 
 export type TUpdateUser = z.infer<typeof userUpdateSchema>;
@@ -18,3 +18,4 @@ export type UserProfile = {
   createdAt: string;
   updatedAt: string;
 };
+export type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;

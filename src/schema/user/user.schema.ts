@@ -19,3 +19,11 @@ export const userUpdateSchema = z.object({
     )
     .optional(),
 });
+
+export const updatePasswordSchema = z.object({
+  oldPassword: z.string().min(6, "Password must be at least 6 characters long"),
+
+  newPassword: z.string().min(6, "Password must be at least 6 characters long"),
+});
+
+export type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;
