@@ -4,9 +4,10 @@ import type {
   TLoginFormData,
   TRegistrationFormData,
 } from "@/schema/auth/auth.schema";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath} from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -103,6 +104,7 @@ export const register = async (data: TRegistrationFormData) => {
 };
 
 export const getMe = async () => {
+  await connection();
   const cookieStore = await cookies();
 
   const accessToken = cookieStore.get("accessToken")?.value;

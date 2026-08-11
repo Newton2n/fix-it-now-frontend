@@ -9,6 +9,7 @@ import {
   TechnicianDashboardData,
 } from "@/types/stats";
 import { getDashboardAuth } from "@/utils/dashboard-auth";
+import { connection } from "next/server";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -71,6 +72,7 @@ export const getAppStats = async (): Promise<{
 export const getAdminDashboardStats = async (): Promise<
   DashboardActionResponse<AdminDashboardData>
 > => {
+  await connection();
   try {
     const auth = await getDashboardAuth();
 
@@ -133,6 +135,7 @@ export const getAdminDashboardStats = async (): Promise<
 export const getTechnicianDashboardStats = async (): Promise<
   DashboardActionResponse<TechnicianDashboardData>
 > => {
+  await connection();
   try {
     const auth = await getDashboardAuth();
 
@@ -196,6 +199,7 @@ export const getTechnicianDashboardStats = async (): Promise<
 export const getCustomerDashboardStats = async (): Promise<
   DashboardActionResponse<CustomerDashboardData>
 > => {
+  await connection();
   try {
     const auth = await getDashboardAuth();
 

@@ -9,6 +9,7 @@ import {
   TCreateTechnicianProfile,
 } from "@/types/technician";
 import { revalidateTag } from "next/cache";
+import { connection } from "next/server";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -48,6 +49,7 @@ export const getTechnicianProfileById = async (id: string) => {
 
 // get log in technician profile
 export const getLoginTechnicianProfile = async () => {
+  await connection();
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
