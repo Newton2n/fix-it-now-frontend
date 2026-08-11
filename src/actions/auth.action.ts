@@ -4,7 +4,8 @@ import type {
   TLoginFormData,
   TRegistrationFormData,
 } from "@/schema/auth/auth.schema";
-import { id } from "date-fns/locale";
+import { UserStatus } from "@/types/api";
+import { id, tr } from "date-fns/locale";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -106,6 +107,7 @@ export const getMe = async () => {
   const cookieStore = await cookies();
 
   const accessToken = cookieStore.get("accessToken")?.value;
+  let shouldRedirect = true;
 
   try {
     const res = await fetch(`${backendUrl}/api/auth/me`, {
@@ -124,6 +126,11 @@ export const getMe = async () => {
         errorDetails: result.errorDetails || [],
       };
     }
+    const userStatus: UserStatus = result.data.status;
+    if (userStatus === "BLOCKED") {
+      shouldRedirect = true;
+    }
+
     return result;
   } catch (error) {
     console.error("Login action error:", error);
@@ -134,6 +141,7 @@ export const getMe = async () => {
       errorDetails: [],
     };
   }
+  
 };
 
 export const logout = async () => {
@@ -144,7 +152,7 @@ export const logout = async () => {
 
   // Clear client-side router cache for the entire layout tree
   revalidatePath("/", "layout");
-  redirect("/login");
+  redirect("/login", "replace");
 };
 
 // google login
@@ -152,9 +160,12 @@ interface GoogleAuthInput {
   idToken: string;
 }
 
-
 export async function googleLogin({ idToken }: GoogleAuthInput) {
-  console.log("google id token received in server action:", typeof idToken, idToken);
+  console.log(
+    "google id token received in server action:",
+    typeof idToken,
+    idToken,
+  );
 
   try {
     // 1. Sanity Check: Prevent non-string payloads from reaching the backend
@@ -165,7 +176,8 @@ export async function googleLogin({ idToken }: GoogleAuthInput) {
       };
     }
 
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+    const backendUrl =
+      process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
     // 2. Forward strictly as JSON { idToken: "eyJ..." }
     const response = await fetch(`${backendUrl}/api/auth/google`, {
