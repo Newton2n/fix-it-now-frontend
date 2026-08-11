@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 
 import { LoginSchema, type TLoginFormData } from "@/schema/auth/auth.schema";
 import { login } from "@/actions/auth.action";
@@ -128,14 +129,9 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
                 className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground cursor-pointer"
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
 
@@ -161,6 +157,19 @@ export default function LoginPage() {
               "Login"
             )}
           </Button>
+
+          {/* Divider */}
+          <div className="relative my-3">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
+          {/* Google Auth Button */}
+          <GoogleAuthButton mode="login" />
 
           {/* Register Link */}
           <p className="text-center text-sm text-muted-foreground pt-1">

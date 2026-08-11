@@ -4,7 +4,8 @@ import type {
   TLoginFormData,
   TRegistrationFormData,
 } from "@/schema/auth/auth.schema";
-import { revalidatePath} from "next/cache";
+import { id } from "date-fns/locale";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
@@ -12,7 +13,6 @@ import { connection } from "next/server";
 const backendUrl = process.env.BACKEND_API;
 
 export const login = async (data: TLoginFormData) => {
-  
   try {
     const res = await fetch(`${backendUrl}/api/auth/login`, {
       method: "POST",
@@ -34,7 +34,6 @@ export const login = async (data: TLoginFormData) => {
       };
     }
 
-    
     if (result.success) {
       const cookie = await cookies();
       cookie.set("accessToken", result.data.accessToken, {
@@ -48,8 +47,8 @@ export const login = async (data: TLoginFormData) => {
         sameSite: "lax",
       });
     }
-    
-    console.log("login result",result)
+
+    console.log("login result", result);
 
     return result;
   } catch (error) {
@@ -66,7 +65,6 @@ export const login = async (data: TLoginFormData) => {
 export const register = async (data: TRegistrationFormData) => {
   try {
     const { confirmPassword, ...registerData } = data;
-    
 
     const res = await fetch(`${backendUrl}/api/auth/register`, {
       method: "POST",
@@ -148,3 +146,77 @@ export const logout = async () => {
   revalidatePath("/", "layout");
   redirect("/login");
 };
+
+// google login
+interface GoogleAuthInput {
+  idToken: string;
+}
+
+
+export async function googleLogin({ idToken }: GoogleAuthInput) {
+  console.log("google id token received in server action:", typeof idToken, idToken);
+
+  try {
+    // 1. Sanity Check: Prevent non-string payloads from reaching the backend
+    if (!idToken || typeof idToken !== "string") {
+      return {
+        success: false,
+        message: "Invalid or missing Google ID Token.",
+      };
+    }
+
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+
+    // 2. Forward strictly as JSON { idToken: "eyJ..." }
+    const response = await fetch(`${backendUrl}/api/auth/google`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+      cache: "no-store",
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "Google authentication failed",
+      };
+    }
+
+    // 3. Set HTTP-Only Cookies in Next.js
+    if (result.data?.accessToken) {
+      const cookieStore = await cookies();
+
+      cookieStore.set("accessToken", result.data.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24, // 1 day
+        sameSite: "lax",
+        path: "/",
+      });
+
+      if (result.data?.refreshToken) {
+        cookieStore.set("refreshToken", result.data.refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          maxAge: 60 * 60 * 24 * 7, // 7 days
+          sameSite: "lax",
+          path: "/",
+        });
+      }
+    }
+
+    return {
+      success: true,
+      message: result.message || "Login successful",
+      user: result.data?.user,
+    };
+  } catch (error) {
+    console.error("Google login error:", error);
+    return {
+      success: false,
+      message: "Server error occurred during Google authentication",
+    };
+  }
+}

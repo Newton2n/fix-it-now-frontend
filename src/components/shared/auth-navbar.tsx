@@ -14,7 +14,7 @@ export default function AuthNavbar() {
 
 async function AuthNavbarContent() {
   const user = await getMe();
-  console.log("user details", user);
+  
 
   return (
     <Navbar
