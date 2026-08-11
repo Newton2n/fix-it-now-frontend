@@ -1,16 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { UserPlus, UserX } from "lucide-react";
 import {
   getAllBookingsFromLoginTechnician,
   updateTechnicianBookingStatus,
 } from "@/actions/bookings.action";
+import { getLoginTechnicianProfile } from "@/actions/technician.action";
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { BookingStatusBadge } from "@/components/status-badges";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import type { Booking, BookingStatus } from "@/types/api";
 
@@ -31,7 +35,9 @@ const statusMap: Record<TechnicianBookingAction, TechnicianBookingStatus> = {
 
 export default function TechnicianBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -44,42 +50,67 @@ export default function TechnicianBookingsPage() {
     action: null,
   });
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const result = await getAllBookingsFromLoginTechnician();
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        if (!result?.success) {
-          toast.error(result?.message || "Failed to load bookings.");
+      const [profileResult, bookingsResult] = await Promise.all([
+        getLoginTechnicianProfile(),
+        getAllBookingsFromLoginTechnician(),
+      ]);
+
+      // Check for profile existence
+      if (!profileResult.success) {
+        if (profileResult.message?.toLowerCase().includes("resource not found")) {
+          setHasProfile(false);
           return;
         }
 
-        const bookingsData = result.data;
-
-        if (Array.isArray(bookingsData)) {
-          setBookings(bookingsData);
-        } else if (
-          bookingsData &&
-          "result" in bookingsData &&
-          Array.isArray(bookingsData.result)
-        ) {
-          setBookings(bookingsData.result);
-        } else if (
-          bookingsData &&
-          "bookings" in bookingsData &&
-          Array.isArray(bookingsData.bookings)
-        ) {
-          setBookings(bookingsData.bookings);
-        }
-      } catch (error) {
-        console.error("Failed to fetch bookings:", error);
-        toast.error("Failed to load bookings.");
-      } finally {
-        setLoading(false);
+        setError(profileResult.message || "Unable to load technician profile.");
+        return;
       }
-    };
 
-    fetchBookings();
+      if (!profileResult.data?.result) {
+        setHasProfile(false);
+        return;
+      }
+
+      setHasProfile(true);
+
+      // Process bookings
+      if (!bookingsResult?.success) {
+        setError(bookingsResult?.message || "Failed to load bookings.");
+        return;
+      }
+
+      const bookingsData = bookingsResult.data;
+
+      if (Array.isArray(bookingsData)) {
+        setBookings(bookingsData);
+      } else if (
+        bookingsData &&
+        "result" in bookingsData &&
+        Array.isArray(bookingsData.result)
+      ) {
+        setBookings(bookingsData.result);
+      } else if (
+        bookingsData &&
+        "bookings" in bookingsData &&
+        Array.isArray(bookingsData.bookings)
+      ) {
+        setBookings(bookingsData.bookings);
+      }
+    } catch (err) {
+      console.error("Failed to fetch data:", err);
+      setError("Unable to load bookings.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
   const handleAction = (bookingId: string, action: TechnicianBookingAction) => {
@@ -187,10 +218,75 @@ export default function TechnicianBookingsPage() {
     }
   };
 
+  // Loading state
   if (loading) {
     return <BookingsSkeleton />;
   }
 
+  // General Error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <DashboardPageHeader
+          title="Booking Requests"
+          description="Accept, decline, and update service jobs."
+        />
+
+        <SectionCard title="Unable to load bookings">
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+
+          <div className="mt-4">
+            <Button onClick={loadData}>Try Again</Button>
+          </div>
+        </SectionCard>
+      </div>
+    );
+  }
+
+  // Profile missing state
+  if (!hasProfile) {
+    return (
+      <div className="space-y-6">
+        <DashboardPageHeader
+          title="Booking Requests"
+          description="Accept, decline, and update service jobs."
+        />
+
+        <SectionCard
+          title="Technician Profile Required"
+          description="Create your technician profile before viewing booking requests."
+        >
+          <div className="rounded-xl border border-dashed bg-muted/20 px-6 py-14 text-center">
+            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-muted">
+              <UserX className="size-6 text-muted-foreground" />
+            </div>
+
+            <h3 className="mt-4 text-lg font-semibold">
+              Create your technician profile first
+            </h3>
+
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+              Your booking requests are linked to your technician profile.
+              Create your profile first so customers can find and book your services.
+            </p>
+
+            <div className="mt-6">
+              <Button asChild>
+                <Link href="/dashboard/technician/technician-profile">
+                  <UserPlus className="mr-2 size-4" />
+                  Create Technician Profile
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </SectionCard>
+      </div>
+    );
+  }
+
+  // Standard Render
   return (
     <div className="space-y-6">
       <DashboardPageHeader
@@ -255,7 +351,10 @@ function BookingCard({ booking, onAction, isLoading }: BookingCardProps) {
             <Info label="Scheduled" value={formatDateTime(booking.scheduledAt)} />
             <Info label="Created" value={formatDateTime(booking.createdAt)} />
             <Info label="Updated" value={formatDateTime(booking.updatedAt)} />
-            <Info label="Customer Note" value={booking.customerNote || "No note provided."} />
+            <Info
+              label="Customer Note"
+              value={booking.customerNote || "No note provided."}
+            />
           </div>
         </div>
 

@@ -47,7 +47,8 @@ export const login = async (data: TLoginFormData) => {
         sameSite: "lax",
       });
     }
-    // const decodeAccessToken = Jwt.decode(result.data.accessToken) as JwtPayload;
+    
+    console.log("login result",result)
 
     return result;
   } catch (error) {

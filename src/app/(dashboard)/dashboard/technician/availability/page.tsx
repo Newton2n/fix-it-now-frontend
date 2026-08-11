@@ -197,7 +197,7 @@ export default function TechnicianAvailabilityPage() {
 
             <div className="mt-6">
               <Button asChild>
-                <Link href="/dashboard/technician/profile">
+                <Link href="/dashboard/technician/technician-profile">
                   <UserPlus className="mr-2 size-4" />
                   Create Technician Profile
                 </Link>
