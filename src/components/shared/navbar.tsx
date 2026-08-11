@@ -89,7 +89,7 @@ const ROLE_CONFIG: Record<
       {
         href: "/dashboard/customer",
         label: "My Dashboard",
-        exact: true,
+        exact: false, 
       },
     ],
   },
@@ -101,12 +101,7 @@ const ROLE_CONFIG: Record<
       {
         href: "/dashboard/technician",
         label: "Dashboard",
-        exact: true,
-      },
-      {
-        href: "/dashboard/technician/bookings",
-        label: "Bookings",
-        exact: true,
+        exact: false, 
       },
     ],
   },
@@ -118,12 +113,7 @@ const ROLE_CONFIG: Record<
       {
         href: "/dashboard/admin",
         label: "Admin Panel",
-        exact: true,
-      },
-      {
-        href: "/dashboard/admin/categories",
-        label: "Categories",
-        exact: true,
+        exact: false, 
       },
     ],
   },
@@ -308,10 +298,9 @@ function MobileMenu({
   const dashboardHref = role ? ROLE_CONFIG[role].dashboardHref : null;
 
   const profileLink = getProfileLink(role as Role);
-
   const dashboardActive =
     dashboardHref !== null
-      ? isRouteActive(pathname, dashboardHref, true)
+      ? isRouteActive(pathname, dashboardHref, false)
       : false;
 
   const profileActive = isRouteActive(pathname, profileLink, true);

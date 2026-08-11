@@ -95,7 +95,7 @@ export const dashboardNav: Record<Role, NavItem[]> = {
     },
     {
       href: "/dashboard/technician/profile",
-      label: "Profile",
+      label: "Normal Profile",
       icon: Users,
     },
     {

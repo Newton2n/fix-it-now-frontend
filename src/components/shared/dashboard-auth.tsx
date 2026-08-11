@@ -3,7 +3,7 @@ import { getMe } from "@/actions/auth.action";
 import DashboardSidebar from "@/components/dashboard/dashboard-sidebar";
 import DashboardTopbar from "@/components/dashboard/dashboard-topbar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
 export default function DashboardAuth({
   children,
@@ -24,8 +24,8 @@ async function DashboardAuthContent({
 }) {
   const user = await getMe();
 
-  if (!user.success) {
-    return notFound();
+  if (!user || !user.success) {
+    redirect("/login");
   }
 
   const role = user.data?.role || "CUSTOMER";
