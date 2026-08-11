@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { LoginSchema, type TLoginFormData } from "@/schema/auth/auth.schema";
 import { login } from "@/actions/auth.action";
 import { toast } from "sonner";
+import { UserRole } from "@/types/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -47,8 +48,19 @@ export default function LoginPage() {
     }
 
     form.reset();
+
+    const userRole: UserRole = result?.data?.user?.role;
+
     toast.success("Log in successfully");
-    router.replace("/");
+
+    if (userRole === "ADMIN") {
+      router.replace("/dashboard/admin");
+    } else if (userRole === "CUSTOMER") {
+      router.replace("/dashboard/customer");
+    } else if (userRole === "TECHNICIAN") {
+      router.replace("/dashboard/technician");
+    }
+
     router.refresh();
   };
 
@@ -116,9 +128,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                aria-label={
-                  showPassword ? "Hide password" : "Show password"
-                }
+                aria-label={showPassword ? "Hide password" : "Show password"}
                 className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 {showPassword ? (
