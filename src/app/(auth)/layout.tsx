@@ -29,13 +29,17 @@ function DemoLoginBox() {
 
       const { email, password } = DEMO_CREDENTIALS[role];
 
-      const emailInput = document.getElementById("email") as HTMLInputElement | null;
-      const passwordInput = document.getElementById("password") as HTMLInputElement | null;
+      const emailInput = document.getElementById(
+        "email",
+      ) as HTMLInputElement | null;
+      const passwordInput = document.getElementById(
+        "password",
+      ) as HTMLInputElement | null;
 
       if (emailInput && passwordInput) {
         const nativeSetter = Object.getOwnPropertyDescriptor(
           window.HTMLInputElement.prototype,
-          "value"
+          "value",
         )?.set;
 
         // Populate email input
@@ -49,7 +53,7 @@ function DemoLoginBox() {
         passwordInput.dispatchEvent(new Event("change", { bubbles: true }));
       }
     },
-    [isLoginPage, router]
+    [isLoginPage, router],
   );
 
   useEffect(() => {
@@ -111,10 +115,9 @@ export default function AuthLayout({
 }) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 pt-8 pb-4">
-      {/* Load Google OAuth Identity Services Script globally for auth routes */}
       <Script
         src="https://accounts.google.com/gsi/client"
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
       />
 
       <div className="w-full max-w-md">
