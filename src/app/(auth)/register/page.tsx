@@ -131,14 +131,22 @@ export default function RegisterPage() {
               className="grid grid-cols-2 gap-3"
             >
               <div className="flex items-center space-x-2 rounded-md border p-2.5 cursor-pointer">
-                <RadioGroupItem value="CUSTOMER" id="customer" className="cursor-pointer" />
+                <RadioGroupItem
+                  value="CUSTOMER"
+                  id="customer"
+                  className="cursor-pointer"
+                />
                 <Label htmlFor="customer" className="cursor-pointer">
                   Customer
                 </Label>
               </div>
 
               <div className="flex items-center space-x-2 rounded-md border p-2.5 cursor-pointer">
-                <RadioGroupItem value="TECHNICIAN" id="technician" className="cursor-pointer" />
+                <RadioGroupItem
+                  value="TECHNICIAN"
+                  id="technician"
+                  className="cursor-pointer"
+                />
                 <Label htmlFor="technician" className="cursor-pointer">
                   Technician
                 </Label>
@@ -170,7 +178,11 @@ export default function RegisterPage() {
                 onClick={() => setShowPassword((prev) => !prev)}
                 className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground cursor-pointer"
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
 
@@ -199,7 +211,11 @@ export default function RegisterPage() {
                 onClick={() => setShowConfirmPassword((prev) => !prev)}
                 className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground cursor-pointer"
               >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
 
@@ -232,12 +248,14 @@ export default function RegisterPage() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with
+              </span>
             </div>
           </div>
 
           {/* Google Auth Button */}
-          <GoogleAuthButton mode="register" selectedRole={form.watch("role")} />
+          <GoogleAuthButton />
 
           {/* Login Link */}
           <p className="text-center text-sm text-muted-foreground pt-1">

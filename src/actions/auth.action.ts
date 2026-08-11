@@ -5,7 +5,6 @@ import type {
   TRegistrationFormData,
 } from "@/schema/auth/auth.schema";
 import { UserStatus } from "@/types/api";
-import { id, tr } from "date-fns/locale";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -141,7 +140,6 @@ export const getMe = async () => {
       errorDetails: [],
     };
   }
-  
 };
 
 export const logout = async () => {
@@ -149,10 +147,9 @@ export const logout = async () => {
 
   cookieStore.delete("accessToken");
   cookieStore.delete("refreshToken");
-
-  // Clear client-side router cache for the entire layout tree
   revalidatePath("/", "layout");
-  redirect("/login", "replace");
+
+  return { success: true };
 };
 
 // google login
@@ -168,7 +165,6 @@ export async function googleLogin({ idToken }: GoogleAuthInput) {
   );
 
   try {
-    // 1. Sanity Check: Prevent non-string payloads from reaching the backend
     if (!idToken || typeof idToken !== "string") {
       return {
         success: false,
@@ -176,10 +172,6 @@ export async function googleLogin({ idToken }: GoogleAuthInput) {
       };
     }
 
-    const backendUrl =
-      process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
-
-    // 2. Forward strictly as JSON { idToken: "eyJ..." }
     const response = await fetch(`${backendUrl}/api/auth/google`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -196,27 +188,18 @@ export async function googleLogin({ idToken }: GoogleAuthInput) {
       };
     }
 
-    // 3. Set HTTP-Only Cookies in Next.js
-    if (result.data?.accessToken) {
-      const cookieStore = await cookies();
-
-      cookieStore.set("accessToken", result.data.accessToken, {
+    if (result.success) {
+      const cookie = await cookies();
+      cookie.set("accessToken", result.data.accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60 * 24, // 1 day
+        maxAge: 60 * 60 * 24,
         sameSite: "lax",
-        path: "/",
       });
-
-      if (result.data?.refreshToken) {
-        cookieStore.set("refreshToken", result.data.refreshToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          maxAge: 60 * 60 * 24 * 7, // 7 days
-          sameSite: "lax",
-          path: "/",
-        });
-      }
+      cookie.set("refreshToken", result.data.refreshToken, {
+        httpOnly: true,
+        maxAge: 60 * 60 * 24 * 7,
+        sameSite: "lax",
+      });
     }
 
     return {

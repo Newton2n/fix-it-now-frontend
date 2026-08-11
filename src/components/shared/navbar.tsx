@@ -89,7 +89,7 @@ const ROLE_CONFIG: Record<
       {
         href: "/dashboard/customer",
         label: "My Dashboard",
-        exact: false, 
+        exact: false,
       },
     ],
   },
@@ -101,7 +101,7 @@ const ROLE_CONFIG: Record<
       {
         href: "/dashboard/technician",
         label: "Dashboard",
-        exact: false, 
+        exact: false,
       },
     ],
   },
@@ -113,7 +113,7 @@ const ROLE_CONFIG: Record<
       {
         href: "/dashboard/admin",
         label: "Admin Panel",
-        exact: false, 
+        exact: false,
       },
     ],
   },
@@ -452,14 +452,16 @@ export default function Navbar({
 
   const handleLogout = async () => {
     try {
-      await logout();
+      const res = await logout();
 
-      toast.success("Logged out successfully.");
-
-      router.push("/login");
-      router.refresh();
-    } catch {
+      if (res?.success) {
+        toast.success("Logged out successfully.");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
       toast.error("Failed to logout. Please try again.");
+    } finally {
+      window.location.href = "/login";
     }
   };
 
