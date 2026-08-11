@@ -14,6 +14,7 @@ export default function TechnicianNormalProfilePage() {
 async function TechnicianProfileContent() {
   const res = await getMe();
   const user = res.data;
+  console.log("user data in technician profile",user)
   return <ProfilePage user={user} canEdit={true} />;
 }
 

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { Info } from "lucide-react";
 
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
@@ -16,10 +17,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { updateNormalProfile } from "@/actions/user.action";
 
-import {
-  UserProfile,
-  type TUpdateUser,
-} from "@/types/user";
+import { UserProfile, type TUpdateUser } from "@/types/user";
 
 import { userUpdateSchema } from "@/schema/user/user.schema";
 
@@ -54,10 +52,7 @@ export default function ProfilePage({
     handleSubmit,
     reset,
     watch,
-    formState: {
-      isSubmitting,
-      errors,
-    },
+    formState: { isSubmitting, errors },
   } = useForm<TUpdateUser>({
     resolver: zodResolver(userUpdateSchema),
     defaultValues,
@@ -74,44 +69,31 @@ export default function ProfilePage({
     user.profilePicture ||
     "https://images.unsplash.com/vector-1745610393569-9373c9c64117?w=600&auto=format&fit=crop&q=60";
 
-  const handleProfileSubmit = async (
-    values: TUpdateUser,
-  ) => {
+  const handleProfileSubmit = async (values: TUpdateUser) => {
     try {
       const payload: TUpdateUser = {
         name: values.name?.trim(),
         phoneNumber: values.phoneNumber?.trim() || "",
         country: values.country?.trim() || "",
-        profilePicture:
-          values.profilePicture?.trim() || undefined,
+        profilePicture: values.profilePicture?.trim() || undefined,
         status: values.status,
       };
 
-      const result = await updateNormalProfile(
-        user.id,
-        payload,
-      );
+      const result = await updateNormalProfile(user.id, payload);
 
       if (!result.success) {
-        toast.error(
-          result.message || "Failed to update profile.",
-        );
+        toast.error(result.message || "Failed to update profile.");
         return;
       }
 
-      toast.success(
-        result.message ||
-          "Profile updated successfully.",
-      );
+      toast.success(result.message || "Profile updated successfully.");
 
       setIsEditing(false);
       reset(payload);
     } catch (error) {
       console.error("Profile update error:", error);
 
-      toast.error(
-        "Something went wrong. Please try again.",
-      );
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
@@ -119,6 +101,8 @@ export default function ProfilePage({
     reset(defaultValues);
     setIsEditing(false);
   };
+
+  const isGoogleUser = user.authProvider === "GOOGLE";
 
   return (
     <div className="space-y-6">
@@ -202,13 +186,8 @@ export default function ProfilePage({
                     {...register("status")}
                     className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
                   >
-                    <option value="ACTIVE">
-                      ACTIVE
-                    </option>
-
-                    <option value="INACTIVE">
-                      INACTIVE
-                    </option>
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="INACTIVE">INACTIVE</option>
                   </select>
                 </Field>
 
@@ -243,9 +222,7 @@ export default function ProfilePage({
                   type="submit"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting
-                    ? "Saving..."
-                    : "Save Changes"}
+                  {isSubmitting ? "Saving..." : "Save Changes"}
                 </Button>
 
                 <Button
@@ -289,6 +266,11 @@ export default function ProfilePage({
                 label="Status"
                 value={user.status}
               />
+
+              <InfoRow
+                label="Authentication"
+                value={isGoogleUser ? "Google verified" : "Email & Password"}
+              />
             </div>
           )}
         </SectionCard>
@@ -324,18 +306,19 @@ export default function ProfilePage({
             <div className="space-y-4">
               <SummaryItem
                 label="Role"
-                value={
-                  <Badge variant="secondary">
-                    {user.role}
-                  </Badge>
-                }
+                value={<Badge variant="secondary">{user.role}</Badge>}
               />
 
               <SummaryItem
                 label="Status"
+                value={<Badge variant="outline">{user.status}</Badge>}
+              />
+
+              <SummaryItem
+                label="Authentication"
                 value={
-                  <Badge variant="outline">
-                    {user.status}
+                  <Badge variant={isGoogleUser ? "default" : "secondary"}>
+                    {isGoogleUser ? "Google verified" : "Email & Password"}
                   </Badge>
                 }
               />
@@ -344,16 +327,32 @@ export default function ProfilePage({
         </SectionCard>
       </div>
 
-      {/* Separate Password Section */}
-      {canEdit && <UpdatePasswordSection />}
+      {/* Password Section or Google Info Banner */}
+      {canEdit && (
+        isGoogleUser ? (
+          <SectionCard
+            title="Password & Security"
+            description="Manage your account security settings"
+          >
+            <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50/50 p-4 text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/20 dark:text-blue-200">
+              <Info className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
+              <div className="space-y-1 text-sm">
+                <p className="font-medium">Password management is disabled</p>
+                <p className="text-muted-foreground text-blue-800/80 dark:text-blue-300/80">
+                  You signed in using your Google account. You do not need a local password to log in. To sign in in the future, simply click <strong>Continue with Google</strong>.
+                </p>
+              </div>
+            </div>
+          </SectionCard>
+        ) : (
+          <UpdatePasswordSection />
+        )
+      )}
     </div>
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Form Field                                                                  */
-/* -------------------------------------------------------------------------- */
-
+// Form Field
 function Field({
   label,
   error,
@@ -365,25 +364,16 @@ function Field({
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium">
-        {label}
-      </label>
+      <label className="text-sm font-medium">{label}</label>
 
       {children}
 
-      {error && (
-        <p className="text-xs text-destructive">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Information Row                                                             */
-/* -------------------------------------------------------------------------- */
-
+// Information Row
 function InfoRow({
   label,
   value,
@@ -393,21 +383,14 @@ function InfoRow({
 }) {
   return (
     <div className="rounded-lg border bg-background p-4">
-      <p className="text-sm text-muted-foreground">
-        {label}
-      </p>
+      <p className="text-sm text-muted-foreground">{label}</p>
 
-      <p className="mt-1 break-words font-medium">
-        {value}
-      </p>
+      <p className="mt-1 break-words font-medium">{value}</p>
     </div>
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Summary Item                                                                */
-/* -------------------------------------------------------------------------- */
-
+// Summary Item
 function SummaryItem({
   label,
   value,
@@ -417,9 +400,7 @@ function SummaryItem({
 }) {
   return (
     <div>
-      <p className="text-sm text-muted-foreground">
-        {label}
-      </p>
+      <p className="text-sm text-muted-foreground">{label}</p>
 
       <div className="mt-1">{value}</div>
     </div>

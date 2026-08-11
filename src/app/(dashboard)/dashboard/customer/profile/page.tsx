@@ -25,18 +25,7 @@ async function CustomerProfileContent() {
     );
   }
 
-  const user: UserProfile = {
-    id: result.data.id,
-    name: result.data.name,
-    phoneNumber: result.data.phoneNumber ?? null,
-    email: result.data.email,
-    role: result.data.role,
-    status: result.data.status,
-    country: result.data.country ?? null,
-    profilePicture: result.data.profilePicture ?? null,
-    createdAt: result.data.createdAt,
-    updatedAt: result.data.updatedAt,
-  };
+  const user = result.data;
 
   return <ProfilePage user={user} canEdit />;
 }

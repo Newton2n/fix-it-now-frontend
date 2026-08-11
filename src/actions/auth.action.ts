@@ -106,7 +106,6 @@ export const getMe = async () => {
   const cookieStore = await cookies();
 
   const accessToken = cookieStore.get("accessToken")?.value;
-  let shouldRedirect = true;
 
   try {
     const res = await fetch(`${backendUrl}/api/auth/me`, {
@@ -125,11 +124,7 @@ export const getMe = async () => {
         errorDetails: result.errorDetails || [],
       };
     }
-    const userStatus: UserStatus = result.data.status;
-    if (userStatus === "BLOCKED") {
-      shouldRedirect = true;
-    }
-
+    console.log("get Me",result)
     return result;
   } catch (error) {
     console.error("Login action error:", error);
