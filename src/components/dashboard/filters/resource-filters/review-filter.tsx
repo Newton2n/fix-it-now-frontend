@@ -1,3 +1,6 @@
+
+"use client";
+
 import ClearFilters from "../clear-filter";
 import FilterBar from "../filter-bar";
 import SelectFilter from "../search-filter";
@@ -38,7 +41,7 @@ export default function ReviewFilters({
 }: ReviewFiltersProps) {
   return (
     <FilterBar>
-      <SearchInput placeholder="Search reviews..." />
+      <SearchInput placeholder="Search reviews..." param="search" />
 
       <SelectFilter
         param="minRating"
