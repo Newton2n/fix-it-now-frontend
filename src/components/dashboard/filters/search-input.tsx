@@ -1,3 +1,4 @@
+// components/dashboard/filters/search-input.tsx
 "use client";
 
 import { Search } from "lucide-react";
@@ -22,6 +23,7 @@ export default function SearchInput({
   const [value, setValue] = useState(searchParams.get(param) ?? "");
   const [isPending, startTransition] = useTransition();
 
+  // Keep local value in sync if URL changes externally
   useEffect(() => {
     setValue(searchParams.get(param) ?? "");
   }, [searchParams, param]);
@@ -30,6 +32,7 @@ export default function SearchInput({
     const timer = setTimeout(() => {
       const currentValue = searchParams.get(param) ?? "";
 
+      // Only update if value actually changed
       if (value.trim() === currentValue) {
         return;
       }
@@ -42,12 +45,13 @@ export default function SearchInput({
         params.delete(param);
       }
 
+      // Reset page on new search
       params.set("page", "1");
 
       startTransition(() => {
-        router.replace(`${pathname}?${params.toString()}`);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
       });
-    }, 400);
+    }, 500); // 500 ms debounce
 
     return () => clearTimeout(timer);
   }, [value, param, pathname, router, searchParams]);
@@ -58,10 +62,10 @@ export default function SearchInput({
 
       <Input
         value={value}
-        onChange={(event) => setValue(event.target.value)}
+        onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
         className="pl-9"
-        disabled={isPending}
+        // disabled={isPending}
       />
     </div>
   );

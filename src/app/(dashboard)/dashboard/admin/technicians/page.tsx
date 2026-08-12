@@ -1,13 +1,19 @@
 import { Suspense } from "react";
+import { getAllTechnicianProfile } from "@/actions/admin.action";
+import { TechnicianSearchParams } from "@/schema/technician/technician.schema";
 
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getAllTechnicianProfile } from "@/actions/admin.action";
 import type { TechnicianProfile } from "@/types/technician";
 import { TechnicianCard } from "@/components/admin/admin-technician-card";
+import TechnicianFilters from "@/components/dashboard/filters/resource-filters/technician-filter";
 
-export default function AdminTechniciansPage() {
+export default function AdminTechniciansPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   return (
     <div className="space-y-6">
       <DashboardPageHeader
@@ -16,14 +22,40 @@ export default function AdminTechniciansPage() {
       />
 
       <Suspense fallback={<TechniciansSkeleton />}>
-        <TechniciansContent />
+        <TechniciansContent searchParams={searchParams} />
       </Suspense>
     </div>
   );
 }
 
-async function TechniciansContent() {
-  const result = await getAllTechnicianProfile();
+async function TechniciansContent({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+
+  const query: TechnicianSearchParams = {
+    search: typeof params.search === "string" ? params.search : undefined,
+    page: typeof params.page === "string" ? Number(params.page) : 1,
+    limit: typeof params.limit === "string" ? Number(params.limit) : 10,
+    minExperience:
+      typeof params.minExperience === "string"
+        ? Number(params.minExperience)
+        : undefined,
+    isAvailable:
+      typeof params.isAvailable === "string" ? params.isAvailable : undefined,
+    status:
+      (params.status as "PENDING_APPROVAL" | "VERIFIED" | "SUSPENDED") ||
+      undefined, // 
+    skills: typeof params.skills === "string" ? params.skills : undefined,
+    serviceArea:
+      typeof params.serviceArea === "string" ? params.serviceArea : undefined,
+    sortBy: (params.sortBy as "experience" | "date" | undefined) || "date",
+    sortOrder: (params.sortOrder as "asc" | "desc" | undefined) || "desc",
+  };
+
+  const result = await getAllTechnicianProfile(query);
 
   if (!result.success) {
     return (
@@ -39,22 +71,37 @@ async function TechniciansContent() {
   }
 
   const technicians: TechnicianProfile[] = result.data?.data ?? [];
+  const meta = result.data?.meta ?? {
+    page: 1,
+    limit: 10,
+    totalRow: 0,
+    totalPage: 0,
+  };
+
+  // Ensure totalPage is at least 1 when there are rows
+  const totalPage =
+    meta.totalPage > 0 ? meta.totalPage : meta.totalRow > 0 ? 1 : 0;
 
   return (
-    <SectionCard
-      title="Technician List"
-      description="Manage technician profiles"
-    >
-      {technicians.length > 0 ? (
-        <div className="space-y-4">
-          {technicians.map((technician) => (
-            <TechnicianCard key={technician.id} technician={technician} />
-          ))}
-        </div>
-      ) : (
-        <EmptyTechnicians />
-      )}
-    </SectionCard>
+    <div className="space-y-4">
+      {/* Filters + pagination */}
+      <TechnicianFilters currentPage={meta.page} totalPage={totalPage} />
+
+      <SectionCard
+        title="Technician List"
+        description={`Page ${meta.page} of ${totalPage} • ${meta.totalRow} total`}
+      >
+        {technicians.length > 0 ? (
+          <div className="space-y-4">
+            {technicians.map((technician) => (
+              <TechnicianCard key={technician.id} technician={technician} />
+            ))}
+          </div>
+        ) : (
+          <EmptyTechnicians />
+        )}
+      </SectionCard>
+    </div>
   );
 }
 

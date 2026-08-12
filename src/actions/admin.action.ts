@@ -10,6 +10,8 @@ import {
   UserStatusInput,
 } from "@/schema/category/category.schema";
 import { CategorySearch } from "@/types/category";
+import { TechnicianSearchParams } from "@/schema/technician/technician.schema";
+import { UserSearchParams } from "@/schema/user/user.schema";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -187,37 +189,70 @@ export const getAllPayments = async () => {
   }
 };
 
-export const getAllUser = async () => {
+// actions/admin.action.ts
+
+export const getAllUser = async (query: Partial<UserSearchParams> = {}) => {
   const auth = await getAdminToken();
 
   if (!auth.success || !auth.accessToken) {
     return {
       success: false,
-      message: auth.message,
+      message: auth.message || "Authentication required.",
       data: emptyPaginatedResult,
       errorDetails: [],
     };
   }
 
   try {
-    const response = await fetch(`${backendUrl}/api/admin/users`, {
-      method: "GET",
-      cache: "force-cache",
-      next: {
-        revalidate: 60 * 60 * 2,
-        tags: ["all-users-admin"],
+    const params = new URLSearchParams();
+
+    if (query.search) {
+      params.set("search", query.search);
+    }
+
+    if (query.phoneNumber) {
+      params.set("phoneNumber", query.phoneNumber);
+    }
+
+    if (query.email) {
+      params.set("email", query.email);
+    }
+
+    if (query.role) {
+      params.set("role", query.role);
+    }
+
+    if (query.status) {
+      params.set("status", query.status);
+    }
+
+    if (query.country) {
+      params.set("country", query.country);
+    }
+
+    params.set("page", String(query.page ?? 1));
+    params.set("limit", String(query.limit ?? 10));
+    params.set("sortBy", query.sortBy ?? "createdAt");
+    params.set("sortOrder", query.sortOrder ?? "desc");
+
+    const response = await fetch(
+      `${backendUrl}/api/admin/users?${params.toString()}`,
+      {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
       },
-      headers: {
-        Cookie: `accessToken=${auth.accessToken}`,
-      },
-    });
+    );
 
     const result = await response.json();
 
     if (!response.ok || !result.success) {
       return {
         success: false,
-        message: result.message || "The request could not be completed.",
+        message:
+          result.message || "The request could not be completed.",
         data: emptyPaginatedResult,
         errorDetails: result.errorDetails || [],
       };
@@ -225,14 +260,16 @@ export const getAllUser = async () => {
 
     return {
       success: true,
-      message: result.message || "Operation completed successfully.",
-      data: result.data?.result || emptyPaginatedResult,
+      message:
+        result.message || "Users fetched successfully.",
+      data: result.data?.result ?? emptyPaginatedResult,
     };
   } catch (error) {
     console.error("Get all users error:", error);
     return {
       success: false,
-      message: "Unable to connect to the server. Please try again.",
+      message:
+        "Unable to connect to the server. Please try again.",
       data: emptyPaginatedResult,
       errorDetails: [],
     };
@@ -348,65 +385,96 @@ export const getAllBooking = async (query: AdminBookingSearchParams = {}) => {
   }
 };
 
-export const getAllTechnicianProfile = async () => {
+// actions/admin.action.ts
+
+const emptyTechnicianResult = {
+  meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
+  data: [],
+};
+
+
+export const getAllTechnicianProfile = async (
+  query: Partial<TechnicianSearchParams> = {},
+) => {
   const auth = await getAdminToken();
 
   if (!auth.success || !auth.accessToken) {
     return {
       success: false,
-      message: auth.message,
-      data: {
-        meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
-        data: [],
-      },
+      message: auth.message || "Authentication required.",
+      data: emptyTechnicianResult,
       errorDetails: [],
     };
   }
 
   try {
-    const response = await fetch(`${backendUrl}/api/technicians`, {
-      method: "GET",
-      cache: "force-cache",
-      next: {
-        revalidate: 60 * 60 * 12,
-        tags: ["all-technician-admin"],
+    const params = new URLSearchParams();
+
+    if (query.search) {
+      params.set("search", query.search);
+    }
+
+    if (query.isAvailable !== undefined) {
+      params.set("isAvailable", String(query.isAvailable));
+    }
+
+    if (query.minExperience !== undefined) {
+      params.set("minExperience", String(query.minExperience));
+    }
+
+    if (query.status !== undefined) {
+      params.set("status", String(query.status));
+    }
+
+    if (query.skills !== undefined) {
+      params.set("skills", String(query.skills));
+    }
+
+    if (query.serviceArea !== undefined) {
+      params.set("serviceArea", String(query.serviceArea));
+    }
+
+    params.set("page", String(query.page ?? 1));
+    params.set("limit", String(query.limit ?? 10));
+    params.set("sortBy", query.sortBy ?? "date");
+    params.set("sortOrder", query.sortOrder ?? "desc");
+
+    const response = await fetch(
+      `${backendUrl}/api/technicians?${params.toString()}`,
+      {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
       },
-      headers: {
-        Cookie: `accessToken=${auth.accessToken}`,
-      },
-    });
+    );
 
     const result = await response.json();
 
     if (!response.ok || !result.success) {
       return {
         success: false,
-        message: result.message || "The request could not be completed.",
-        data: {
-          meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
-          data: [],
-        },
+        message:
+          result.message || "The request could not be completed.",
+        data: emptyTechnicianResult,
         errorDetails: result.errorDetails || [],
       };
     }
 
     return {
       success: true,
-      message: result.message || "Operation completed successfully.",
-      data: result.data?.result || {
-        meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
-        data: [],
-      },
+      message:
+        result.message || "Technicians fetched successfully.",
+      data: result.data?.result ?? emptyTechnicianResult,
     };
   } catch (error) {
     console.error("Get all technician profiles error:", error);
     return {
       success: false,
-      message: "Unable to connect to the server. Please try again.",
-      data: {
-        meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
-        data: [],
-      },
+      message:
+        "Unable to connect to the server. Please try again.",
+      data: emptyTechnicianResult,
       errorDetails: [],
     };
   }

@@ -1,14 +1,17 @@
+// app/admin/users/page.tsx
 import { Suspense } from "react";
-
 import { getAllUser } from "@/actions/admin.action";
+import { UserSearchParams } from "@/schema/user/user.schema";
+
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+
 import UserActions from "@/components/admin/user-action";
 import { User, UserMeta, UserRole } from "@/types/admin";
 import { UserStatus } from "@/types/api";
-
-
+import UserFilters from "@/components/dashboard/filters/admin/user-filter";
 
 const emptyMeta: UserMeta = {
   currentPage: 1,
@@ -17,7 +20,11 @@ const emptyMeta: UserMeta = {
   totalPage: 0,
 };
 
-export default function AdminUsersPage() {
+export default function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   return (
     <div className="space-y-6">
       <DashboardPageHeader
@@ -26,14 +33,44 @@ export default function AdminUsersPage() {
       />
 
       <Suspense fallback={<UsersPageSkeleton />}>
-        <UsersContent />
+        <UsersContent searchParams={searchParams} />
       </Suspense>
     </div>
   );
 }
 
-async function UsersContent() {
-  const result = await getAllUser();
+async function UsersContent({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+
+  const query: UserSearchParams = {
+    search:
+      typeof params.search === "string" ? params.search : undefined,
+    phoneNumber:
+      typeof params.phoneNumber === "string" ? params.phoneNumber : undefined,
+    email:
+      typeof params.email === "string" ? params.email : undefined,
+    role:
+      (params.role as UserRole | undefined) || undefined,
+    status:
+      (params.status as UserStatus | undefined) || undefined,
+    country:
+      typeof params.country === "string" ? params.country : undefined,
+    page:
+      typeof params.page === "string" ? Number(params.page) : 1,
+    limit:
+      typeof params.limit === "string" ? Number(params.limit) : 10,
+    sortBy:
+      (params.sortBy as "name" | "role" | "createdAt" | undefined) ||
+      "createdAt",
+    sortOrder:
+      (params.sortOrder as "asc" | "desc" | undefined) || "desc",
+  };
+
+  const result = await getAllUser(query);
 
   if (!result.success) {
     return (
@@ -52,16 +89,22 @@ async function UsersContent() {
   const users: User[] = userResult?.data ?? [];
   const meta: UserMeta = userResult?.meta ?? emptyMeta;
 
-  const customerCount = users.filter((user) => user.role === "CUSTOMER").length;
-  const technicianCount = users.filter((user) => user.role === "TECHNICIAN").length;
+  // Stats based on current page only, so they match the list
+  const customerCount = users.filter((u) => u.role === "CUSTOMER").length;
+  const technicianCount = users.filter(
+    (u) => u.role === "TECHNICIAN",
+  ).length;
 
   return (
     <>
       <div className="grid gap-4 md:grid-cols-3">
-        <StatCard label="Total Users" value={meta.totalRow} />
+        <StatCard label="Users (this page)" value={users.length} />
         <StatCard label="Customers" value={customerCount} />
         <StatCard label="Technicians" value={technicianCount} />
       </div>
+
+      {/* Filters + pagination */}
+      <UserFilters currentPage={meta.currentPage} totalPage={meta.totalPage} />
 
       <SectionCard
         title="User List"
@@ -91,27 +134,44 @@ function UserCard({ user }: { user: User }) {
               User
             </p>
             <p className="text-lg font-semibold text-foreground">{user.name}</p>
-            <p className="break-all text-sm text-muted-foreground">{user.email}</p>
+            <p className="break-all text-sm text-muted-foreground">
+              {user.email}
+            </p>
           </div>
 
           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
             <Info label="User ID" value={user.id} />
             <Info label="Role" value={user.role} />
             <Info label="Status" value={user.status} />
-            <Info label="Phone" value={user.phoneNumber ?? "Not added"} />
+            <Info
+              label="Phone"
+              value={user.phoneNumber ?? "Not added"}
+            />
             <Info label="Country" value={user.country ?? "Not added"} />
-            <Info label="Created At" value={formatDateTime(user.createdAt)} />
-            <Info label="Updated At" value={formatDateTime(user.updatedAt)} />
+            <Info
+              label="Created At"
+              value={formatDateTime(user.createdAt)}
+            />
+            <Info
+              label="Updated At"
+              value={formatDateTime(user.updatedAt)}
+            />
           </div>
         </div>
 
         <div className="flex shrink-0 flex-col items-start gap-3 lg:items-end">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={getStatusVariant(user.status)} className="rounded-full px-3">
+            <Badge
+              variant={getStatusVariant(user.status)}
+              className="rounded-full px-3"
+            >
               {getStatusLabel(user.status)}
             </Badge>
 
-            <Badge variant={getRoleVariant(user.role)} className="rounded-full px-3">
+            <Badge
+              variant={getRoleVariant(user.role)}
+              className="rounded-full px-3"
+            >
               {user.role}
             </Badge>
           </div>
@@ -126,7 +186,9 @@ function UserCard({ user }: { user: User }) {
 function EmptyUsers() {
   return (
     <div className="rounded-xl border border-dashed bg-muted/20 py-16 text-center">
-      <h3 className="text-lg font-semibold text-foreground">No users found</h3>
+      <h3 className="text-lg font-semibold text-foreground">
+        No users found
+      </h3>
       <p className="mt-2 text-sm text-muted-foreground">
         There are no registered users to display.
       </p>
