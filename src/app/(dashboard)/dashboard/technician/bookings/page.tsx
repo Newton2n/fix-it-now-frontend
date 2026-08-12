@@ -1,4 +1,3 @@
-
 import { Suspense } from "react";
 import { getAllBookingsFromLoginTechnician } from "@/actions/bookings.action";
 import { getLoginTechnicianProfile } from "@/actions/technician.action";
@@ -23,28 +22,30 @@ type BookingResult = {
   data: Booking[];
 };
 
-export default function TechnicianBookingsPage({
+export default async function TechnicianBookingsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const resolvedParams = await searchParams;
+  // Key based on URL params ensures React re-triggers Suspense on filter changes
+  const filterKey = JSON.stringify(resolvedParams);
+
   return (
-    <Suspense fallback={<BookingsSkeleton />}>
-      <TechnicianBookingsContent searchParams={searchParams} />
+    <Suspense key={filterKey} fallback={<BookingsSkeleton />}>
+      <TechnicianBookingsContent resolvedParams={resolvedParams} />
     </Suspense>
   );
 }
 
 async function TechnicianBookingsContent({
-  searchParams,
+  resolvedParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  resolvedParams: Record<string, string | string[] | undefined>;
 }) {
-  const params = await searchParams;
-
   const query: UserBookingSearchParams = {
     status:
-      (params.status as
+      (resolvedParams.status as
         | "REQUESTED"
         | "ACCEPTED"
         | "PAID"
@@ -54,28 +55,28 @@ async function TechnicianBookingsContent({
         | "CANCELED"
         | undefined) || undefined,
     paymentStatus:
-      (params.paymentStatus as
+      (resolvedParams.paymentStatus as
         | "PENDING"
         | "SUCCEEDED"
         | "FAILED"
         | undefined) || undefined,
     serviceId:
-      typeof params.serviceId === "string" ? params.serviceId : undefined,
+      typeof resolvedParams.serviceId === "string" ? resolvedParams.serviceId : undefined,
     startDate:
-      typeof params.startDate === "string"
-        ? new Date(params.startDate)
+      typeof resolvedParams.startDate === "string"
+        ? new Date(resolvedParams.startDate)
         : undefined,
     endDate:
-      typeof params.endDate === "string"
-        ? new Date(params.endDate)
+      typeof resolvedParams.endDate === "string"
+        ? new Date(resolvedParams.endDate)
         : undefined,
-    page: typeof params.page === "string" ? Number(params.page) : 1,
-    limit: typeof params.limit === "string" ? Number(params.limit) : 10,
+    page: typeof resolvedParams.page === "string" ? Number(resolvedParams.page) : 1,
+    limit: typeof resolvedParams.limit === "string" ? Number(resolvedParams.limit) : 10,
     sortBy:
-      (params.sortBy as "createdAt" | "scheduledAt" | undefined) ||
+      (resolvedParams.sortBy as "createdAt" | "scheduledAt" | undefined) ||
       "createdAt",
     sortOrder:
-      (params.sortOrder as "asc" | "desc" | undefined) || "desc",
+      (resolvedParams.sortOrder as "asc" | "desc" | undefined) || "desc",
   };
 
   const [profileResult, bookingsResult] = await Promise.all([
@@ -102,7 +103,6 @@ async function TechnicianBookingsContent({
             <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
               Your booking requests are linked to your technician profile.
             </p>
-            {/* Button to create profile */}
           </div>
         </SectionCard>
       </div>
@@ -166,17 +166,69 @@ async function TechnicianBookingsContent({
 function BookingsSkeleton() {
   return (
     <div className="space-y-6">
-      <DashboardPageHeader
-        title="Booking Requests"
-        description="Accept, decline, and update service jobs."
-      />
-      <SectionCard title="Incoming Bookings" description="Loading...">
+      {/* Header Skeleton */}
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-72" />
+      </div>
+
+      {/* Filter Bar Skeleton */}
+      <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 shadow-sm">
+        <Skeleton className="h-10 w-44" />
+        <Skeleton className="h-10 w-36" />
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-10 w-32" />
+        <Skeleton className="h-10 w-28" />
+      </div>
+
+      {/* Main Section Card Skeleton */}
+      <div className="rounded-xl border bg-card p-6 shadow-sm space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-4 w-56" />
+        </div>
+
+        {/* Booking Card Items */}
         <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-36 w-full" />
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="rounded-xl border bg-card p-5 shadow-sm space-y-4"
+            >
+              {/* Card Top Row: Service Title & Status Badges */}
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1">
+                  <Skeleton className="h-5 w-48" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+                <div className="flex gap-2">
+                  <Skeleton className="h-6 w-24 rounded-full" />
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                </div>
+              </div>
+
+              {/* Grid with 4 Detail Blocks */}
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="rounded-lg border bg-background p-3 space-y-2"
+                  >
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-4 w-28" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Action Buttons Row */}
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <Skeleton className="h-9 w-24 rounded-md" />
+                <Skeleton className="h-9 w-28 rounded-md" />
+              </div>
+            </div>
           ))}
         </div>
-      </SectionCard>
+      </div>
     </div>
   );
 }

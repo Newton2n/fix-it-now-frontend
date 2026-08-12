@@ -5,7 +5,7 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const backendUrl = process.env.BACKEND_API;
-import { ServiceSearchFiltersSchema } from "@/schema/service/service.schema";
+import { ServiceSearchFilters, ServiceSearchFiltersSchema } from "@/schema/service/service.schema";
 
 type GetAllServiceParams = {
   search?: string;
@@ -101,30 +101,88 @@ export const getAllServiceByCategoryId = async (id: string) => {
   }
 };
 // get all service by login technician
-export const getAllServiceByLoginTechnician = async () => {
+export const getAllServiceByLoginTechnician = async (
+  query: Partial<ServiceSearchFilters> = {},
+) => {
   const cookieStore = await cookies();
-
   const accessToken = cookieStore.get("accessToken")?.value;
+
+  const emptyMeta = {
+    currentPage: 1,
+    limit: 10,
+    totalRow: 0,
+    totalPage: 0,
+  };
+
   const verify = jwtUtils.verifyToken(
     accessToken as string,
     process.env.JWT_ACCESS_SECRET!,
   );
+
   if (!verify.success || verify.data?.role !== "TECHNICIAN") {
     return {
       success: false,
-      message: "sorry you are have no permission",
+      message: "Sorry, you have no permission",
+      data: [],
+      meta: emptyMeta,
+      errorDetails: [],
     };
   }
-  const res = await fetch(`${backendUrl}/api/technicians/services`, {
-    headers: {
-      Cookie: `accessToken=${accessToken}`,
-    },
-    cache: "no-store",
-  });
-  const result = await res.json();
 
-  if (result.success) {
-    return result;
+  try {
+    const params = new URLSearchParams();
+
+    if (query.search) params.set("search", query.search);
+    if (query.categoryId) params.set("categoryId", query.categoryId);
+    if (query.minPrice !== undefined) params.set("minPrice", String(query.minPrice));
+    if (query.maxPrice !== undefined) params.set("maxPrice", String(query.maxPrice));
+    if (query.isAvailable !== undefined) params.set("isAvailable", query.isAvailable);
+    params.set("page", String(query.page ?? 1));
+    params.set("limit", String(query.limit ?? 10));
+    params.set("sortBy", query.sortBy ?? "date");
+    params.set("sortOrder", query.sortOrder ?? "desc");
+
+    const res = await fetch(
+      `${backendUrl}/api/technicians/services?${params.toString()}`,
+      {
+        headers: {
+          Cookie: `accessToken=${accessToken}`,
+        },
+        cache: "no-store",
+      },
+    );
+
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      return {
+        success: false,
+        message: result.message || "Unable to load services.",
+        data: [],
+        meta: emptyMeta,
+        errorDetails: result.errorDetails || [],
+      };
+    }
+
+    const servicesResult = result.data?.result;
+    console.log("service by login technician",query,servicesResult)
+
+    return {
+      success: true,
+      message: result.message || "Services fetched successfully.",
+      data: servicesResult?.data || [],
+      meta: servicesResult?.meta || emptyMeta,
+      errorDetails: [],
+    };
+  } catch (error) {
+    console.error("Get technician services error:", error);
+    return {
+      success: false,
+      message: "Unable to connect to the server. Please try again.",
+      data: [],
+      meta: emptyMeta,
+      errorDetails: [],
+    };
   }
 };
 
