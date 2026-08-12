@@ -20,30 +20,32 @@ type ReviewResult = {
   data: Review[];
 };
 
-export default function CustomerReviewsPage({
+export default async function CustomerReviewsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const resolvedParams = await searchParams;
+  // Serialized key forces Suspense to display the skeleton loader when query params change
+  const filterKey = JSON.stringify(resolvedParams);
+
   return (
-    <Suspense fallback={<ReviewsLoading />}>
-      <CustomerReviewsContent searchParams={searchParams} />
+    <Suspense key={filterKey} fallback={<ReviewsLoading />}>
+      <CustomerReviewsContent resolvedParams={resolvedParams} />
     </Suspense>
   );
 }
 
 async function CustomerReviewsContent({
-  searchParams,
+  resolvedParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  resolvedParams: Record<string, string | string[] | undefined>;
 }) {
-  const params = await searchParams;
-
   const rawMinRating =
-    typeof params.minRating === "string" ? Number(params.minRating) : undefined;
+    typeof resolvedParams.minRating === "string" ? Number(resolvedParams.minRating) : undefined;
 
   const rawMaxRating =
-    typeof params.maxRating === "string" ? Number(params.maxRating) : undefined;
+    typeof resolvedParams.maxRating === "string" ? Number(resolvedParams.maxRating) : undefined;
 
   // Validate & clamp rating between 1–5
   let minRating: number | undefined;
@@ -57,17 +59,17 @@ async function CustomerReviewsContent({
     maxRating = Math.min(5, Math.max(1, rawMaxRating));
   }
 
-  const query: UserReviewSearchParams= {
+  const query: UserReviewSearchParams = {
     serviceId:
-      typeof params.serviceId === "string" ? params.serviceId : undefined,
+      typeof resolvedParams.serviceId === "string" ? resolvedParams.serviceId : undefined,
     minRating,
     maxRating,
-    search: typeof params.search === "string" ? params.search : undefined,
-    page: typeof params.page === "string" ? Number(params.page) : 1,
-    limit: typeof params.limit === "string" ? Number(params.limit) : 10,
+    search: typeof resolvedParams.search === "string" ? resolvedParams.search : undefined,
+    page: typeof resolvedParams.page === "string" ? Number(resolvedParams.page) : 1,
+    limit: typeof resolvedParams.limit === "string" ? Number(resolvedParams.limit) : 10,
     sortBy:
-      (params.sortBy as "rating" | "createdAt" | undefined) || "createdAt",
-    sortOrder: (params.sortOrder as "asc" | "desc" | undefined) || "desc",
+      (resolvedParams.sortBy as "rating" | "createdAt" | undefined) || "createdAt",
+    sortOrder: (resolvedParams.sortOrder as "asc" | "desc" | undefined) || "desc",
   };
 
   const result = await getAllReviewDetailsFromLoginUser(query);
@@ -134,18 +136,65 @@ async function CustomerReviewsContent({
 function ReviewsLoading() {
   return (
     <div className="space-y-6">
-      <DashboardPageHeader
-        title="Reviews"
-        description="Leave feedback after your service is completed."
-      />
+      {/* Header Skeleton */}
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-32" />
+        <Skeleton className="h-4 w-80" />
+      </div>
 
-      <SectionCard title="Your Reviews" description="Loading your reviews...">
+      {/* Filter Bar Skeleton */}
+      <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 shadow-sm">
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-10 w-36" />
+        <Skeleton className="h-10 w-36" />
+        <Skeleton className="h-10 w-28" />
+        <Skeleton className="h-10 w-28" />
+      </div>
+
+      {/* Main Section Card & Review Cards Skeleton */}
+      <div className="rounded-xl border bg-card p-6 shadow-sm space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-36" />
+          <Skeleton className="h-4 w-52" />
+        </div>
+
         <div className="space-y-4">
-          {[1, 2, 3].map((item) => (
-            <Skeleton key={item} className="h-64 w-full rounded-xl" />
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="rounded-xl border bg-card p-5 shadow-sm space-y-4"
+            >
+              {/* Card Header: Service Info & Star Rating */}
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1">
+                  <Skeleton className="h-5 w-44" />
+                  <Skeleton className="h-3 w-28" />
+                </div>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: 5 }).map((_, starIndex) => (
+                    <Skeleton key={starIndex} className="h-4 w-4 rounded-full" />
+                  ))}
+                </div>
+              </div>
+
+              {/* Review Text Body */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-4/5" />
+              </div>
+
+              {/* Bottom Footer Row: Date & Action Buttons */}
+              <div className="flex items-center justify-between pt-2 border-t">
+                <Skeleton className="h-3 w-32" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-8 w-16 rounded-md" />
+                  <Skeleton className="h-8 w-16 rounded-md" />
+                </div>
+              </div>
+            </div>
           ))}
         </div>
-      </SectionCard>
+      </div>
     </div>
   );
 }

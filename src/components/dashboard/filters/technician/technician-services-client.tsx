@@ -1,15 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-
-import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import type { Service } from "@/types/api";
 import type { Category } from "@/types/category";
-import { toggleServiceAvailability } from "@/actions/service.action";
 
 interface TechnicianServicesClientProps {
   services: Service[];
@@ -23,34 +17,6 @@ export default function TechnicianServicesClient({
   categories,
   servicesError,
 }: TechnicianServicesClientProps) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
-
-  const handleToggleAvailability = async (serviceId: string, current: boolean) => {
-    setActionLoading(serviceId);
-    try {
-      const result = await toggleServiceAvailability(serviceId, !current);
-
-      if (!result.success) {
-        toast.error(result.message);
-        return;
-      }
-
-      toast.success(result.message);
-
-      // Ensures React Server Component re-rendering smoothly applies to DOM UI
-      startTransition(() => {
-        router.refresh();
-      });
-    } catch (err) {
-      console.error(err);
-      toast.error("Something went wrong.");
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
   if (servicesError) {
     return (
       <Alert variant="destructive">
@@ -106,20 +72,6 @@ export default function TechnicianServicesClient({
                   value={new Date(service.createdAt).toLocaleString()}
                 />
               </div>
-            </div>
-
-            <div className="flex shrink-0 flex-col items-end gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={actionLoading === service.id || isPending}
-                onClick={() =>
-                  handleToggleAvailability(service.id, service.isAvailable)
-                }
-                className="cursor-pointer"
-              >
-                {service.isAvailable ? "Mark Unavailable" : "Mark Available"}
-              </Button>
             </div>
           </div>
         </div>

@@ -23,47 +23,49 @@ type PaymentResult = {
   data: Payment[];
 };
 
-export default function CustomerPaymentsPage({
+export default async function CustomerPaymentsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const resolvedParams = await searchParams;
+  // Serialized key forces React Suspense to switch to the skeleton whenever query params change
+  const filterKey = JSON.stringify(resolvedParams);
+
   return (
-    <Suspense fallback={<CustomerPaymentsSkeleton />}>
-      <CustomerPaymentsContent searchParams={searchParams} />
+    <Suspense key={filterKey} fallback={<CustomerPaymentsSkeleton />}>
+      <CustomerPaymentsContent resolvedParams={resolvedParams} />
     </Suspense>
   );
 }
 
 async function CustomerPaymentsContent({
-  searchParams,
+  resolvedParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  resolvedParams: Record<string, string | string[] | undefined>;
 }) {
-  const params = await searchParams;
-
   const query: PaymentSearchParams = {
     transactionId:
-      typeof params.transactionId === "string"
-        ? params.transactionId
+      typeof resolvedParams.transactionId === "string"
+        ? resolvedParams.transactionId
         : undefined,
-    status: (params.status as PaymentStatus | undefined) || undefined,
+    status: (resolvedParams.status as PaymentStatus | undefined) || undefined,
     provider:
-      (params.provider as "STRIPE" | "SSLCOMMERZ" | undefined) || undefined,
+      (resolvedParams.provider as "STRIPE" | "SSLCOMMERZ" | undefined) || undefined,
     minAmount:
-      typeof params.minAmount === "string"
-        ? Number(params.minAmount)
+      typeof resolvedParams.minAmount === "string"
+        ? Number(resolvedParams.minAmount)
         : undefined,
     maxAmount:
-      typeof params.maxAmount === "string"
-        ? Number(params.maxAmount)
+      typeof resolvedParams.maxAmount === "string"
+        ? Number(resolvedParams.maxAmount)
         : undefined,
-    page: typeof params.page === "string" ? Number(params.page) : 1,
-    limit: typeof params.limit === "string" ? Number(params.limit) : 10,
+    page: typeof resolvedParams.page === "string" ? Number(resolvedParams.page) : 1,
+    limit: typeof resolvedParams.limit === "string" ? Number(resolvedParams.limit) : 10,
     sortBy:
-      (params.sortBy as "amount" | "createdAt" | "status" | undefined) ||
+      (resolvedParams.sortBy as "amount" | "createdAt" | "status" | undefined) ||
       "createdAt",
-    sortOrder: (params.sortOrder as "asc" | "desc" | undefined) || "desc",
+    sortOrder: (resolvedParams.sortOrder as "asc" | "desc" | undefined) || "desc",
   };
 
   const result = await getAllPaymentDetailsFromLoginUser(query);
@@ -106,7 +108,6 @@ async function CustomerPaymentsContent({
         description="Your payment history and transaction records."
       />
 
-     
       <PaymentFilters
         currentPage={meta.currentPage}
         totalPage={meta.totalPage}
@@ -245,8 +246,65 @@ function formatDateTime(dateString: string) {
 function CustomerPaymentsSkeleton() {
   return (
     <div className="space-y-6">
-      <Skeleton className="h-10 w-48" />
-      <Skeleton className="h-100 w-full rounded-xl" />
+      {/* Header Skeleton */}
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-36" />
+        <Skeleton className="h-4 w-72" />
+      </div>
+
+      {/* Filter Bar Skeleton */}
+      <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 shadow-sm">
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-10 w-36" />
+        <Skeleton className="h-10 w-36" />
+        <Skeleton className="h-10 w-28" />
+        <Skeleton className="h-10 w-28" />
+      </div>
+
+      {/* Section Card & Payment Cards Skeleton */}
+      <div className="rounded-xl border bg-card p-6 shadow-sm space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-4 w-60" />
+        </div>
+
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="rounded-xl border bg-card p-4 shadow-sm space-y-4"
+            >
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex-1 space-y-4">
+                  {/* Transaction ID Skeleton */}
+                  <div className="space-y-1">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-5 w-64" />
+                  </div>
+
+                  {/* 6 Info Grid Blocks */}
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="rounded-lg border bg-background p-3 space-y-2"
+                      >
+                        <Skeleton className="h-3 w-20" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Status Badge Skeleton */}
+                <div className="shrink-0">
+                  <Skeleton className="h-6 w-24 rounded-full" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

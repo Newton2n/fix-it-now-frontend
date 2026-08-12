@@ -20,11 +20,15 @@ const emptyMeta: UserMeta = {
   totalPage: 0,
 };
 
-export default function AdminUsersPage({
+export default async function AdminUsersPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const resolvedParams = await searchParams;
+  // Serialized key forces Suspense to show skeleton loader when route/query params change
+  const filterKey = JSON.stringify(resolvedParams);
+
   return (
     <div className="space-y-6">
       <DashboardPageHeader
@@ -32,42 +36,40 @@ export default function AdminUsersPage({
         description="Manage customers, technicians, and admins."
       />
 
-      <Suspense fallback={<UsersPageSkeleton />}>
-        <UsersContent searchParams={searchParams} />
+      <Suspense key={filterKey} fallback={<UsersPageSkeleton />}>
+        <UsersContent resolvedParams={resolvedParams} />
       </Suspense>
     </div>
   );
 }
 
 async function UsersContent({
-  searchParams,
+  resolvedParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  resolvedParams: Record<string, string | string[] | undefined>;
 }) {
-  const params = await searchParams;
-
   const query: UserSearchParams = {
     search:
-      typeof params.search === "string" ? params.search : undefined,
+      typeof resolvedParams.search === "string" ? resolvedParams.search : undefined,
     phoneNumber:
-      typeof params.phoneNumber === "string" ? params.phoneNumber : undefined,
+      typeof resolvedParams.phoneNumber === "string" ? resolvedParams.phoneNumber : undefined,
     email:
-      typeof params.email === "string" ? params.email : undefined,
+      typeof resolvedParams.email === "string" ? resolvedParams.email : undefined,
     role:
-      (params.role as UserRole | undefined) || undefined,
+      (resolvedParams.role as UserRole | undefined) || undefined,
     status:
-      (params.status as UserStatus | undefined) || undefined,
+      (resolvedParams.status as UserStatus | undefined) || undefined,
     country:
-      typeof params.country === "string" ? params.country : undefined,
+      typeof resolvedParams.country === "string" ? resolvedParams.country : undefined,
     page:
-      typeof params.page === "string" ? Number(params.page) : 1,
+      typeof resolvedParams.page === "string" ? Number(resolvedParams.page) : 1,
     limit:
-      typeof params.limit === "string" ? Number(params.limit) : 10,
+      typeof resolvedParams.limit === "string" ? Number(resolvedParams.limit) : 10,
     sortBy:
-      (params.sortBy as "name" | "role" | "createdAt" | undefined) ||
+      (resolvedParams.sortBy as "name" | "role" | "createdAt" | undefined) ||
       "createdAt",
     sortOrder:
-      (params.sortOrder as "asc" | "desc" | undefined) || "desc",
+      (resolvedParams.sortOrder as "asc" | "desc" | undefined) || "desc",
   };
 
   const result = await getAllUser(query);
@@ -199,42 +201,73 @@ function EmptyUsers() {
 function UsersPageSkeleton() {
   return (
     <div className="space-y-6">
+      {/* Stat Cards Skeleton */}
       <div className="grid gap-4 md:grid-cols-3">
-        <SkeletonCard />
-        <SkeletonCard />
-        <SkeletonCard />
+        <SkeletonStatCard />
+        <SkeletonStatCard />
+        <SkeletonStatCard />
       </div>
 
+      {/* Filter Toolbar Skeleton */}
+      <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 shadow-sm">
+        <Skeleton className="h-10 w-full max-w-xs" />
+        <Skeleton className="h-10 w-36" />
+        <Skeleton className="h-10 w-36" />
+        <Skeleton className="h-10 w-32" />
+        <Skeleton className="h-10 w-28" />
+      </div>
+
+      {/* User List Section Skeleton */}
       <SectionCard title="User List" description="Loading users...">
         <div className="space-y-4">
-          <SkeletonUser />
-          <SkeletonUser />
-          <SkeletonUser />
+          <SkeletonUserCard />
+          <SkeletonUserCard />
+          <SkeletonUserCard />
         </div>
       </SectionCard>
     </div>
   );
 }
 
-function SkeletonCard() {
+function SkeletonStatCard() {
   return (
-    <div className="rounded-xl border bg-card p-4 shadow-sm">
-      <div className="h-3 w-24 animate-pulse rounded bg-muted" />
-      <div className="mt-3 h-8 w-16 animate-pulse rounded bg-muted" />
+    <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
+      <Skeleton className="h-3 w-28" />
+      <Skeleton className="h-8 w-16" />
     </div>
   );
 }
 
-function SkeletonUser() {
+function SkeletonUserCard() {
   return (
-    <div className="rounded-xl border bg-card p-4">
-      <div className="h-5 w-40 animate-pulse rounded bg-muted" />
-      <div className="mt-2 h-4 w-56 animate-pulse rounded bg-muted" />
+    <div className="rounded-xl border bg-card p-4 shadow-sm">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 space-y-3 flex-1">
+          <div className="space-y-1">
+            <Skeleton className="h-3 w-12" />
+            <Skeleton className="h-6 w-44" />
+            <Skeleton className="h-4 w-56" />
+          </div>
 
-      <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-        <div className="h-16 animate-pulse rounded-lg bg-muted" />
-        <div className="h-16 animate-pulse rounded-lg bg-muted" />
-        <div className="h-16 animate-pulse rounded-lg bg-muted" />
+          {/* Grid of details */}
+          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-lg border bg-background p-3 space-y-1">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-4 w-28" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Badges and Actions */}
+        <div className="flex shrink-0 flex-col items-start gap-3 lg:items-end">
+          <div className="flex gap-2">
+            <Skeleton className="h-6 w-20 rounded-full" />
+            <Skeleton className="h-6 w-24 rounded-full" />
+          </div>
+          <Skeleton className="h-9 w-28 rounded-md" />
+        </div>
       </div>
     </div>
   );

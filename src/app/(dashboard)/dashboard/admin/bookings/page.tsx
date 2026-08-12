@@ -57,7 +57,7 @@ export default async function AdminBookingsPage({
   };
 
   return (
-    <Suspense fallback={<AdminBookingsSkeleton />}>
+    <Suspense key={JSON.stringify(params)} fallback={<AdminBookingsSkeleton />}>
       <AdminBookingsContent query={query} />
     </Suspense>
   );

@@ -22,47 +22,49 @@ type PaymentResult = {
   data: Payment[];
 };
 
-export default function AdminPaymentsPage({
+export default async function AdminPaymentsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const resolvedParams = await searchParams;
+  // Serialized key forces Suspense to show skeleton loader when route/query params change
+  const filterKey = JSON.stringify(resolvedParams);
+
   return (
-    <Suspense fallback={<AdminPaymentsSkeleton />}>
-      <AdminPaymentsContent searchParams={searchParams} />
+    <Suspense key={filterKey} fallback={<AdminPaymentsSkeleton />}>
+      <AdminPaymentsContent resolvedParams={resolvedParams} />
     </Suspense>
   );
 }
 
 async function AdminPaymentsContent({
-  searchParams,
+  resolvedParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  resolvedParams: Record<string, string | string[] | undefined>;
 }) {
-  const params = await searchParams;
-
   const query: PaymentSearchParams = {
     transactionId:
-      typeof params.transactionId === "string"
-        ? params.transactionId
+      typeof resolvedParams.transactionId === "string"
+        ? resolvedParams.transactionId
         : undefined,
-    status: (params.status as PaymentStatus | undefined) || undefined,
+    status: (resolvedParams.status as PaymentStatus | undefined) || undefined,
     provider:
-      (params.provider as "STRIPE" | "SSLCOMMERZ" | undefined) || undefined,
+      (resolvedParams.provider as "STRIPE" | "SSLCOMMERZ" | undefined) || undefined,
     minAmount:
-      typeof params.minAmount === "string"
-        ? Number(params.minAmount)
+      typeof resolvedParams.minAmount === "string"
+        ? Number(resolvedParams.minAmount)
         : undefined,
     maxAmount:
-      typeof params.maxAmount === "string"
-        ? Number(params.maxAmount)
+      typeof resolvedParams.maxAmount === "string"
+        ? Number(resolvedParams.maxAmount)
         : undefined,
-    page: typeof params.page === "string" ? Number(params.page) : 1,
-    limit: typeof params.limit === "string" ? Number(params.limit) : 10,
+    page: typeof resolvedParams.page === "string" ? Number(resolvedParams.page) : 1,
+    limit: typeof resolvedParams.limit === "string" ? Number(resolvedParams.limit) : 10,
     sortBy:
-      (params.sortBy as "amount" | "createdAt" | "status" | undefined) ||
+      (resolvedParams.sortBy as "amount" | "createdAt" | "status" | undefined) ||
       "createdAt",
-    sortOrder: (params.sortOrder as "asc" | "desc" | undefined) || "desc",
+    sortOrder: (resolvedParams.sortOrder as "asc" | "desc" | undefined) || "desc",
   };
 
   const result = await getAllPayments(query);
@@ -140,7 +142,7 @@ async function AdminPaymentsContent({
                 className="rounded-xl border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
               >
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="space-y-3">
+                  <div className="space-y-3 flex-1">
                     <div>
                       <p className="text-xs uppercase tracking-wide text-muted-foreground">
                         Transaction
@@ -254,13 +256,73 @@ function formatDateTime(dateString: string) {
 function AdminPaymentsSkeleton() {
   return (
     <div className="space-y-6">
-      <Skeleton className="h-10 w-48" />
-      <div className="grid gap-4 md:grid-cols-3">
-        <Skeleton className="h-24 w-full rounded-xl" />
-        <Skeleton className="h-24 w-full rounded-xl" />
-        <Skeleton className="h-24 w-full rounded-xl" />
+      {/* Header Skeleton */}
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-36" />
+        <Skeleton className="h-4 w-64" />
       </div>
-      <Skeleton className="h-[400px] w-full rounded-xl" />
+
+      {/* Stat Cards Skeleton */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <SkeletonStatCard />
+        <SkeletonStatCard />
+        <SkeletonStatCard />
+      </div>
+
+      {/* Filter Toolbar Skeleton */}
+      <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 shadow-sm">
+        <Skeleton className="h-10 w-full max-w-xs" />
+        <Skeleton className="h-10 w-36" />
+        <Skeleton className="h-10 w-36" />
+        <Skeleton className="h-10 w-28" />
+        <Skeleton className="h-10 w-28" />
+      </div>
+
+      {/* Payment Records Section Skeleton */}
+      <SectionCard title="Payment Records" description="Loading transactions...">
+        <div className="space-y-4">
+          <SkeletonPaymentCard />
+          <SkeletonPaymentCard />
+          <SkeletonPaymentCard />
+        </div>
+      </SectionCard>
+    </div>
+  );
+}
+
+function SkeletonStatCard() {
+  return (
+    <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
+      <Skeleton className="h-3 w-32" />
+      <Skeleton className="h-8 w-20" />
+    </div>
+  );
+}
+
+function SkeletonPaymentCard() {
+  return (
+    <div className="rounded-xl border bg-card p-4 shadow-sm">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="space-y-3 flex-1">
+          <div className="space-y-1">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-6 w-56" />
+          </div>
+
+          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-lg border bg-background p-3 space-y-1">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-4 w-28" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex shrink-0 flex-col items-start gap-3 lg:items-end">
+          <Skeleton className="h-6 w-24 rounded-full" />
+        </div>
+      </div>
     </div>
   );
 }

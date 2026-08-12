@@ -49,6 +49,7 @@ export default function AdminCategoriesPage() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [meta, setMeta] = useState<CategoryResult["meta"]>({
     currentPage: 1,
@@ -127,16 +128,24 @@ export default function AdminCategoriesPage() {
   const handleDeleteCategory = async () => {
     if (!categoryToDelete) return;
 
-    const result = await deleteCategory(categoryToDelete);
+    try {
+      setIsDeleting(true);
+      const result = await deleteCategory(categoryToDelete);
 
-    if (result.success) {
-      toast.success(result.message || "Category deleted successfully");
-      setCategories((prev) => prev.filter((c) => c.id !== categoryToDelete));
-      setDeleteConfirmOpen(false);
-      setCategoryToDelete(null);
-      router.refresh();
-    } else {
-      toast.error(result.message || "Failed to delete category");
+      if (result.success) {
+        toast.success(result.message || "Category deleted successfully");
+        setCategories((prev) => prev.filter((c) => c.id !== categoryToDelete));
+        setDeleteConfirmOpen(false);
+        setCategoryToDelete(null);
+        router.refresh();
+      } else {
+        toast.error(result.message || "Failed to delete category");
+      }
+    } catch (error) {
+      console.error("Failed to delete category:", error);
+      toast.error("An error occurred while deleting the category");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -150,24 +159,6 @@ export default function AdminCategoriesPage() {
     setSelectedCategory(null);
     router.refresh();
   };
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <DashboardPageHeader
-          title="Categories"
-          description="Create and manage service categories."
-        />
-        <SectionCard title="Category List" description="Loading...">
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-28 rounded-xl" />
-            ))}
-          </div>
-        </SectionCard>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -203,9 +194,19 @@ export default function AdminCategoriesPage() {
 
       <SectionCard
         title="Category List"
-        description={`Page ${meta.currentPage} of ${meta.totalPage} • ${meta.totalRow} total`}
+        description={
+          loading
+            ? "Loading categories..."
+            : `Page ${meta.currentPage} of ${meta.totalPage} • ${meta.totalRow} total`
+        }
       >
-        {categories.length > 0 ? (
+        {loading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-28 rounded-xl" />
+            ))}
+          </div>
+        ) : categories.length > 0 ? (
           <div className="space-y-4">
             {categories.map((category) => (
               <div
@@ -331,7 +332,7 @@ export default function AdminCategoriesPage() {
       <ConfirmDialog
         title="Delete category?"
         description="Are you sure you want to delete this category? This action cannot be undone."
-        confirmText="Delete Category"
+        confirmText={isDeleting ? "Deleting..." : "Delete Category"}
         cancelText="Cancel"
         isDestructive
         open={deleteConfirmOpen}

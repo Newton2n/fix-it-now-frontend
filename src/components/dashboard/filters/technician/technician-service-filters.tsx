@@ -1,4 +1,3 @@
-// components/dashboard/filters/technician/technician-service-filters.tsx
 "use client";
 
 import ClearFilters from "../clear-filter";

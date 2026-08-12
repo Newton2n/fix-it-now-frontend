@@ -9,7 +9,6 @@ import { updateTechnicianBookingStatus } from "@/actions/bookings.action";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
 import { BookingStatusBadge } from "@/components/status-badges";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 
 import type { Booking, BookingStatus } from "@/types/api";
 

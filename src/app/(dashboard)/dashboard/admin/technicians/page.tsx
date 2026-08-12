@@ -9,11 +9,15 @@ import type { TechnicianProfile } from "@/types/technician";
 import { TechnicianCard } from "@/components/admin/admin-technician-card";
 import TechnicianFilters from "@/components/dashboard/filters/customer/technician-filter";
 
-export default function AdminTechniciansPage({
+export default async function AdminTechniciansPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const resolvedParams = await searchParams;
+  // Serialized key forces Suspense to show skeleton loader when route/query params change
+  const filterKey = JSON.stringify(resolvedParams);
+
   return (
     <div className="space-y-6">
       <DashboardPageHeader
@@ -21,38 +25,36 @@ export default function AdminTechniciansPage({
         description="Review and manage technician profiles."
       />
 
-      <Suspense fallback={<TechniciansSkeleton />}>
-        <TechniciansContent searchParams={searchParams} />
+      <Suspense key={filterKey} fallback={<TechniciansSkeleton />}>
+        <TechniciansContent resolvedParams={resolvedParams} />
       </Suspense>
     </div>
   );
 }
 
 async function TechniciansContent({
-  searchParams,
+  resolvedParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  resolvedParams: Record<string, string | string[] | undefined>;
 }) {
-  const params = await searchParams;
-
   const query: TechnicianSearchParams = {
-    search: typeof params.search === "string" ? params.search : undefined,
-    page: typeof params.page === "string" ? Number(params.page) : 1,
-    limit: typeof params.limit === "string" ? Number(params.limit) : 10,
+    search: typeof resolvedParams.search === "string" ? resolvedParams.search : undefined,
+    page: typeof resolvedParams.page === "string" ? Number(resolvedParams.page) : 1,
+    limit: typeof resolvedParams.limit === "string" ? Number(resolvedParams.limit) : 10,
     minExperience:
-      typeof params.minExperience === "string"
-        ? Number(params.minExperience)
+      typeof resolvedParams.minExperience === "string"
+        ? Number(resolvedParams.minExperience)
         : undefined,
     isAvailable:
-      typeof params.isAvailable === "string" ? params.isAvailable : undefined,
+      typeof resolvedParams.isAvailable === "string" ? resolvedParams.isAvailable : undefined,
     status:
-      (params.status as "PENDING_APPROVAL" | "VERIFIED" | "SUSPENDED") ||
-      undefined, // 
-    skills: typeof params.skills === "string" ? params.skills : undefined,
+      (resolvedParams.status as "PENDING_APPROVAL" | "VERIFIED" | "SUSPENDED") ||
+      undefined,
+    skills: typeof resolvedParams.skills === "string" ? resolvedParams.skills : undefined,
     serviceArea:
-      typeof params.serviceArea === "string" ? params.serviceArea : undefined,
-    sortBy: (params.sortBy as "experience" | "date" | undefined) || "date",
-    sortOrder: (params.sortOrder as "asc" | "desc" | undefined) || "desc",
+      typeof resolvedParams.serviceArea === "string" ? resolvedParams.serviceArea : undefined,
+    sortBy: (resolvedParams.sortBy as "experience" | "date" | undefined) || "date",
+    sortOrder: (resolvedParams.sortOrder as "asc" | "desc" | undefined) || "desc",
   };
 
   const result = await getAllTechnicianProfile(query);
@@ -120,12 +122,60 @@ function EmptyTechnicians() {
 
 function TechniciansSkeleton() {
   return (
-    <SectionCard title="Technician List" description="Loading technicians...">
-      <div className="space-y-4">
-        {[1, 2, 3].map((item) => (
-          <Skeleton key={item} className="h-28 rounded-xl" />
-        ))}
+    <div className="space-y-4">
+      {/* Filter Toolbar Skeleton */}
+      <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 shadow-sm">
+        <Skeleton className="h-10 w-full max-w-xs" />
+        <Skeleton className="h-10 w-36" />
+        <Skeleton className="h-10 w-36" />
+        <Skeleton className="h-10 w-32" />
+        <Skeleton className="h-10 w-28" />
       </div>
-    </SectionCard>
+
+      {/* Technician List Section Skeleton */}
+      <SectionCard title="Technician List" description="Loading technicians...">
+        <div className="space-y-4">
+          <SkeletonTechnicianCard />
+          <SkeletonTechnicianCard />
+          <SkeletonTechnicianCard />
+        </div>
+      </SectionCard>
+    </div>
+  );
+}
+
+function SkeletonTechnicianCard() {
+  return (
+    <div className="rounded-xl border bg-card p-5 shadow-sm space-y-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        {/* User / Profile Metadata */}
+        <div className="flex items-start gap-4 min-w-0 flex-1">
+          <Skeleton className="h-12 w-12 rounded-full shrink-0" />
+          <div className="space-y-2 flex-1 min-w-0">
+            <Skeleton className="h-5 w-44" />
+            <Skeleton className="h-4 w-60" />
+            
+            {/* Skills & Tags */}
+            <div className="flex flex-wrap gap-2 pt-1">
+              <Skeleton className="h-5 w-16 rounded-full" />
+              <Skeleton className="h-5 w-20 rounded-full" />
+              <Skeleton className="h-5 w-24 rounded-full" />
+            </div>
+          </div>
+        </div>
+
+        {/* Status Badges & Action Buttons */}
+        <div className="flex shrink-0 flex-col items-start gap-3 lg:items-end">
+          <div className="flex gap-2">
+            <Skeleton className="h-6 w-24 rounded-full" />
+            <Skeleton className="h-6 w-20 rounded-full" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-9 w-24 rounded-md" />
+            <Skeleton className="h-9 w-24 rounded-md" />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
