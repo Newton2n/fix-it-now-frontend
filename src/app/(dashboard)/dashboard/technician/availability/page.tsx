@@ -63,7 +63,7 @@ export default function TechnicianAvailabilityPage() {
 
       setProfile(technicianProfile as TechnicianProfile);
     } catch (error) {
-      console.error("Failed to load technician profile:", error);
+     
 
       setError("Unable to load your technician profile.");
     } finally {
@@ -105,7 +105,7 @@ export default function TechnicianAvailabilityPage() {
       } catch (error) {
         if (cancelled) return;
 
-        console.error("Failed to load technician profile:", error);
+        
 
         setError("Unable to load your technician profile.");
       } finally {

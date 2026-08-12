@@ -20,7 +20,7 @@ type TechnicianBookingStatus =
 export const getAllBookingsFromLoginUser = async (
   query: Partial<UserBookingSearchParams> = {},
 ) => {
-  console.log("user booking search param",query)
+  
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -127,7 +127,7 @@ export const getAllBookingsFromLoginUser = async (
       },
       data: [],
     };
-    console.log(query,"user booking search result",bookingsResult)
+   
     return {
       success: true,
       message: result.message || "Bookings fetched successfully.",
@@ -135,7 +135,7 @@ export const getAllBookingsFromLoginUser = async (
       errorDetails: [],
     };
   } catch (error) {
-    console.error("Get user bookings error:", error);
+    
 
     return {
       success: false,
@@ -259,7 +259,7 @@ export const getAllBookingsFromLoginTechnician = async (
       errorDetails: [],
     };
   } catch (error) {
-    console.error("Get technician bookings error:", error);
+    
 
     return {
       success: false,
@@ -344,7 +344,7 @@ export const updateTechnicianBookingStatus = async (
       data: result.data,
     };
   } catch (error) {
-    console.error("Update technician booking status error:", error);
+    
 
     return {
       success: false,
@@ -463,7 +463,7 @@ export const cancelBooking = async (bookingId: string) => {
       data: result.data,
     };
   } catch (error) {
-    console.error("Cancel booking error:", error);
+    
 
     return {
       success: false,
@@ -557,7 +557,7 @@ export const createBooking = async (
       statusCode: res.status,
     };
   } catch (error) {
-    console.error("Create booking action error:", error);
+    
 
     return {
       success: false,
@@ -607,7 +607,7 @@ export const getBookingById = async (
       data: result.data,
     };
   } catch (error) {
-    console.error("Get booking by ID error:", error);
+    
 
     return {
       success: false,

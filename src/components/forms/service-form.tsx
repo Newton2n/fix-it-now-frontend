@@ -1,10 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, ImageIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,8 +21,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { createService, updateService } from "@/actions/service.action";
-import type { Service} from "@/types/api";
+
+import {
+  createService,
+  updateService,
+} from "@/actions/service.action";
+
+import type { Service } from "@/types/api";
 import { setFormErrors } from "@/lib/form-utils";
 import { createServiceSchema } from "@/schema/service/service.schema";
 import { Category } from "@/types/category";
@@ -35,6 +41,9 @@ interface ServiceFormProps {
   onSuccess?: () => void | Promise<void>;
 }
 
+const fallbackImage =
+  "https://images.unsplash.com/photo-1605152276897-4f618f831968?w=1200&auto=format&fit=crop&q=85";
+
 export function ServiceForm({
   mode,
   initialData,
@@ -42,6 +51,7 @@ export function ServiceForm({
   onSuccess,
 }: ServiceFormProps) {
   const [isPending, setIsPending] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const {
     register,
@@ -64,9 +74,16 @@ export function ServiceForm({
   });
 
   const isAvailable = watch("isAvailable");
+  const thumbnailImage = watch("thumbnailImage");
+
+  const previewImage =
+    thumbnailImage?.trim() && !imageError
+      ? thumbnailImage.trim()
+      : fallbackImage;
 
   const onSubmit = async (data: ServiceFormData) => {
     setIsPending(true);
+
     try {
       const payload = {
         ...data,
@@ -80,13 +97,16 @@ export function ServiceForm({
 
       if (!result.success) {
         toast.error(result.message || "Something went wrong.");
+
         if (result.errorDetails) {
           setFormErrors(result.errorDetails, setError);
         }
+
         return;
       }
 
       toast.success(result.message || "Saved successfully.");
+
       await onSuccess?.();
     } finally {
       setIsPending(false);
@@ -94,29 +114,42 @@ export function ServiceForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <Card className="p-6">
-        <div className="mb-5">
-          <h3 className="text-lg font-semibold">Service Information</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="w-full max-w-none space-y-6"
+    >
+      <Card className="w-full p-4 sm:p-6 md:p-7 lg:p-8 xl:p-9 2xl:p-10">
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold sm:text-xl">
+            Service Information
+          </h3>
+
+          <p className="mt-1 text-sm text-muted-foreground sm:text-base">
             Add the main details for this service.
           </p>
         </div>
 
-        <div className="space-y-5">
-          <Field label="Service Title" error={errors.title?.message}>
+        <div className="space-y-6">
+          <Field
+            label="Service Title"
+            error={errors.title?.message}
+          >
             <Input
               id="title"
               placeholder="e.g., Plumbing Installation"
+              className="h-11 sm:h-12"
               {...register("title")}
             />
           </Field>
 
-          <Field label="Description" error={errors.description?.message}>
+          <Field
+            label="Description"
+            error={errors.description?.message}
+          >
             <Textarea
               id="description"
               placeholder="Describe your service in detail..."
-              className="min-h-32"
+              className="min-h-32 resize-y sm:min-h-36"
               {...register("description")}
             />
           </Field>
@@ -129,21 +162,59 @@ export function ServiceForm({
               id="thumbnailImage"
               type="url"
               placeholder="https://example.com/image.jpg"
-              {...register("thumbnailImage")}
+              className="h-11 sm:h-12"
+              {...register("thumbnailImage", {
+                onChange: () => setImageError(false),
+              })}
             />
+
+            <div className="mt-3 overflow-hidden rounded-xl border bg-muted/30">
+              <div className="relative aspect-video w-full">
+                {thumbnailImage?.trim() ? (
+                  <Image
+                    key={previewImage}
+                    src={previewImage}
+                    alt="Service thumbnail preview"
+                    fill
+                    sizes="
+                      (max-width: 640px) 100vw,
+                      (max-width: 1024px) 90vw,
+                      (max-width: 1536px) 70vw,
+                      1200px
+                    "
+                    className="object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                ) : (
+                  <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                    <ImageIcon className="size-8" />
+
+                    <span className="text-sm">
+                      Image preview will appear here
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
           </Field>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            <Field label="Category" error={errors.categoryId?.message}>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <Field
+              label="Category"
+              error={errors.categoryId?.message}
+            >
               <Select
                 value={watch("categoryId")}
                 onValueChange={(value) =>
-                  setValue("categoryId", value, { shouldValidate: true })
+                  setValue("categoryId", value, {
+                    shouldValidate: true,
+                  })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-11 w-full sm:h-12">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
+
                 <SelectContent>
                   {categories.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
@@ -154,45 +225,72 @@ export function ServiceForm({
               </Select>
             </Field>
 
-            <Field label="Price $" error={errors.price?.message}>
+            <Field
+              label="Price $"
+              error={errors.price?.message}
+            >
               <Input
                 id="price"
                 type="number"
                 placeholder="99"
                 step="1"
-                {...register("price", { valueAsNumber: true })}
+                className="h-11 sm:h-12"
+                {...register("price", {
+                  valueAsNumber: true,
+                })}
               />
             </Field>
           </div>
         </div>
       </Card>
 
-      <Card className="p-6">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold">Availability</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
+      <Card className="w-full p-4 sm:p-6 md:p-7 lg:p-8 xl:p-9 2xl:p-10">
+        <div className="mb-5">
+          <h3 className="text-lg font-semibold sm:text-xl">
+            Availability
+          </h3>
+
+          <p className="mt-1 text-sm text-muted-foreground sm:text-base">
             Choose whether customers can book this service.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3">
           <Checkbox
             id="isAvailable"
             checked={isAvailable}
             onCheckedChange={(checked) =>
-              setValue("isAvailable", checked === true)
+              setValue("isAvailable", checked === true, {
+                shouldValidate: true,
+              })
             }
+            className="mt-0.5 cursor-pointer"
           />
-          <Label htmlFor="isAvailable" className="cursor-pointer">
+
+          <Label
+            htmlFor="isAvailable"
+            className="cursor-pointer text-sm leading-5 sm:text-base"
+          >
             This service is available for booking
           </Label>
         </div>
       </Card>
 
-      <Button type="submit" disabled={isPending} className="gap-2">
-        {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-        {mode === "create" ? "Create Service" : "Save Changes"}
-      </Button>
+      <div className="flex w-full justify-start">
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="h-10 cursor-pointer gap-2 sm:h-11"
+        >
+          {isPending && (
+            <Loader2 className="size-4 animate-spin" />
+          )}
+
+          {mode === "create"
+            ? "Create Service"
+            : "Save Changes"}
+        </Button>
+      </div>
     </form>
   );
 }
@@ -207,10 +305,18 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-2">
-      <Label>{label}</Label>
+    <div className="w-full space-y-2">
+      <Label className="text-sm font-medium sm:text-base">
+        {label}
+      </Label>
+
       {children}
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+      {error && (
+        <p className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

@@ -33,7 +33,7 @@ export const getUserById = async (id: string) => {
     }
     return result;
   } catch (error) {
-    console.error("Login action error:", error);
+
 
     return {
       success: false,
@@ -118,7 +118,7 @@ export const updateNormalProfile = async (id: string, payload: TUpdateUser) => {
       data: result.data,
     };
   } catch (error) {
-    console.error("Update user profile error:", error);
+   
 
     return {
       success: false,
@@ -196,7 +196,7 @@ export const updateUserPassword = async (data: {
       data: result.data,
     };
   } catch (error) {
-    console.error("Update password error:", error);
+    
 
     return {
       success: false,

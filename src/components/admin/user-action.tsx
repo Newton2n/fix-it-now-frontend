@@ -38,7 +38,7 @@ export default function UserActions({ userId, status }: UserActionsProps) {
         : await banUser(userId);
 
       if (!result.success) {
-        console.error(result.message);
+   
         return;
       }
 

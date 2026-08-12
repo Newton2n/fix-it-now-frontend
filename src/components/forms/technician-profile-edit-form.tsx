@@ -80,7 +80,7 @@ export function TechnicianProfileEditForm({
       toast.success(result.message || "Profile updated successfully.");
       onSuccess?.();
     } catch (error) {
-      console.error("Update technician profile error:", error);
+      
       toast.error("Unable to update technician profile.");
     } finally {
       setIsPending(false);

@@ -4,6 +4,7 @@ export type Category = {
   id: string;
   name: string;
   description: string;
+  imageUrl: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -14,6 +15,7 @@ export type TechnicianStatus = "PENDING_APPROVAL" | "VERIFIED" | "SUSPENDED";
 export type CategoryInput = {
   name: string;
   description: string;
+  imageUrl: string;
 };
 
 export type UserStatusInput = {
@@ -55,7 +57,7 @@ export const createCategorySchema = z.object({
     .string()
     .min(6, "Description must be at least 6 letters long")
     .max(255, "description  must be less than 101 letters"),
-  
+  imageUrl: z.url({message :"Valid image url needed"}),
 });
 export const updateCategorySchema = z.object({
   name: z
@@ -68,8 +70,8 @@ export const updateCategorySchema = z.object({
     .min(6, "Description must be at least 10 letters long")
     .max(255, "description  must be less than 101 letters")
     .optional(),
+  imageUrl: z.url({message :"Valid image url needed"}).optional(),
 });
-
 
 export const CategorySearchSchema = z.object({
   search: z.string().optional(),

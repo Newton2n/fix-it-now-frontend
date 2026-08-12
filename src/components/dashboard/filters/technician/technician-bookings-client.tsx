@@ -94,7 +94,7 @@ export default function TechnicianBookingsClient({
       // Refresh to get fresh data from server (filters, counts, etc.)
       router.refresh();
     } catch (error) {
-      console.error("Booking status update error:", error);
+      
       toast.error("Something went wrong. Please try again.");
     } finally {
       setActionLoading(null);

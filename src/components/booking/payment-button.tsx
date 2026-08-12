@@ -34,7 +34,7 @@ export function ProceedToPaymentButton({
       //use window.location.href to redirect in server component
       window.location.href = result.data.checkoutUrl;
     } catch (error) {
-      console.error("Payment error:", error);
+      
 
       toast.error("Unable to start payment. Please try again.");
     } finally {

@@ -16,7 +16,7 @@ type ErrorProps = {
 
 export default function Error({ error, reset }: ErrorProps) {
   useEffect(() => {
-    console.error("Payment page error:", error);
+   
   }, [error]);
 
   return (

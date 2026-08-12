@@ -15,7 +15,7 @@ export default function BookingError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
+   
   }, [error]);
 
   return (

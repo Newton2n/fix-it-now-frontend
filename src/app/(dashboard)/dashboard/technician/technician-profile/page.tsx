@@ -50,7 +50,7 @@ export default function TechnicianProfilePage() {
           setProfile(null);
         }
       } catch (error) {
-        console.error("Failed to load technician profile:", error);
+     
         setError("Unable to load your profile. Please try again.");
       } finally {
         setLoading(false);

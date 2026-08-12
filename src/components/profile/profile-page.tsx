@@ -91,7 +91,7 @@ export default function ProfilePage({
       setIsEditing(false);
       reset(payload);
     } catch (error) {
-      console.error("Profile update error:", error);
+     
 
       toast.error("Something went wrong. Please try again.");
     }

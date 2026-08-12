@@ -56,7 +56,7 @@ export const getAllCategories = async (params: GetAllCategoriesParams = {}) => {
       meta: result.data.result.meta,
     };
   } catch (error) {
-    console.error("Get categories error:", error);
+   
 
     return {
       success: false,

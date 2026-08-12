@@ -66,7 +66,7 @@ export default function CustomerReviewsClient({
 
       router.refresh();
     } catch (error) {
-      console.error("Delete review error:", error);
+     
       toast.error("Failed to delete review.");
     } finally {
       setDeleteLoading(false);

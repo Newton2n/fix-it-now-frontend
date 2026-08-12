@@ -9,7 +9,6 @@ import {
   TechnicianStatusInput,
   UserStatusInput,
 } from "@/schema/category/category.schema";
-import { CategorySearch } from "@/types/category";
 import { TechnicianSearchParams } from "@/schema/technician/technician.schema";
 import { UserSearchParams } from "@/schema/user/user.schema";
 import { PaymentSearchParams } from "@/schema/payment/payment";
@@ -65,8 +64,6 @@ async function getAdminToken() {
     accessToken,
   };
 }
-
-// actions/admin.action.ts
 
 export const getAllCategory = async (
   query: Partial<CategorySearchParams> = {},
@@ -128,7 +125,6 @@ export const getAllCategory = async (
       data: result.data?.result ?? emptyPaginatedResult,
     };
   } catch (error) {
-    console.error("Get all categories error:", error);
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -208,7 +204,6 @@ export const getAllPayments = async (
       data: result.data?.result ?? emptyPaginatedResult,
     };
   } catch (error) {
-    console.error("Get all payments error:", error);
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -292,7 +287,6 @@ export const getAllUser = async (query: Partial<UserSearchParams> = {}) => {
       data: result.data?.result ?? emptyPaginatedResult,
     };
   } catch (error) {
-    console.error("Get all users error:", error);
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -400,7 +394,6 @@ export const getAllBooking = async (query: AdminBookingSearchParams = {}) => {
       data: result.data?.result ?? emptyBookingResult,
     };
   } catch (error) {
-    console.error("Get all bookings error:", error);
 
     return {
       success: false,
@@ -492,7 +485,6 @@ export const getAllTechnicianProfile = async (
       data: result.data?.result ?? emptyTechnicianResult,
     };
   } catch (error) {
-    console.error("Get all technician profiles error:", error);
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -577,7 +569,6 @@ export const updateTechnicianStatus = async (
       data: result.data,
     };
   } catch (error) {
-    console.error("Update technician status error:", error);
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -663,7 +654,6 @@ export const updateUserStatus = async (
       data: result.data,
     };
   } catch (error) {
-    console.error("Update user status error:", error);
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -729,14 +719,16 @@ export const createCategory = async (data: CategoryInput) => {
     revalidateTag("all-category-home", {
       expire: 0,
     });
-
+ // revalidate category details page
+    revalidateTag("category-details", {
+      expire: 0,
+    });
     return {
       success: true,
       message: result.message || "Category created successfully.",
       data: result.data,
     };
   } catch (error) {
-    console.error("Create category error:", error);
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -749,8 +741,7 @@ export const createCategory = async (data: CategoryInput) => {
 export const updateCategory = async (
   categoryId: string,
   data: CategoryInput,
-) => {
-  console.log("update category in admin", categoryId, data);
+) => {;
   if (!categoryId) {
     return {
       success: false,
@@ -789,6 +780,7 @@ export const updateCategory = async (
         body: JSON.stringify({
           name: data.name.trim(),
           description: data.description?.trim(),
+          imageUrl: data.imageUrl?.trim(),
         }),
       },
     );
@@ -811,6 +803,10 @@ export const updateCategory = async (
     revalidateTag("all-category-home", {
       expire: 0,
     });
+    // revalidate category details page 
+    revalidateTag("category-details", {
+      expire: 0,
+    });
 
     return {
       success: true,
@@ -818,7 +814,6 @@ export const updateCategory = async (
       data: result.data,
     };
   } catch (error) {
-    console.error("Update category error:", error);
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -882,7 +877,6 @@ export const deleteCategory = async (categoryId: string) => {
       data: result.data,
     };
   } catch (error) {
-    console.error("Delete category error:", error);
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",

@@ -458,7 +458,6 @@ export default function Navbar({
         toast.success("Logged out successfully.");
       }
     } catch (error) {
-      console.error("Logout error:", error);
       toast.error("Failed to logout. Please try again.");
     } finally {
       window.location.href = "/login";
