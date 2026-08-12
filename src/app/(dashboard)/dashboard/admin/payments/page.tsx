@@ -1,10 +1,16 @@
+// app/admin/payments/page.tsx
 import { Suspense } from "react";
 import { getAllPayments } from "@/actions/admin.action";
+
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+
 import { Payment } from "@/types/payment";
+import { PaymentSearchParams } from "@/schema/payment/payment";
+import PaymentFilters from "@/components/dashboard/filters/admin/payment-filter";
+
 
 type PaymentStatus = "SUCCEEDED" | "PENDING" | "FAILED";
 
@@ -18,16 +24,50 @@ type PaymentResult = {
   data: Payment[];
 };
 
-export default function AdminPaymentsPage() {
+export default function AdminPaymentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   return (
     <Suspense fallback={<AdminPaymentsSkeleton />}>
-      <AdminPaymentsContent />
+      <AdminPaymentsContent searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function AdminPaymentsContent() {
-  const result = await getAllPayments();
+async function AdminPaymentsContent({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+
+  const query: PaymentSearchParams = {
+    transactionId:
+      typeof params.transactionId === "string"
+        ? params.transactionId
+        : undefined,
+    status: (params.status as PaymentStatus | undefined) || undefined,
+    provider:
+      (params.provider as "STRIPE" | "SSLCOMMERZ" | undefined) || undefined,
+    minAmount:
+      typeof params.minAmount === "string"
+        ? Number(params.minAmount)
+        : undefined,
+    maxAmount:
+      typeof params.maxAmount === "string"
+        ? Number(params.maxAmount)
+        : undefined,
+    page: typeof params.page === "string" ? Number(params.page) : 1,
+    limit: typeof params.limit === "string" ? Number(params.limit) : 10,
+    sortBy:
+      (params.sortBy as "amount" | "createdAt" | "status" | undefined) ||
+      "createdAt",
+    sortOrder: (params.sortOrder as "asc" | "desc" | undefined) || "desc",
+  };
+
+  const result = await getAllPayments(query);
 
   if (!result.success) {
     return (
@@ -51,7 +91,7 @@ async function AdminPaymentsContent() {
   const paymentResult: PaymentResult = result.data ?? {
     meta: {
       currentPage: 1,
-      limit: 0,
+      limit: 10,
       totalRow: 0,
       totalPage: 0,
     },
@@ -62,8 +102,8 @@ async function AdminPaymentsContent() {
   const meta = paymentResult.meta;
 
   const totalRevenue = payments
-    .filter((payment) => payment.status === "SUCCEEDED")
-    .reduce((sum, payment) => sum + payment.amount, 0);
+    .filter((p) => p.status === "SUCCEEDED")
+    .reduce((sum, p) => sum + p.amount, 0);
 
   return (
     <div className="space-y-6">
@@ -73,13 +113,22 @@ async function AdminPaymentsContent() {
       />
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatCard label="Total Payments" value={meta.totalRow} />
-        <StatCard label="Successful Revenue" value={`USD ${totalRevenue}`} />
+        <StatCard label="Payments (this page)" value={payments.length} />
+        <StatCard
+          label="Successful Revenue"
+          value={`USD ${totalRevenue.toFixed(2)}`}
+        />
         <StatCard
           label="Successful Payments"
           value={payments.filter((p) => p.status === "SUCCEEDED").length}
         />
       </div>
+
+      {/* Filters + pagination */}
+      <PaymentFilters
+        currentPage={meta.currentPage}
+        totalPage={meta.totalPage}
+      />
 
       <SectionCard
         title="Payment Records"

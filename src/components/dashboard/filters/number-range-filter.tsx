@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
+import { useEffect, useState, useTransition } from "react";
 import { Input } from "@/components/ui/input";
 
 interface NumberRangeFilterProps {
@@ -21,7 +21,7 @@ export default function NumberRangeFilter({
   maxPlaceholder = "Max",
   min,
   max,
-  step = 1,
+  step = 0.01,
 }: NumberRangeFilterProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -30,19 +30,70 @@ export default function NumberRangeFilter({
   const minValue = searchParams.get(minParam) ?? "";
   const maxValue = searchParams.get(maxParam) ?? "";
 
-  function updateParam(param: string, value: string) {
-    const params = new URLSearchParams(searchParams);
+  const [localMin, setLocalMin] = useState(minValue);
+  const [localMax, setLocalMax] = useState(maxValue);
+  const [isPending, startTransition] = useTransition();
 
-    if (value) {
-      params.set(param, value);
-    } else {
-      params.delete(param);
-    }
+  useEffect(() => {
+    setLocalMin(minValue);
+  }, [minValue]);
 
-    params.set("page", "1");
+  useEffect(() => {
+    setLocalMax(maxValue);
+  }, [maxValue]);
 
-    router.replace(`${pathname}?${params.toString()}`);
-  }
+  // Debounced update for min
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localMin === minValue) {
+        return;
+      }
+
+      const num = Number(localMin);
+      const params = new URLSearchParams(searchParams);
+
+      if (localMin && !Number.isNaN(num) && num >= 0) {
+        params.set(minParam, localMin);
+      } else {
+        params.delete(minParam);
+      }
+
+      params.set("page", "1");
+
+      startTransition(() => {
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [localMin, minValue, minParam, pathname, router, searchParams]);
+
+  // Debounced update for max
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Don't navigate if local value matches URL
+      if (localMax === maxValue) {
+        return;
+      }
+
+      const num = Number(localMax);
+      const params = new URLSearchParams(searchParams);
+
+      if (localMax && !Number.isNaN(num) && num >= 0) {
+        params.set(maxParam, localMax);
+      } else {
+        params.delete(maxParam);
+      }
+
+      params.set("page", "1");
+
+      startTransition(() => {
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [localMax, maxValue, maxParam, pathname, router, searchParams]);
 
   return (
     <div className="flex w-full gap-2 lg:w-auto">
@@ -51,12 +102,11 @@ export default function NumberRangeFilter({
         min={min}
         max={max}
         step={step}
-        value={minValue}
-        onChange={(event) =>
-          updateParam(minParam, event.target.value)
-        }
+        value={localMin}
+        onChange={(e) => setLocalMin(e.target.value)}
         placeholder={minPlaceholder}
         className="w-full lg:w-28"
+        // disabled={isPending}
       />
 
       <Input
@@ -64,12 +114,11 @@ export default function NumberRangeFilter({
         min={min}
         max={max}
         step={step}
-        value={maxValue}
-        onChange={(event) =>
-          updateParam(maxParam, event.target.value)
-        }
+        value={localMax}
+        onChange={(e) => setLocalMax(e.target.value)}
         placeholder={maxPlaceholder}
         className="w-full lg:w-28"
+        // disabled={isPending}
       />
     </div>
   );

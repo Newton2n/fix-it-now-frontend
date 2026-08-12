@@ -12,6 +12,7 @@ import {
 import { CategorySearch } from "@/types/category";
 import { TechnicianSearchParams } from "@/schema/technician/technician.schema";
 import { UserSearchParams } from "@/schema/user/user.schema";
+import { PaymentSearchParams } from "@/schema/payment/payment";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -137,30 +138,58 @@ export const getAllCategory = async (
   }
 };
 
-export const getAllPayments = async () => {
+export const getAllPayments = async (
+  query: Partial<PaymentSearchParams> = {},
+) => {
   const auth = await getAdminToken();
 
   if (!auth.success || !auth.accessToken) {
     return {
       success: false,
-      message: auth.message,
+      message: auth.message || "Authentication required.",
       data: emptyPaginatedResult,
       errorDetails: [],
     };
   }
 
   try {
-    const response = await fetch(`${backendUrl}/api/admin/payments`, {
-      method: "GET",
-      cache: "force-cache",
-      next: {
-        revalidate: 60 * 60 * 2,
-        tags: ["all-payments-admin"],
+    const params = new URLSearchParams();
+
+    if (query.transactionId) {
+      params.set("transactionId", query.transactionId);
+    }
+
+    if (query.status) {
+      params.set("status", query.status);
+    }
+
+    if (query.provider) {
+      params.set("provider", query.provider);
+    }
+
+    if (query.minAmount !== undefined) {
+      params.set("minAmount", String(query.minAmount));
+    }
+
+    if (query.maxAmount !== undefined) {
+      params.set("maxAmount", String(query.maxAmount));
+    }
+
+    params.set("page", String(query.page ?? 1));
+    params.set("limit", String(query.limit ?? 10));
+    params.set("sortBy", query.sortBy ?? "createdAt");
+    params.set("sortOrder", query.sortOrder ?? "desc");
+
+    const response = await fetch(
+      `${backendUrl}/api/admin/payments?${params.toString()}`,
+      {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
       },
-      headers: {
-        Cookie: `accessToken=${auth.accessToken}`,
-      },
-    });
+    );
 
     const result = await response.json();
 
@@ -175,8 +204,8 @@ export const getAllPayments = async () => {
 
     return {
       success: true,
-      message: result.message || "Operation completed successfully.",
-      data: result.data?.result || emptyPaginatedResult,
+      message: result.message || "Payments fetched successfully.",
+      data: result.data?.result ?? emptyPaginatedResult,
     };
   } catch (error) {
     console.error("Get all payments error:", error);
@@ -251,8 +280,7 @@ export const getAllUser = async (query: Partial<UserSearchParams> = {}) => {
     if (!response.ok || !result.success) {
       return {
         success: false,
-        message:
-          result.message || "The request could not be completed.",
+        message: result.message || "The request could not be completed.",
         data: emptyPaginatedResult,
         errorDetails: result.errorDetails || [],
       };
@@ -260,16 +288,14 @@ export const getAllUser = async (query: Partial<UserSearchParams> = {}) => {
 
     return {
       success: true,
-      message:
-        result.message || "Users fetched successfully.",
+      message: result.message || "Users fetched successfully.",
       data: result.data?.result ?? emptyPaginatedResult,
     };
   } catch (error) {
     console.error("Get all users error:", error);
     return {
       success: false,
-      message:
-        "Unable to connect to the server. Please try again.",
+      message: "Unable to connect to the server. Please try again.",
       data: emptyPaginatedResult,
       errorDetails: [],
     };
@@ -392,7 +418,6 @@ const emptyTechnicianResult = {
   data: [],
 };
 
-
 export const getAllTechnicianProfile = async (
   query: Partial<TechnicianSearchParams> = {},
 ) => {
@@ -455,8 +480,7 @@ export const getAllTechnicianProfile = async (
     if (!response.ok || !result.success) {
       return {
         success: false,
-        message:
-          result.message || "The request could not be completed.",
+        message: result.message || "The request could not be completed.",
         data: emptyTechnicianResult,
         errorDetails: result.errorDetails || [],
       };
@@ -464,16 +488,14 @@ export const getAllTechnicianProfile = async (
 
     return {
       success: true,
-      message:
-        result.message || "Technicians fetched successfully.",
+      message: result.message || "Technicians fetched successfully.",
       data: result.data?.result ?? emptyTechnicianResult,
     };
   } catch (error) {
     console.error("Get all technician profiles error:", error);
     return {
       success: false,
-      message:
-        "Unable to connect to the server. Please try again.",
+      message: "Unable to connect to the server. Please try again.",
       data: emptyTechnicianResult,
       errorDetails: [],
     };
