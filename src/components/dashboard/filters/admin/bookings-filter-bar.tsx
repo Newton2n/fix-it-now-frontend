@@ -1,4 +1,3 @@
-// components/admin/bookings-filter-bar.tsx
 "use client";
 
 import FilterBar from "../filter-bar";

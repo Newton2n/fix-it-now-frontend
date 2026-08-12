@@ -6,11 +6,7 @@ import NumberRangeFilter from "../number-range-filter";
 import SelectFilter from "../search-filter";
 import SearchInput from "../search-input";
 import SortFilter from "../sort-filter";
-import DashboardPagination from "../pagination/dashboard-pagination"; 
-interface TechnicianFiltersProps {
-  currentPage: number;
-  totalPage: number;
-}
+import DashboardPagination from "../pagination/dashboard-pagination";
 
 const availabilityOptions = [
   { label: "Available", value: "true" },
@@ -24,9 +20,14 @@ const statusOptions = [
 ];
 
 const sortOptions = [
-  { label: "Created date", value: "date" },
+  { label: "Created date", value: "createdAt" },
   { label: "Experience", value: "experience" },
 ];
+
+interface TechnicianFiltersProps {
+  currentPage: number;
+  totalPage: number;
+}
 
 export default function TechnicianFilters({
   currentPage,
@@ -79,23 +80,24 @@ export default function TechnicianFilters({
             maxPlaceholder="Max"
             min={0}
             max={100}
+            step={1}
           />
         </div>
 
         {/* Skills */}
-        <div className="min-w-[160px] flex-shrink-0">
+        <div className="min-w-[180px] flex-shrink-0">
           <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Skills
           </p>
-          <SearchInput param="skills" placeholder="e.g. React, Node" />
+          <SearchInput param="skills" placeholder="Skill..." />
         </div>
 
         {/* Service area */}
-        <div className="min-w-[160px] flex-shrink-0">
+        <div className="min-w-[200px] flex-shrink-0">
           <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Service area
           </p>
-          <SearchInput param="serviceArea" placeholder="e.g. Dhaka, Khulna" />
+          <SearchInput param="serviceArea" placeholder="Service area..." />
         </div>
 
         {/* Sort */}

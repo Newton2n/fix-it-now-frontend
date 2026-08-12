@@ -9,7 +9,6 @@ import SearchInput from "../search-input";
 import SortFilter from "../sort-filter";
 import ClearFilters from "../clear-filter";
 import DashboardPagination from "../pagination/dashboard-pagination";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const sortOptions = [
@@ -51,6 +50,18 @@ export default function ReviewFilters({
   const currentMin = searchParams.get("minRating");
   const currentMax = searchParams.get("maxRating");
 
+  const minValue =
+    currentMin !== null && !Number.isNaN(Number(currentMin))
+      ? Number(currentMin)
+      : null;
+  const maxValue =
+    currentMax !== null && !Number.isNaN(Number(currentMax))
+      ? Number(currentMax)
+      : null;
+
+  const hasInvalidRange =
+    minValue !== null && maxValue !== null && minValue > maxValue;
+
   const handleMinClick = (value: number) => {
     const v = String(value);
     const next = currentMin === v ? null : v;
@@ -65,6 +76,7 @@ export default function ReviewFilters({
 
   return (
     <div className="space-y-4">
+      {/* Filters */}
       <FilterBar>
         {/* Search */}
         <div className="min-w-[200px] flex-shrink-0">
@@ -74,14 +86,15 @@ export default function ReviewFilters({
           <SearchInput placeholder="Search reviews..." param="search" />
         </div>
 
-        {/* Min rating – classic star row */}
+        {/* Min rating */}
         <div className="min-w-[220px] flex-shrink-0">
           <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Min rating
           </p>
+
           <div className="flex items-center gap-1 rounded-md border bg-background px-2 py-1">
             {[1, 2, 3, 4, 5].map((star) => {
-              const active = currentMin !== null && star <= Number(currentMin);
+              const active = minValue !== null && star <= minValue;
               return (
                 <button
                   key={`min-${star}`}
@@ -94,30 +107,31 @@ export default function ReviewFilters({
                     className={cn(
                       "h-4 w-4",
                       active
-                        ? "fill-yellow-400 text-yellow-400"
-                        : "text-muted-foreground",
+                        ? "fill-yellow-400 text-yellow-400 cursor-pointer"
+                        : "text-muted-foreground cursor-pointer",
                     )}
                   />
                 </button>
               );
             })}
 
-            {currentMin && (
+            {minValue !== null && (
               <span className="ml-2 text-xs text-muted-foreground">
-                {currentMin}+
+                {minValue}+ stars
               </span>
             )}
           </div>
         </div>
 
-        {/* Max rating – classic star row */}
+        {/* Max rating */}
         <div className="min-w-[220px] flex-shrink-0">
           <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Max rating
           </p>
+
           <div className="flex items-center gap-1 rounded-md border bg-background px-2 py-1">
             {[1, 2, 3, 4, 5].map((star) => {
-              const active = currentMax !== null && star <= Number(currentMax);
+              const active = maxValue !== null && star <= maxValue;
               return (
                 <button
                   key={`max-${star}`}
@@ -130,17 +144,17 @@ export default function ReviewFilters({
                     className={cn(
                       "h-4 w-4",
                       active
-                        ? "fill-yellow-400 text-yellow-400"
-                        : "text-muted-foreground",
+                        ? "fill-yellow-400 text-yellow-400 cursor-pointer"
+                        : "text-muted-foreground cursor-pointer",
                     )}
                   />
                 </button>
               );
             })}
 
-            {currentMax && (
+            {maxValue !== null && (
               <span className="ml-2 text-xs text-muted-foreground">
-                ≤ {currentMax}
+                ≤ {maxValue} stars
               </span>
             )}
           </div>
@@ -148,7 +162,7 @@ export default function ReviewFilters({
 
         {/* Sort */}
         <div className="min-w-[160px] flex-shrink-0">
-          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground ">
             Sort by
           </p>
           <SortFilter options={sortOptions} />
@@ -162,6 +176,15 @@ export default function ReviewFilters({
           <ClearFilters />
         </div>
       </FilterBar>
+
+      {/* Separate container for validation message */}
+      {hasInvalidRange && (
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2">
+          <p className="text-xs text-destructive">
+            Min rating cannot be greater than max rating.
+          </p>
+        </div>
+      )}
 
       {/* Pagination */}
       <DashboardPagination currentPage={currentPage} totalPage={totalPage} />

@@ -7,7 +7,7 @@ import SectionCard from "@/components/dashboard/section-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { TechnicianProfile } from "@/types/technician";
 import { TechnicianCard } from "@/components/admin/admin-technician-card";
-import TechnicianFilters from "@/components/dashboard/filters/resource-filters/technician-filter";
+import TechnicianFilters from "@/components/dashboard/filters/customer/technician-filter";
 
 export default function AdminTechniciansPage({
   searchParams,

@@ -101,7 +101,6 @@ export default function PaymentFilters({
         </div>
       </FilterBar>
 
-
       <DashboardPagination currentPage={currentPage} totalPage={totalPage} />
     </div>
   );

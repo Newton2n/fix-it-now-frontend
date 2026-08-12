@@ -20,9 +20,7 @@ interface SortFilterProps {
   options: SortOption[];
 }
 
-export default function SortFilter({
-  options,
-}: SortFilterProps) {
+export default function SortFilter({ options }: SortFilterProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -41,45 +39,42 @@ export default function SortFilter({
 
   return (
     <div className="flex w-full gap-2 lg:w-auto">
-      <Select
-        value={sortBy}
-        onValueChange={(value) => updateParam("sortBy", value)}
-      >
-        <SelectTrigger className="w-full lg:w-40">
+      {/* Sort by */}
+      <Select value={sortBy} onValueChange={(value) => updateParam("sortBy", value)}>
+        <SelectTrigger className="w-full cursor-pointer lg:max-w-[160px]">
           <SelectValue placeholder="Sort by" />
         </SelectTrigger>
 
         <SelectContent>
           {options.map((option) => (
             <SelectItem key={option.value} value={option.value}>
-              {option.label}
+              <span className="line-clamp-2 break-words cursor-pointer">{option.label}</span>
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
+      {/* Sort order */}
       <Select
         value={sortOrder}
-        onValueChange={(value) =>
-          updateParam("sortOrder", value)
-        }
+        onValueChange={(value) => updateParam("sortOrder", value)}
       >
-        <SelectTrigger className="w-full lg:w-36">
+        <SelectTrigger className="w-full cursor-pointer lg:max-w-[140px]">
           <SelectValue />
         </SelectTrigger>
 
         <SelectContent>
           <SelectItem value="desc">
             <span className="flex items-center gap-2">
-              <ArrowDownAZ className="size-4" />
-              Descending
+              <ArrowDownAZ className="size-4 shrink-0" />
+              <span className="whitespace-nowrap cursor-pointer">Descending</span>
             </span>
           </SelectItem>
 
           <SelectItem value="asc">
             <span className="flex items-center gap-2">
-              <ArrowUpAZ className="size-4" />
-              Ascending
+              <ArrowUpAZ className="size-4 shrink-0" />
+              <span className="whitespace-nowrap cursor-pointer">Ascending</span>
             </span>
           </SelectItem>
         </SelectContent>

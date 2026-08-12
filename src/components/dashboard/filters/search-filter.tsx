@@ -25,7 +25,8 @@ export default function SelectFilter({
   param,
   placeholder,
   options,
-  width = "w-full lg:w-44",
+  // full width on mobile, reasonable max width on larger screens
+  width = "w-full lg:max-w-[176px]",
 }: SelectFilterProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -49,7 +50,7 @@ export default function SelectFilter({
 
   return (
     <Select value={currentValue || "all"} onValueChange={handleChange}>
-      <SelectTrigger className={width}>
+      <SelectTrigger className={`${width} cursor-pointer`}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
 
@@ -57,7 +58,7 @@ export default function SelectFilter({
         <SelectItem value="all">All</SelectItem>
 
         {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
+          <SelectItem className="cursor-pointer" key={option.value} value={option.value}>
             {option.label}
           </SelectItem>
         ))}

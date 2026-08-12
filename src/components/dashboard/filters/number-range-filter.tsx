@@ -30,30 +30,36 @@ export default function NumberRangeFilter({
   const minValue = searchParams.get(minParam) ?? "";
   const maxValue = searchParams.get(maxParam) ?? "";
 
-  const [localMin, setLocalMin] = useState(minValue);
-  const [localMax, setLocalMax] = useState(maxValue);
+  const [draftMin, setDraftMin] = useState(minValue);
+  const [draftMax, setDraftMax] = useState(maxValue);
+
   const [isPending, startTransition] = useTransition();
 
+  // Sync draft with URL when it changes from outside (back/forward, other filters)
   useEffect(() => {
-    setLocalMin(minValue);
+    if (minValue !== draftMin) {
+      setDraftMin(minValue);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [minValue]);
 
   useEffect(() => {
-    setLocalMax(maxValue);
+    if (maxValue !== draftMax) {
+      setDraftMax(maxValue);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maxValue]);
 
   // Debounced update for min
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (localMin === minValue) {
-        return;
-      }
+      if (draftMin === minValue) return;
 
-      const num = Number(localMin);
+      const num = Number(draftMin);
       const params = new URLSearchParams(searchParams);
 
-      if (localMin && !Number.isNaN(num) && num >= 0) {
-        params.set(minParam, localMin);
+      if (draftMin && !Number.isNaN(num) && num >= 0) {
+        params.set(minParam, draftMin);
       } else {
         params.delete(minParam);
       }
@@ -66,21 +72,18 @@ export default function NumberRangeFilter({
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [localMin, minValue, minParam, pathname, router, searchParams]);
+  }, [draftMin, minValue, minParam, pathname, router, searchParams]);
 
   // Debounced update for max
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Don't navigate if local value matches URL
-      if (localMax === maxValue) {
-        return;
-      }
+      if (draftMax === maxValue) return;
 
-      const num = Number(localMax);
+      const num = Number(draftMax);
       const params = new URLSearchParams(searchParams);
 
-      if (localMax && !Number.isNaN(num) && num >= 0) {
-        params.set(maxParam, localMax);
+      if (draftMax && !Number.isNaN(num) && num >= 0) {
+        params.set(maxParam, draftMax);
       } else {
         params.delete(maxParam);
       }
@@ -93,7 +96,7 @@ export default function NumberRangeFilter({
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [localMax, maxValue, maxParam, pathname, router, searchParams]);
+  }, [draftMax, maxValue, maxParam, pathname, router, searchParams]);
 
   return (
     <div className="flex w-full gap-2 lg:w-auto">
@@ -102,11 +105,11 @@ export default function NumberRangeFilter({
         min={min}
         max={max}
         step={step}
-        value={localMin}
-        onChange={(e) => setLocalMin(e.target.value)}
+        value={draftMin}
+        onChange={(e) => setDraftMin(e.target.value)}
         placeholder={minPlaceholder}
-        className="w-full lg:w-28"
-        // disabled={isPending}
+        className="w-full cursor-pointer lg:max-w-[112px]"
+        disabled={isPending}
       />
 
       <Input
@@ -114,11 +117,11 @@ export default function NumberRangeFilter({
         min={min}
         max={max}
         step={step}
-        value={localMax}
-        onChange={(e) => setLocalMax(e.target.value)}
+        value={draftMax}
+        onChange={(e) => setDraftMax(e.target.value)}
         placeholder={maxPlaceholder}
-        className="w-full lg:w-28"
-        // disabled={isPending}
+        className="w-full cursor-pointer lg:max-w-[112px]"
+        disabled={isPending}
       />
     </div>
   );
