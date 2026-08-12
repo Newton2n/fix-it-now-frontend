@@ -87,7 +87,7 @@ export default function CustomerBookingsClient({
         bookingId: null,
       });
     } catch (error) {
-      console.error("Cancel booking error:", error);
+     
       toast.error("Something went wrong. Please try again.");
     } finally {
       setActionLoading(null);

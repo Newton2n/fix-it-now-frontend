@@ -58,7 +58,7 @@ export const getAppStats = async (): Promise<{
       data: result.data.result,
     };
   } catch (error) {
-    console.error("getAppStats error:", error);
+
 
     return {
       success: false,
@@ -122,7 +122,7 @@ export const getAdminDashboardStats = async (): Promise<
       data: result.data.result,
     };
   } catch (error) {
-    console.error("getAdminDashboardStats error:", error);
+ 
 
     return {
       success: false,
@@ -185,7 +185,7 @@ export const getTechnicianDashboardStats = async (): Promise<
       data: result.data.result,
     };
   } catch (error) {
-    console.error("getTechnicianDashboardStats error:", error);
+    
 
     return {
       success: false,
@@ -249,7 +249,7 @@ export const getCustomerDashboardStats = async (): Promise<
       data: result.data.result,
     };
   } catch (error) {
-    console.error("getCustomerDashboardStats error:", error);
+    
 
     return {
       success: false,

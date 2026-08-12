@@ -50,7 +50,7 @@ export function GoogleAuthButton() {
   useEffect(() => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!clientId) {
-      console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID is missing.");
+      
       return;
     }
 
@@ -121,7 +121,7 @@ export function GoogleAuthButton() {
 
             window.location.href = redirectPath;
           } catch (error) {
-            console.error("Google Auth error:", error);
+           
             toast.error("An unexpected error occurred.");
             setIsLoading(false);
           }

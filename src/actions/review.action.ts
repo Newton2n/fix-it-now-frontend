@@ -105,7 +105,7 @@ export const getAllReviewDetailsFromLoginUser = async (
       errorDetails: [],
     };
   } catch (error) {
-    console.error("Get user reviews error:", error);
+   
 
     return {
       success: false,
@@ -181,7 +181,7 @@ export const getReviewByBookingId = async (
 
     return result;
   } catch (error) {
-    console.error("Get review by booking ID error:", error);
+   
 
     return {
       success: false,
@@ -244,7 +244,7 @@ export const createReview = async (payload: {
       data: result.data,
     };
   } catch (error) {
-    console.error("Submit review error:", error);
+    
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -302,7 +302,7 @@ export const updateReview = async (
       data: result.data?.result,
     };
   } catch (error) {
-    console.error("Update review error:", error);
+    
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -352,7 +352,7 @@ export const deleteReview = async (reviewId: string) => {
       data: result.data,
     };
   } catch (error) {
-    console.error("Delete review error:", error);
+    
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -409,7 +409,7 @@ export const getLatestReviews = async (): Promise<{
       data: result.data.result,
     };
   } catch (error) {
-    console.error("getLatestReviews error:", error);
+    
 
     return {
       success: false,

@@ -271,8 +271,7 @@ export default function BookingForm({
 
       router.push("/dashboard/customer/bookings");
     } catch (error) {
-      console.error("Create booking error:", error);
-
+    
       toast.error("Something went wrong while creating the booking.");
     } finally {
       setIsSubmitting(false);

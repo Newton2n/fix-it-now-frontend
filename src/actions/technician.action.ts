@@ -37,7 +37,7 @@ export const getTechnicianProfileById = async (id: string) => {
     }
     return result;
   } catch (error) {
-    console.error("Fetch technician profile error:", error);
+    
 
     return {
       success: false,
@@ -85,7 +85,7 @@ export const getLoginTechnicianProfile = async () => {
     }
     return result;
   } catch (error) {
-    console.error("Fetch login technician profile error:", error);
+  
 
     return {
       success: false,
@@ -146,7 +146,7 @@ export const createTechnicianProfile = async (
       data: result.data,
     };
   } catch (error) {
-    console.error("Create technician profile error:", error);
+   
 
     return {
       success: false,
@@ -211,7 +211,7 @@ export const updateTechnicianProfile = async (data: {
       data: result.data,
     };
   } catch (error) {
-    console.error("Update technician profile error:", error);
+  
 
     return {
       success: false,
@@ -285,7 +285,7 @@ export const updateTechnicianAvailability = async (
       data: result.data,
     };
   } catch (error) {
-    console.error("Update technician availability error:", error);
+  
 
     return {
       success: false,
@@ -388,7 +388,7 @@ export const getAllTechnicians = async (filters: TechnicianFilters = {}) => {
       },
     };
   } catch (error) {
-    console.error("Get technicians error:", error);
+   
 
     return {
       success: false,

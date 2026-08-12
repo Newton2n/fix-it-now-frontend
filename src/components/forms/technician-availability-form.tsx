@@ -115,7 +115,7 @@ export function TechnicianAvailabilityForm({
       toast.success(result.message || "Availability updated successfully.");
       onSuccess?.();
     } catch (error) {
-      console.error("Update availability error:", error);
+    
       toast.error("Unable to update availability. Please try again.");
     } finally {
       setIsPending(false);

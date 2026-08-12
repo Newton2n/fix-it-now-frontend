@@ -71,7 +71,7 @@ export default function UpdatePasswordSection() {
       setShowNewPassword(false);
       setIsOpen(false);
     } catch (error) {
-      console.error("Password update error:", error);
+      
 
       toast.error(
         "Something went wrong. Please try again.",

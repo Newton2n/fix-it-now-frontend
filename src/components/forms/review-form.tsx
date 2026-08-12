@@ -112,7 +112,7 @@ export function ReviewForm({
           : undefined,
       );
     } catch (error) {
-      console.error("Review submit error:", error);
+      
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsPending(false);

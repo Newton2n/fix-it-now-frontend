@@ -94,7 +94,7 @@ export function CategoryForm({
       toast.success(result.message);
       onSuccess?.();
     } catch (error) {
-      console.error("Category submission failed:", error);
+     
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsPending(false);

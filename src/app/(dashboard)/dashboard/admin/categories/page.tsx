@@ -125,7 +125,7 @@ export default function AdminCategoriesPage() {
         setCategories(categoryResult.data);
         setMeta(categoryResult.meta);
       } catch (error) {
-        console.error("Failed to fetch categories:", error);
+      
         toast.error("Failed to load categories");
       } finally {
         setLoading(false);
@@ -165,7 +165,7 @@ export default function AdminCategoriesPage() {
         toast.error(result.message || "Failed to delete category");
       }
     } catch (error) {
-      console.error("Failed to delete category:", error);
+      
       toast.error("An error occurred while deleting the category");
     } finally {
       setIsDeleting(false);
