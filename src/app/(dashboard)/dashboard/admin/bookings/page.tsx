@@ -8,9 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BookingDetails } from "@/types/booking";
 import { BookingStatus } from "@/types/api";
 import { AdminBookingSearchParams } from "@/actions/admin.action";
-import BookingsFilterBar from "@/components/dashboard/admin/bookings-filter-bar";
-
-
+import BookingsFilterBar from "@/components/dashboard/filters/admin/bookings-filter-bar";
 
 type BookingResult = {
   meta: {
@@ -51,10 +49,8 @@ export default async function AdminBookingsPage({
     endDate:
       (typeof params.endDate === "string" ? params.endDate : undefined) ||
       undefined,
-    page:
-      typeof params.page === "string" ? Number(params.page) : undefined,
-    limit:
-      typeof params.limit === "string" ? Number(params.limit) : undefined,
+    page: typeof params.page === "string" ? Number(params.page) : undefined,
+    limit: typeof params.limit === "string" ? Number(params.limit) : undefined,
     sortBy:
       (params.sortBy as "scheduledAt" | "createdAt" | undefined) || "createdAt",
     sortOrder: (params.sortOrder as "asc" | "desc" | undefined) || "desc",
@@ -108,7 +104,9 @@ async function AdminBookingsContent({
   const meta = bookingResult.meta;
 
   const totalPaid = bookings.filter((b) => b.status === "PAID").length;
-  const totalCompleted = bookings.filter((b) => b.status === "COMPLETED").length;
+  const totalCompleted = bookings.filter(
+    (b) => b.status === "COMPLETED",
+  ).length;
   const totalPending = bookings.filter((b) => b.status === "REQUESTED").length;
 
   return (
@@ -126,7 +124,10 @@ async function AdminBookingsContent({
       </div>
 
       {/* Filter bar + pagination (client component) */}
-      <BookingsFilterBar currentPage={meta.currentPage} totalPage={meta.totalPage} />
+      <BookingsFilterBar
+        currentPage={meta.currentPage}
+        totalPage={meta.totalPage}
+      />
 
       <SectionCard
         title="Booking List"

@@ -5,9 +5,11 @@ import { cookies } from "next/headers";
 import { jwtUtils } from "@/utils/jwt";
 import {
   CategoryInput,
+  CategorySearchParams,
   TechnicianStatusInput,
   UserStatusInput,
 } from "@/schema/category/category.schema";
+import { CategorySearch } from "@/types/category";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -61,30 +63,50 @@ async function getAdminToken() {
   };
 }
 
-export const getAllCategory = async () => {
+// actions/admin.action.ts
+
+export const getAllCategory = async (
+  query: Partial<CategorySearchParams> = {},
+) => {
   const auth = await getAdminToken();
 
   if (!auth.success || !auth.accessToken) {
     return {
       success: false,
-      message: auth.message,
+      message: auth.message || "Authentication required.",
       data: emptyPaginatedResult,
       errorDetails: [],
     };
   }
 
+  // Apply defaults explicitly
+  const page = query.page ?? 1;
+  const limit = query.limit ?? 10;
+  const sortBy = query.sortBy ?? "createdAt";
+  const sortOrder = query.sortOrder ?? "desc";
+
   try {
-    const response = await fetch(`${backendUrl}/api/admin/categories`, {
-      method: "GET",
-      cache: "force-cache",
-      next: {
-        revalidate: 60 * 60 * 72,
-        tags: ["all-category-admin"],
+    const params = new URLSearchParams();
+
+    if (query.search) {
+      params.set("search", query.search);
+    }
+
+    params.set("page", String(page));
+    params.set("limit", String(limit));
+    params.set("sortBy", sortBy);
+    params.set("sortOrder", sortOrder);
+
+    const response = await fetch(
+      `${backendUrl}/api/admin/categories?${params.toString()}`,
+      {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
       },
-      headers: {
-        Cookie: `accessToken=${auth.accessToken}`,
-      },
-    });
+    );
 
     const result = await response.json();
 
@@ -99,8 +121,8 @@ export const getAllCategory = async () => {
 
     return {
       success: true,
-      message: result.message || "Operation completed successfully.",
-      data: result.data?.result || emptyPaginatedResult,
+      message: result.message || "Categories fetched successfully.",
+      data: result.data?.result ?? emptyPaginatedResult,
     };
   } catch (error) {
     console.error("Get all categories error:", error);
@@ -217,7 +239,6 @@ export const getAllUser = async () => {
   }
 };
 
-
 export interface AdminBookingSearchParams {
   status?: string;
   paymentStatus?: string;
@@ -242,9 +263,7 @@ const emptyBookingResult = {
 };
 
 // get all all booking
-export const getAllBooking = async (
-  query: AdminBookingSearchParams = {},
-) => {
+export const getAllBooking = async (query: AdminBookingSearchParams = {}) => {
   const auth = await getAdminToken();
 
   if (!auth.success || !auth.accessToken) {
@@ -293,7 +312,6 @@ export const getAllBooking = async (
       {
         method: "GET",
 
-  
         cache: "no-store",
 
         headers: {
@@ -307,8 +325,7 @@ export const getAllBooking = async (
     if (!response.ok || !result.success) {
       return {
         success: false,
-        message:
-          result.message || "The request could not be completed.",
+        message: result.message || "The request could not be completed.",
         data: emptyBookingResult,
         errorDetails: result.errorDetails || [],
       };
@@ -316,8 +333,7 @@ export const getAllBooking = async (
 
     return {
       success: true,
-      message:
-        result.message || "Bookings fetched successfully.",
+      message: result.message || "Bookings fetched successfully.",
       data: result.data?.result ?? emptyBookingResult,
     };
   } catch (error) {
@@ -325,14 +341,12 @@ export const getAllBooking = async (
 
     return {
       success: false,
-      message:
-        "Unable to connect to the server. Please try again.",
+      message: "Unable to connect to the server. Please try again.",
       data: emptyBookingResult,
       errorDetails: [],
     };
   }
 };
-
 
 export const getAllTechnicianProfile = async () => {
   const auth = await getAdminToken();
@@ -548,7 +562,7 @@ export const updateUserStatus = async (
     revalidateTag("all-users-admin", {
       expire: 0,
     });
-      //revalidating  admin technician details
+    //revalidating  admin technician details
     revalidateTag("all-technician-admin", { expire: 0 });
 
     return {
@@ -576,7 +590,6 @@ export const unbanUser = async (userId: string) =>
 
 // create category
 export const createCategory = async (data: CategoryInput) => {
-  
   if (!data.name?.trim()) {
     return {
       success: false,
@@ -725,7 +738,6 @@ export const updateCategory = async (
 };
 
 export const deleteCategory = async (categoryId: string) => {
-  
   if (!categoryId) {
     return {
       success: false,

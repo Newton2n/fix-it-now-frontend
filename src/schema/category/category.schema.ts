@@ -78,3 +78,5 @@ export const CategorySearchSchema = z.object({
   sortBy: z.enum(["name", "createdAt"]).default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
+
+export type CategorySearchParams = z.infer<typeof CategorySearchSchema>;

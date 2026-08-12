@@ -1,12 +1,12 @@
 // components/admin/bookings-filter-bar.tsx
 "use client";
 
-import FilterBar from "../filters/filter-bar";
-import SelectFilter from "../filters/search-filter";
-import DateRangeFilter from "../filters/date-range-filter";
-import SortFilter from "../filters/sort-filter";
-import ClearFilters from "../filters/clear-filter";
-import DashboardPagination from "../filters/pagination/dashboard-pagination";
+import FilterBar from "../filter-bar";
+import SelectFilter from "../search-filter";
+import DateRangeFilter from "../date-range-filter";
+import SortFilter from "../sort-filter";
+import ClearFilters from "../clear-filter";
+import DashboardPagination from "../pagination/dashboard-pagination";
 
 interface BookingsFilterBarProps {
   currentPage: number;
