@@ -84,3 +84,7 @@ export const ServiceSearchFiltersSchema = z.object({
   sortBy: z.enum(["price", "date"]).default("date"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
+
+
+
+export type ServiceSearchFilters = z.infer<typeof ServiceSearchFiltersSchema>;

@@ -1,5 +1,6 @@
 "use server";
 
+import { PaymentSearchParams } from "@/schema/payment/payment";
 import {
   CreateCheckoutResponse,
   PaymentDetailsResponse,
@@ -11,26 +12,29 @@ import { cookies } from "next/headers";
 
 const backendUrl = process.env.BACKEND_API;
 
-export const getAllPaymentDetailsFromLoginUser = async () => {
+const emptyResponse = {
+  data: [],
+  meta: {
+    currentPage: 1,
+    limit: 10,
+    totalRow: 0,
+    totalPage: 0,
+  },
+};
+
+//get login customer payment details  
+export const getAllPaymentDetailsFromLoginUser = async (
+  query: Partial<PaymentSearchParams> = {},
+) => {
   const cookieStore = await cookies();
-
   const accessToken = cookieStore.get("accessToken")?.value;
-
-  const emptyResponse = {
-    data: [],
-    meta: {
-      currentPage: 1,
-      limit: 10,
-      totalRow: 0,
-      totalPage: 0,
-    },
-  };
 
   if (!accessToken) {
     return {
       success: false,
       message: "You are not authenticated.",
       ...emptyResponse,
+      errorDetails: [],
     };
   }
 
@@ -44,11 +48,43 @@ export const getAllPaymentDetailsFromLoginUser = async () => {
       success: false,
       message: "Your session is invalid or expired.",
       ...emptyResponse,
+      errorDetails: [],
     };
   }
 
   try {
-    const res = await fetch(`${backendUrl}/api/payment`, {
+    const params = new URLSearchParams();
+
+    // transactionId
+    if (query.transactionId) {
+      params.set("transactionId", query.transactionId);
+    }
+
+    // status
+    if (query.status) {
+      params.set("status", query.status);
+    }
+
+    // provider
+    if (query.provider) {
+      params.set("provider", query.provider);
+    }
+
+    // amount range
+    if (query.minAmount !== undefined) {
+      params.set("minAmount", String(query.minAmount));
+    }
+    if (query.maxAmount !== undefined) {
+      params.set("maxAmount", String(query.maxAmount));
+    }
+
+    // pagination & sorting
+    params.set("page", String(query.page ?? 1));
+    params.set("limit", String(query.limit ?? 10));
+    params.set("sortBy", query.sortBy ?? "createdAt");
+    params.set("sortOrder", query.sortOrder ?? "desc");
+
+    const res = await fetch(`${backendUrl}/api/payment?${params.toString()}`, {
       method: "GET",
       headers: {
         Cookie: `accessToken=${accessToken}`,
@@ -57,8 +93,6 @@ export const getAllPaymentDetailsFromLoginUser = async () => {
     });
 
     const result = await res.json();
-
-    
 
     if (!res.ok || !result.success) {
       return {
@@ -76,6 +110,7 @@ export const getAllPaymentDetailsFromLoginUser = async () => {
       message: result.message || "Payment history retrieved successfully.",
       data: paymentResult?.data || [],
       meta: paymentResult?.meta || emptyResponse.meta,
+      errorDetails: [],
     };
   } catch (error) {
     console.error("Get user payment history error:", error);
@@ -88,12 +123,10 @@ export const getAllPaymentDetailsFromLoginUser = async () => {
     };
   }
 };
-
 // Create a checkout session for a specific booking
 export const createCheckoutSession = async (
   bookingId: string,
 ): Promise<CreateCheckoutResponse> => {
-  
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("accessToken")?.value;
@@ -127,7 +160,6 @@ export const createCheckoutSession = async (
         errorDetails: result.errorDetails || [],
       };
     }
-   
 
     //revalidate admin payment
     revalidateTag("all-payments-admin", {

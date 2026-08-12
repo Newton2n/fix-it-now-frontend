@@ -1,24 +1,74 @@
 import { Suspense } from "react";
 import { getAllPaymentDetailsFromLoginUser } from "@/actions/payment.action";
+
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge, badgeVariants } from "@/components/ui/badge";
-import { Payment } from "@/types/payment";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { VariantProps } from "class-variance-authority";
 
+import { Payment } from "@/types/payment";
+import PaymentFilters from "@/components/dashboard/filters/admin/payment-filter";
+import { PaymentSearchParams } from "@/schema/payment/payment";
+
 type PaymentStatus = "SUCCEEDED" | "PENDING" | "FAILED";
 
-export default function CustomerPaymentsPage() {
+type PaymentResult = {
+  meta: {
+    currentPage: number;
+    limit: number;
+    totalRow: number;
+    totalPage: number;
+  };
+  data: Payment[];
+};
+
+export default async function CustomerPaymentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const resolvedParams = await searchParams;
+  // Serialized key forces React Suspense to switch to the skeleton whenever query params change
+  const filterKey = JSON.stringify(resolvedParams);
+
   return (
-    <Suspense fallback={<CustomerPaymentsSkeleton />}>
-      <CustomerPaymentsContent />
+    <Suspense key={filterKey} fallback={<CustomerPaymentsSkeleton />}>
+      <CustomerPaymentsContent resolvedParams={resolvedParams} />
     </Suspense>
   );
 }
 
-async function CustomerPaymentsContent() {
-  const result = await getAllPaymentDetailsFromLoginUser();
+async function CustomerPaymentsContent({
+  resolvedParams,
+}: {
+  resolvedParams: Record<string, string | string[] | undefined>;
+}) {
+  const query: PaymentSearchParams = {
+    transactionId:
+      typeof resolvedParams.transactionId === "string"
+        ? resolvedParams.transactionId
+        : undefined,
+    status: (resolvedParams.status as PaymentStatus | undefined) || undefined,
+    provider:
+      (resolvedParams.provider as "STRIPE" | "SSLCOMMERZ" | undefined) || undefined,
+    minAmount:
+      typeof resolvedParams.minAmount === "string"
+        ? Number(resolvedParams.minAmount)
+        : undefined,
+    maxAmount:
+      typeof resolvedParams.maxAmount === "string"
+        ? Number(resolvedParams.maxAmount)
+        : undefined,
+    page: typeof resolvedParams.page === "string" ? Number(resolvedParams.page) : 1,
+    limit: typeof resolvedParams.limit === "string" ? Number(resolvedParams.limit) : 10,
+    sortBy:
+      (resolvedParams.sortBy as "amount" | "createdAt" | "status" | undefined) ||
+      "createdAt",
+    sortOrder: (resolvedParams.sortOrder as "asc" | "desc" | undefined) || "desc",
+  };
+
+  const result = await getAllPaymentDetailsFromLoginUser(query);
 
   if (!result.success) {
     return (
@@ -43,14 +93,24 @@ async function CustomerPaymentsContent() {
     );
   }
 
-  const payments = result.data;
-  const meta = result.meta;
+  const paymentResult: PaymentResult = {
+    meta: result.meta,
+    data: result.data as Payment[],
+  };
+
+  const payments = paymentResult.data;
+  const meta = paymentResult.meta;
 
   return (
     <div className="space-y-6">
       <DashboardPageHeader
         title="Payments"
         description="Your payment history and transaction records."
+      />
+
+      <PaymentFilters
+        currentPage={meta.currentPage}
+        totalPage={meta.totalPage}
       />
 
       <SectionCard
@@ -63,7 +123,7 @@ async function CustomerPaymentsContent() {
       >
         {payments.length > 0 ? (
           <div className="space-y-4">
-            {payments.map((payment: Payment) => (
+            {payments.map((payment) => (
               <div
                 key={payment.id}
                 className="rounded-xl border bg-card p-4 shadow-sm transition-colors hover:bg-muted/30"
@@ -186,8 +246,65 @@ function formatDateTime(dateString: string) {
 function CustomerPaymentsSkeleton() {
   return (
     <div className="space-y-6">
-      <Skeleton className="h-10 w-48" />
-      <Skeleton className="h-100 w-full rounded-xl" />
+      {/* Header Skeleton */}
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-36" />
+        <Skeleton className="h-4 w-72" />
+      </div>
+
+      {/* Filter Bar Skeleton */}
+      <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 shadow-sm">
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-10 w-36" />
+        <Skeleton className="h-10 w-36" />
+        <Skeleton className="h-10 w-28" />
+        <Skeleton className="h-10 w-28" />
+      </div>
+
+      {/* Section Card & Payment Cards Skeleton */}
+      <div className="rounded-xl border bg-card p-6 shadow-sm space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-4 w-60" />
+        </div>
+
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="rounded-xl border bg-card p-4 shadow-sm space-y-4"
+            >
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex-1 space-y-4">
+                  {/* Transaction ID Skeleton */}
+                  <div className="space-y-1">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-5 w-64" />
+                  </div>
+
+                  {/* 6 Info Grid Blocks */}
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="rounded-lg border bg-background p-3 space-y-2"
+                      >
+                        <Skeleton className="h-3 w-20" />
+                        <Skeleton className="h-4 w-32" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Status Badge Skeleton */}
+                <div className="shrink-0">
+                  <Skeleton className="h-6 w-24 rounded-full" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

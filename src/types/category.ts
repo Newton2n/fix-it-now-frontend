@@ -1,4 +1,4 @@
-import { createCategorySchema } from "@/schema/category/category.schema";
+import { CategorySearchSchema, createCategorySchema } from "@/schema/category/category.schema";
 import { z } from "zod";
 
 export interface Category {
@@ -12,3 +12,4 @@ export interface Category {
 }
 export type TCreateCategoryFormData = z.infer<typeof createCategorySchema>;
 export type TUpdateCategoryFormData = Partial<TCreateCategoryFormData>;
+export type CategorySearch = z.infer<typeof CategorySearchSchema>;

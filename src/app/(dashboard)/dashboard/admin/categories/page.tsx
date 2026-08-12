@@ -1,8 +1,9 @@
+// app/admin/categories/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { MoreVertical, Plus, Trash2, Edit, Eye } from "lucide-react";
 import { toast } from "sonner";
 
@@ -30,6 +31,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Category } from "@/types/category";
 
+import CategoriesFilterBar from "@/components/dashboard/filters/admin/categories-filter-bar";
+
 type CategoryResult = {
   meta: {
     currentPage: number;
@@ -42,8 +45,19 @@ type CategoryResult = {
 
 export default function AdminCategoriesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const [meta, setMeta] = useState<CategoryResult["meta"]>({
+    currentPage: 1,
+    limit: 10,
+    totalRow: 0,
+    totalPage: 0,
+  });
+
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
@@ -52,21 +66,41 @@ export default function AdminCategoriesPage() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
+  // Derive query from URL on each render
+  const query = {
+    search: searchParams.get("search") || undefined,
+    page: searchParams.get("page")
+      ? Number(searchParams.get("page"))
+      : 1,
+    limit: searchParams.get("limit")
+      ? Number(searchParams.get("limit"))
+      : 10,
+    sortBy: (searchParams.get("sortBy") as "name" | "createdAt" | null) || "createdAt",
+    sortOrder: (searchParams.get("sortOrder") as "asc" | "desc" | null) || "desc",
+  };
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await getAllCategory();
+        setLoading(true);
+        const response = await getAllCategory(query);
 
         if (!response.success) {
           toast.error(response.message || "Failed to load categories");
           setCategories([]);
+          setMeta({
+            currentPage: 1,
+            limit: 10,
+            totalRow: 0,
+            totalPage: 0,
+          });
           return;
         }
 
         const categoryResult: CategoryResult = response.data ?? {
           meta: {
             currentPage: 1,
-            limit: 0,
+            limit: 10,
             totalRow: 0,
             totalPage: 0,
           },
@@ -74,6 +108,7 @@ export default function AdminCategoriesPage() {
         };
 
         setCategories(categoryResult.data);
+        setMeta(categoryResult.meta);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
         toast.error("Failed to load categories");
@@ -83,7 +118,7 @@ export default function AdminCategoriesPage() {
     };
 
     fetchCategories();
-  }, []);
+  }, [searchParams]); // re-run when URL changes
 
   const handleEditCategory = (category: Category) => {
     setSelectedCategory(category);
@@ -93,16 +128,24 @@ export default function AdminCategoriesPage() {
   const handleDeleteCategory = async () => {
     if (!categoryToDelete) return;
 
-    const result = await deleteCategory(categoryToDelete);
+    try {
+      setIsDeleting(true);
+      const result = await deleteCategory(categoryToDelete);
 
-    if (result.success) {
-      toast.success(result.message || "Category deleted successfully");
-      setCategories((prev) => prev.filter((c) => c.id !== categoryToDelete));
-      setDeleteConfirmOpen(false);
-      setCategoryToDelete(null);
-      router.refresh();
-    } else {
-      toast.error(result.message || "Failed to delete category");
+      if (result.success) {
+        toast.success(result.message || "Category deleted successfully");
+        setCategories((prev) => prev.filter((c) => c.id !== categoryToDelete));
+        setDeleteConfirmOpen(false);
+        setCategoryToDelete(null);
+        router.refresh();
+      } else {
+        toast.error(result.message || "Failed to delete category");
+      }
+    } catch (error) {
+      console.error("Failed to delete category:", error);
+      toast.error("An error occurred while deleting the category");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -116,24 +159,6 @@ export default function AdminCategoriesPage() {
     setSelectedCategory(null);
     router.refresh();
   };
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <DashboardPageHeader
-          title="Categories"
-          description="Create and manage service categories."
-        />
-        <SectionCard title="Category List" description="Loading...">
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-28 rounded-xl" />
-            ))}
-          </div>
-        </SectionCard>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -161,13 +186,27 @@ export default function AdminCategoriesPage() {
         }
       />
 
+      {/* Filters + pagination */}
+      <CategoriesFilterBar
+        currentPage={meta.currentPage}
+        totalPage={meta.totalPage}
+      />
+
       <SectionCard
         title="Category List"
-        description={`You have ${categories.length} categor${
-          categories.length !== 1 ? "ies" : "y"
-        }`}
+        description={
+          loading
+            ? "Loading categories..."
+            : `Page ${meta.currentPage} of ${meta.totalPage} • ${meta.totalRow} total`
+        }
       >
-        {categories.length > 0 ? (
+        {loading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-28 rounded-xl" />
+            ))}
+          </div>
+        ) : categories.length > 0 ? (
           <div className="space-y-4">
             {categories.map((category) => (
               <div
@@ -277,7 +316,9 @@ export default function AdminCategoriesPage() {
           <DialogContent className="max-h-screen overflow-y-auto sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Edit Category</DialogTitle>
-              <DialogDescription>Update category information</DialogDescription>
+              <DialogDescription>
+                Update category information
+              </DialogDescription>
             </DialogHeader>
             <CategoryForm
               mode="edit"
@@ -291,7 +332,7 @@ export default function AdminCategoriesPage() {
       <ConfirmDialog
         title="Delete category?"
         description="Are you sure you want to delete this category? This action cannot be undone."
-        confirmText="Delete Category"
+        confirmText={isDeleting ? "Deleting..." : "Delete Category"}
         cancelText="Cancel"
         isDestructive
         open={deleteConfirmOpen}

@@ -5,9 +5,14 @@ import { cookies } from "next/headers";
 import { jwtUtils } from "@/utils/jwt";
 import {
   CategoryInput,
+  CategorySearchParams,
   TechnicianStatusInput,
   UserStatusInput,
 } from "@/schema/category/category.schema";
+import { CategorySearch } from "@/types/category";
+import { TechnicianSearchParams } from "@/schema/technician/technician.schema";
+import { UserSearchParams } from "@/schema/user/user.schema";
+import { PaymentSearchParams } from "@/schema/payment/payment";
 
 const backendUrl = process.env.BACKEND_API;
 
@@ -61,30 +66,50 @@ async function getAdminToken() {
   };
 }
 
-export const getAllCategory = async () => {
+// actions/admin.action.ts
+
+export const getAllCategory = async (
+  query: Partial<CategorySearchParams> = {},
+) => {
   const auth = await getAdminToken();
 
   if (!auth.success || !auth.accessToken) {
     return {
       success: false,
-      message: auth.message,
+      message: auth.message || "Authentication required.",
       data: emptyPaginatedResult,
       errorDetails: [],
     };
   }
 
+  // Apply defaults explicitly
+  const page = query.page ?? 1;
+  const limit = query.limit ?? 10;
+  const sortBy = query.sortBy ?? "createdAt";
+  const sortOrder = query.sortOrder ?? "desc";
+
   try {
-    const response = await fetch(`${backendUrl}/api/admin/categories`, {
-      method: "GET",
-      cache: "force-cache",
-      next: {
-        revalidate: 60 * 60 * 72,
-        tags: ["all-category-admin"],
+    const params = new URLSearchParams();
+
+    if (query.search) {
+      params.set("search", query.search);
+    }
+
+    params.set("page", String(page));
+    params.set("limit", String(limit));
+    params.set("sortBy", sortBy);
+    params.set("sortOrder", sortOrder);
+
+    const response = await fetch(
+      `${backendUrl}/api/admin/categories?${params.toString()}`,
+      {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
       },
-      headers: {
-        Cookie: `accessToken=${auth.accessToken}`,
-      },
-    });
+    );
 
     const result = await response.json();
 
@@ -99,8 +124,8 @@ export const getAllCategory = async () => {
 
     return {
       success: true,
-      message: result.message || "Operation completed successfully.",
-      data: result.data?.result || emptyPaginatedResult,
+      message: result.message || "Categories fetched successfully.",
+      data: result.data?.result ?? emptyPaginatedResult,
     };
   } catch (error) {
     console.error("Get all categories error:", error);
@@ -113,30 +138,58 @@ export const getAllCategory = async () => {
   }
 };
 
-export const getAllPayments = async () => {
+export const getAllPayments = async (
+  query: Partial<PaymentSearchParams> = {},
+) => {
   const auth = await getAdminToken();
 
   if (!auth.success || !auth.accessToken) {
     return {
       success: false,
-      message: auth.message,
+      message: auth.message || "Authentication required.",
       data: emptyPaginatedResult,
       errorDetails: [],
     };
   }
 
   try {
-    const response = await fetch(`${backendUrl}/api/admin/payments`, {
-      method: "GET",
-      cache: "force-cache",
-      next: {
-        revalidate: 60 * 60 * 2,
-        tags: ["all-payments-admin"],
+    const params = new URLSearchParams();
+
+    if (query.transactionId) {
+      params.set("transactionId", query.transactionId);
+    }
+
+    if (query.status) {
+      params.set("status", query.status);
+    }
+
+    if (query.provider) {
+      params.set("provider", query.provider);
+    }
+
+    if (query.minAmount !== undefined) {
+      params.set("minAmount", String(query.minAmount));
+    }
+
+    if (query.maxAmount !== undefined) {
+      params.set("maxAmount", String(query.maxAmount));
+    }
+
+    params.set("page", String(query.page ?? 1));
+    params.set("limit", String(query.limit ?? 10));
+    params.set("sortBy", query.sortBy ?? "createdAt");
+    params.set("sortOrder", query.sortOrder ?? "desc");
+
+    const response = await fetch(
+      `${backendUrl}/api/admin/payments?${params.toString()}`,
+      {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
       },
-      headers: {
-        Cookie: `accessToken=${auth.accessToken}`,
-      },
-    });
+    );
 
     const result = await response.json();
 
@@ -151,8 +204,8 @@ export const getAllPayments = async () => {
 
     return {
       success: true,
-      message: result.message || "Operation completed successfully.",
-      data: result.data?.result || emptyPaginatedResult,
+      message: result.message || "Payments fetched successfully.",
+      data: result.data?.result ?? emptyPaginatedResult,
     };
   } catch (error) {
     console.error("Get all payments error:", error);
@@ -165,30 +218,62 @@ export const getAllPayments = async () => {
   }
 };
 
-export const getAllUser = async () => {
+// actions/admin.action.ts
+
+export const getAllUser = async (query: Partial<UserSearchParams> = {}) => {
   const auth = await getAdminToken();
 
   if (!auth.success || !auth.accessToken) {
     return {
       success: false,
-      message: auth.message,
+      message: auth.message || "Authentication required.",
       data: emptyPaginatedResult,
       errorDetails: [],
     };
   }
 
   try {
-    const response = await fetch(`${backendUrl}/api/admin/users`, {
-      method: "GET",
-      cache: "force-cache",
-      next: {
-        revalidate: 60 * 60 * 2,
-        tags: ["all-users-admin"],
+    const params = new URLSearchParams();
+
+    if (query.search) {
+      params.set("search", query.search);
+    }
+
+    if (query.phoneNumber) {
+      params.set("phoneNumber", query.phoneNumber);
+    }
+
+    if (query.email) {
+      params.set("email", query.email);
+    }
+
+    if (query.role) {
+      params.set("role", query.role);
+    }
+
+    if (query.status) {
+      params.set("status", query.status);
+    }
+
+    if (query.country) {
+      params.set("country", query.country);
+    }
+
+    params.set("page", String(query.page ?? 1));
+    params.set("limit", String(query.limit ?? 10));
+    params.set("sortBy", query.sortBy ?? "createdAt");
+    params.set("sortOrder", query.sortOrder ?? "desc");
+
+    const response = await fetch(
+      `${backendUrl}/api/admin/users?${params.toString()}`,
+      {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
       },
-      headers: {
-        Cookie: `accessToken=${auth.accessToken}`,
-      },
-    });
+    );
 
     const result = await response.json();
 
@@ -203,8 +288,8 @@ export const getAllUser = async () => {
 
     return {
       success: true,
-      message: result.message || "Operation completed successfully.",
-      data: result.data?.result || emptyPaginatedResult,
+      message: result.message || "Users fetched successfully.",
+      data: result.data?.result ?? emptyPaginatedResult,
     };
   } catch (error) {
     console.error("Get all users error:", error);
@@ -217,38 +302,86 @@ export const getAllUser = async () => {
   }
 };
 
-export const getAllBooking = async () => {
+export interface AdminBookingSearchParams {
+  status?: string;
+  paymentStatus?: string;
+  customerId?: string;
+  serviceId?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: "scheduledAt" | "createdAt";
+  sortOrder?: "asc" | "desc";
+}
+
+const emptyBookingResult = {
+  meta: {
+    currentPage: 1,
+    limit: 10,
+    totalRow: 0,
+    totalPage: 0,
+  },
+  data: [],
+};
+
+// get all all booking
+export const getAllBooking = async (query: AdminBookingSearchParams = {}) => {
   const auth = await getAdminToken();
 
   if (!auth.success || !auth.accessToken) {
     return {
       success: false,
-      message: auth.message,
-      data: {
-        meta: {
-          currentPage: 1,
-          limit: 0,
-          totalRow: 0,
-          totalPage: 0,
-        },
-        data: [],
-      },
+      message: auth.message || "Authentication required.",
+      data: emptyBookingResult,
       errorDetails: [],
     };
   }
 
   try {
-    const response = await fetch(`${backendUrl}/api/admin/bookings`, {
-      method: "GET",
-      cache: "force-cache",
-      next: {
-        revalidate: 60 * 60 * 2,
-        tags: ["all-bookings-admin"],
+    const params = new URLSearchParams();
+
+    if (query.status) {
+      params.set("status", query.status);
+    }
+
+    if (query.paymentStatus) {
+      params.set("paymentStatus", query.paymentStatus);
+    }
+
+    if (query.customerId) {
+      params.set("customerId", query.customerId);
+    }
+
+    if (query.serviceId) {
+      params.set("serviceId", query.serviceId);
+    }
+
+    if (query.startDate) {
+      params.set("startDate", query.startDate);
+    }
+
+    if (query.endDate) {
+      params.set("endDate", query.endDate);
+    }
+
+    params.set("page", String(query.page ?? 1));
+    params.set("limit", String(query.limit ?? 10));
+    params.set("sortBy", query.sortBy ?? "createdAt");
+    params.set("sortOrder", query.sortOrder ?? "desc");
+
+    const response = await fetch(
+      `${backendUrl}/api/admin/bookings?${params.toString()}`,
+      {
+        method: "GET",
+
+        cache: "no-store",
+
+        headers: {
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
       },
-      headers: {
-        Cookie: `accessToken=${auth.accessToken}`,
-      },
-    });
+    );
 
     const result = await response.json();
 
@@ -256,78 +389,91 @@ export const getAllBooking = async () => {
       return {
         success: false,
         message: result.message || "The request could not be completed.",
-        data: {
-          meta: {
-            currentPage: 1,
-            limit: 0,
-            totalRow: 0,
-            totalPage: 0,
-          },
-          data: [],
-        },
+        data: emptyBookingResult,
         errorDetails: result.errorDetails || [],
       };
     }
 
     return {
       success: true,
-      message: result.message || "Operation completed successfully.",
-      data: result.data?.result || {
-        meta: {
-          currentPage: 1,
-          limit: 0,
-          totalRow: 0,
-          totalPage: 0,
-        },
-        data: [],
-      },
+      message: result.message || "Bookings fetched successfully.",
+      data: result.data?.result ?? emptyBookingResult,
     };
   } catch (error) {
     console.error("Get all bookings error:", error);
+
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
-      data: {
-        meta: {
-          currentPage: 1,
-          limit: 0,
-          totalRow: 0,
-          totalPage: 0,
-        },
-        data: [],
-      },
+      data: emptyBookingResult,
       errorDetails: [],
     };
   }
 };
 
-export const getAllTechnicianProfile = async () => {
+// actions/admin.action.ts
+
+const emptyTechnicianResult = {
+  meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
+  data: [],
+};
+
+export const getAllTechnicianProfile = async (
+  query: Partial<TechnicianSearchParams> = {},
+) => {
   const auth = await getAdminToken();
 
   if (!auth.success || !auth.accessToken) {
     return {
       success: false,
-      message: auth.message,
-      data: {
-        meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
-        data: [],
-      },
+      message: auth.message || "Authentication required.",
+      data: emptyTechnicianResult,
       errorDetails: [],
     };
   }
 
   try {
-    const response = await fetch(`${backendUrl}/api/technicians`, {
-      method: "GET",
-      cache: "force-cache",
-      next: {
-        revalidate: 60 * 60 * 12,
-        tags: ["all-technician-admin"],
+    const params = new URLSearchParams();
+
+    if (query.search) {
+      params.set("search", query.search);
+    }
+
+    if (query.isAvailable !== undefined) {
+      params.set("isAvailable", String(query.isAvailable));
+    }
+
+    if (query.minExperience !== undefined) {
+      params.set("minExperience", String(query.minExperience));
+    }
+
+    if (query.status !== undefined) {
+      params.set("status", String(query.status));
+    }
+
+    if (query.skills !== undefined) {
+      params.set("skills", String(query.skills));
+    }
+
+    if (query.serviceArea !== undefined) {
+      params.set("serviceArea", String(query.serviceArea));
+    }
+
+    params.set("page", String(query.page ?? 1));
+    params.set("limit", String(query.limit ?? 10));
+    params.set("sortBy", query.sortBy ?? "date");
+    params.set("sortOrder", query.sortOrder ?? "desc");
+
+    const response = await fetch(
+      `${backendUrl}/api/technicians?${params.toString()}`,
+      {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
       },
-      headers: {
-        Cookie: `accessToken=${auth.accessToken}`,
-      },
-    });
+    );
 
     const result = await response.json();
 
@@ -335,31 +481,22 @@ export const getAllTechnicianProfile = async () => {
       return {
         success: false,
         message: result.message || "The request could not be completed.",
-        data: {
-          meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
-          data: [],
-        },
+        data: emptyTechnicianResult,
         errorDetails: result.errorDetails || [],
       };
     }
 
     return {
       success: true,
-      message: result.message || "Operation completed successfully.",
-      data: result.data?.result || {
-        meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
-        data: [],
-      },
+      message: result.message || "Technicians fetched successfully.",
+      data: result.data?.result ?? emptyTechnicianResult,
     };
   } catch (error) {
     console.error("Get all technician profiles error:", error);
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
-      data: {
-        meta: { page: 1, limit: 0, totalRow: 0, totalPage: 0 },
-        data: [],
-      },
+      data: emptyTechnicianResult,
       errorDetails: [],
     };
   }
@@ -515,7 +652,7 @@ export const updateUserStatus = async (
     revalidateTag("all-users-admin", {
       expire: 0,
     });
-      //revalidating  admin technician details
+    //revalidating  admin technician details
     revalidateTag("all-technician-admin", { expire: 0 });
 
     return {
@@ -543,7 +680,6 @@ export const unbanUser = async (userId: string) =>
 
 // create category
 export const createCategory = async (data: CategoryInput) => {
-  
   if (!data.name?.trim()) {
     return {
       success: false,
@@ -692,7 +828,6 @@ export const updateCategory = async (
 };
 
 export const deleteCategory = async (categoryId: string) => {
-  
   if (!categoryId) {
     return {
       success: false,

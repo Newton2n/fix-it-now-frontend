@@ -1,14 +1,23 @@
 "use server";
 
+import { UserReviewSearchParams } from "@/schema/review/review.schema";
 import { OneReviewResponse, Review } from "@/types/review";
 import { jwtUtils } from "@/utils/jwt";
 import { cookies } from "next/headers";
 
 const backendUrl = process.env.BACKEND_API;
 
-export const getAllReviewDetailsFromLoginUser = async () => {
-  const cookieStore = await cookies();
+const emptyMeta = {
+  currentPage: 1,
+  limit: 10,
+  totalRow: 0,
+  totalPage: 0,
+};
 
+export const getAllReviewDetailsFromLoginUser = async (
+  query: Partial<UserReviewSearchParams> = {},
+) => {
+  const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
   if (!accessToken) {
@@ -16,12 +25,8 @@ export const getAllReviewDetailsFromLoginUser = async () => {
       success: false,
       message: "You are not authenticated.",
       data: [],
-      meta: {
-        currentPage: 1,
-        limit: 10,
-        totalRow: 0,
-        totalPage: 0,
-      },
+      meta: emptyMeta,
+      errorDetails: [],
     };
   }
 
@@ -35,54 +40,69 @@ export const getAllReviewDetailsFromLoginUser = async () => {
       success: false,
       message: "Your session is invalid or expired.",
       data: [],
-      meta: {
-        currentPage: 1,
-        limit: 10,
-        totalRow: 0,
-        totalPage: 0,
-      },
+      meta: emptyMeta,
+      errorDetails: [],
     };
   }
 
   try {
-    const res = await fetch(`${backendUrl}/api/review/me`, {
-      method: "GET",
-      headers: {
-        Cookie: `accessToken=${accessToken}`,
+    const params = new URLSearchParams();
+
+    if (query.serviceId) {
+      params.set("serviceId", query.serviceId);
+    }
+
+    // Validate & clamp rating between 1–5
+    if (query.minRating !== undefined) {
+      const min = Math.min(5, Math.max(1, query.minRating));
+      params.set("minRating", String(min));
+    }
+
+    if (query.maxRating !== undefined) {
+      const max = Math.min(5, Math.max(1, query.maxRating));
+      params.set("maxRating", String(max));
+    }
+
+    if (query.search) {
+      params.set("search", query.search);
+    }
+
+    params.set("page", String(query.page ?? 1));
+    params.set("limit", String(query.limit ?? 10));
+    params.set("sortBy", query.sortBy ?? "createdAt");
+    params.set("sortOrder", query.sortOrder ?? "desc");
+
+    const res = await fetch(
+      `${backendUrl}/api/review/me?${params.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          Cookie: `accessToken=${accessToken}`,
+        },
+        cache: "no-store",
       },
-      cache: "no-store",
-     
-    });
+    );
 
     const result = await res.json();
-
-    
 
     if (!res.ok || !result.success) {
       return {
         success: false,
         message: result.message || "Unable to load reviews.",
         data: [],
-        meta: {
-          currentPage: 1,
-          limit: 15,
-          totalRow: 0,
-          totalPage: 0,
-        },
+        meta: emptyMeta,
         errorDetails: result.errorDetails || [],
       };
     }
 
+    const reviewResult = result.data?.result;
+
     return {
       success: true,
       message: result.message || "Reviews fetched successfully.",
-      data: result.data?.result?.data || [],
-      meta: result.data?.result?.meta || {
-        currentPage: 1,
-        limit: 10,
-        totalRow: 0,
-        totalPage: 0,
-      },
+      data: reviewResult?.data || [],
+      meta: reviewResult?.meta || emptyMeta,
+      errorDetails: [],
     };
   } catch (error) {
     console.error("Get user reviews error:", error);
@@ -91,12 +111,7 @@ export const getAllReviewDetailsFromLoginUser = async () => {
       success: false,
       message: "Unable to connect to the server. Please try again.",
       data: [],
-      meta: {
-        currentPage: 1,
-        limit: 10,
-        totalRow: 0,
-        totalPage: 0,
-      },
+      meta: emptyMeta,
       errorDetails: [],
     };
   }
@@ -188,7 +203,6 @@ export const createReview = async (payload: {
   rating: number;
   description: string;
 }) => {
-  
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -223,8 +237,7 @@ export const createReview = async (payload: {
         errorDetails: result.errorDetails || [],
       };
     }
-    
-    
+
     return {
       success: true,
       message: "Review submitted successfully.",
@@ -248,7 +261,6 @@ export const updateReview = async (
     description: string;
   },
 ) => {
-  
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -283,9 +295,7 @@ export const updateReview = async (
         errorDetails: result.errorDetails || [],
       };
     }
-    
 
-    
     return {
       success: true,
       message: "Review updated successfully.",
@@ -303,7 +313,6 @@ export const updateReview = async (
 
 // delete review
 export const deleteReview = async (reviewId: string) => {
-  
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -351,8 +360,6 @@ export const deleteReview = async (reviewId: string) => {
     };
   }
 };
-
-
 
 //get latest review
 
