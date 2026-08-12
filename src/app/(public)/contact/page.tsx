@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { FaGithub } from "react-icons/fa";
 import { Mail, MapPin, Phone, Send } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useForm, ValidationError } from "@formspree/react";
 
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
@@ -13,9 +15,30 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function ContactPage() {
-  const [state, handleSubmit] = useForm("mbgrygqo");
+  const pathname = usePathname();
 
-  if (state.succeeded) {
+  const [state, handleSubmit] = useForm("mbgrygqo");
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  /*
+   * Reset the success screen whenever the user navigates
+   * to another route and then comes back.
+   */
+  useEffect(() => {
+    setShowSuccess(false);
+  }, [pathname]);
+
+  /*
+   * Show success screen after Formspree successfully
+   * processes the submission.
+   */
+  useEffect(() => {
+    if (state.succeeded) {
+      setShowSuccess(true);
+    }
+  }, [state.succeeded]);
+
+  if (showSuccess) {
     return (
       <div className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10 2xl:px-12 2xl:py-12">
         <DashboardPageHeader
@@ -34,7 +57,10 @@ export default function ContactPage() {
                 you as soon as possible.
               </p>
 
-              <Button asChild className="w-full cursor-pointer sm:w-auto">
+              <Button
+                asChild
+                className="w-full cursor-pointer sm:w-auto"
+              >
                 <Link href="/">Back to Home</Link>
               </Button>
             </div>
@@ -58,19 +84,15 @@ export default function ContactPage() {
             title="Send a Message"
             description="Fill out the form and we will get back to you."
           >
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Form Subject */}
-              <input
-                type="hidden"
-                name="_subject"
-                value="New message from FixItNow contact form"
-              />
-
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Name + Email */}
               <div className="grid gap-5 sm:grid-cols-2">
                 {/* Name */}
-                <div className="min-w-0 space-y-2">
-                  <label htmlFor="name" className="text-sm font-medium">
+                <div className="min-w-0 space-y-3">
+                  <label
+                    htmlFor="name"
+                    className="text-sm font-medium text-foreground"
+                  >
                     Name
                   </label>
 
@@ -80,7 +102,7 @@ export default function ContactPage() {
                     placeholder="Your name"
                     autoComplete="name"
                     required
-                    className="w-full"
+                    className="h-10 w-full"
                   />
 
                   <ValidationError
@@ -92,8 +114,11 @@ export default function ContactPage() {
                 </div>
 
                 {/* Email */}
-                <div className="min-w-0 space-y-2">
-                  <label htmlFor="email" className="text-sm font-medium">
+                <div className="min-w-0 space-y-3">
+                  <label
+                    htmlFor="email"
+                    className="text-sm font-medium text-foreground"
+                  >
                     Email
                   </label>
 
@@ -104,7 +129,7 @@ export default function ContactPage() {
                     placeholder="you@example.com"
                     autoComplete="email"
                     required
-                    className="w-full"
+                    className="h-10 w-full"
                   />
 
                   <ValidationError
@@ -116,31 +141,12 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              {/* Subject */}
-              <div className="min-w-0 space-y-2">
-                <label htmlFor="subject" className="text-sm font-medium">
-                  Subject
-                </label>
-
-                <Input
-                  id="subject"
-                  name="subject"
-                  placeholder="Brief subject"
-                  required
-                  className="w-full"
-                />
-
-                <ValidationError
-                  field="subject"
-                  prefix="Subject"
-                  errors={state.errors}
-                  className="text-sm text-destructive"
-                />
-              </div>
-
               {/* Message */}
-              <div className="min-w-0 space-y-2">
-                <label htmlFor="message" className="text-sm font-medium">
+              <div className="min-w-0 space-y-3">
+                <label
+                  htmlFor="message"
+                  className="text-sm font-medium text-foreground"
+                >
                   Message
                 </label>
 
@@ -150,7 +156,7 @@ export default function ContactPage() {
                   rows={7}
                   placeholder="Describe your question or feedback"
                   required
-                  className="min-h-32 w-full resize-y sm:min-h-40"
+                  className="min-h-40 w-full resize-y"
                 />
 
                 <ValidationError
@@ -272,7 +278,9 @@ export default function ContactPage() {
             >
               <ul className="space-y-3 text-sm leading-6">
                 <li className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-2">
-                  <span className="shrink-0 font-medium">Availability:</span>
+                  <span className="shrink-0 font-medium">
+                    Availability:
+                  </span>
 
                   <span className="text-muted-foreground">
                     Daily, 01:00–19:00 UTC
