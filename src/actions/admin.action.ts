@@ -217,89 +217,122 @@ export const getAllUser = async () => {
   }
 };
 
-export const getAllBooking = async () => {
+
+export interface AdminBookingSearchParams {
+  status?: string;
+  paymentStatus?: string;
+  customerId?: string;
+  serviceId?: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: "scheduledAt" | "createdAt";
+  sortOrder?: "asc" | "desc";
+}
+
+const emptyBookingResult = {
+  meta: {
+    currentPage: 1,
+    limit: 10,
+    totalRow: 0,
+    totalPage: 0,
+  },
+  data: [],
+};
+
+// get all all booking
+export const getAllBooking = async (
+  query: AdminBookingSearchParams = {},
+) => {
   const auth = await getAdminToken();
 
   if (!auth.success || !auth.accessToken) {
     return {
       success: false,
-      message: auth.message,
-      data: {
-        meta: {
-          currentPage: 1,
-          limit: 0,
-          totalRow: 0,
-          totalPage: 0,
-        },
-        data: [],
-      },
+      message: auth.message || "Authentication required.",
+      data: emptyBookingResult,
       errorDetails: [],
     };
   }
 
   try {
-    const response = await fetch(`${backendUrl}/api/admin/bookings`, {
-      method: "GET",
-      cache: "force-cache",
-      next: {
-        revalidate: 60 * 60 * 2,
-        tags: ["all-bookings-admin"],
+    const params = new URLSearchParams();
+
+    if (query.status) {
+      params.set("status", query.status);
+    }
+
+    if (query.paymentStatus) {
+      params.set("paymentStatus", query.paymentStatus);
+    }
+
+    if (query.customerId) {
+      params.set("customerId", query.customerId);
+    }
+
+    if (query.serviceId) {
+      params.set("serviceId", query.serviceId);
+    }
+
+    if (query.startDate) {
+      params.set("startDate", query.startDate);
+    }
+
+    if (query.endDate) {
+      params.set("endDate", query.endDate);
+    }
+
+    params.set("page", String(query.page ?? 1));
+    params.set("limit", String(query.limit ?? 10));
+    params.set("sortBy", query.sortBy ?? "createdAt");
+    params.set("sortOrder", query.sortOrder ?? "desc");
+
+    const response = await fetch(
+      `${backendUrl}/api/admin/bookings?${params.toString()}`,
+      {
+        method: "GET",
+
+  
+        cache: "no-store",
+
+        headers: {
+          Cookie: `accessToken=${auth.accessToken}`,
+        },
       },
-      headers: {
-        Cookie: `accessToken=${auth.accessToken}`,
-      },
-    });
+    );
 
     const result = await response.json();
 
     if (!response.ok || !result.success) {
       return {
         success: false,
-        message: result.message || "The request could not be completed.",
-        data: {
-          meta: {
-            currentPage: 1,
-            limit: 0,
-            totalRow: 0,
-            totalPage: 0,
-          },
-          data: [],
-        },
+        message:
+          result.message || "The request could not be completed.",
+        data: emptyBookingResult,
         errorDetails: result.errorDetails || [],
       };
     }
 
     return {
       success: true,
-      message: result.message || "Operation completed successfully.",
-      data: result.data?.result || {
-        meta: {
-          currentPage: 1,
-          limit: 0,
-          totalRow: 0,
-          totalPage: 0,
-        },
-        data: [],
-      },
+      message:
+        result.message || "Bookings fetched successfully.",
+      data: result.data?.result ?? emptyBookingResult,
     };
   } catch (error) {
     console.error("Get all bookings error:", error);
+
     return {
       success: false,
-      message: "Unable to connect to the server. Please try again.",
-      data: {
-        meta: {
-          currentPage: 1,
-          limit: 0,
-          totalRow: 0,
-          totalPage: 0,
-        },
-        data: [],
-      },
+      message:
+        "Unable to connect to the server. Please try again.",
+      data: emptyBookingResult,
       errorDetails: [],
     };
   }
 };
+
 
 export const getAllTechnicianProfile = async () => {
   const auth = await getAdminToken();

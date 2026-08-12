@@ -1,3 +1,4 @@
+// app/admin/bookings/page.tsx
 import { Suspense } from "react";
 import { getAllBooking } from "@/actions/admin.action";
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
@@ -6,6 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookingDetails } from "@/types/booking";
 import { BookingStatus } from "@/types/api";
+import { AdminBookingSearchParams } from "@/actions/admin.action";
+import BookingsFilterBar from "@/components/dashboard/admin/bookings-filter-bar";
+
+
 
 type BookingResult = {
   meta: {
@@ -17,16 +22,57 @@ type BookingResult = {
   data: BookingDetails[];
 };
 
-export default function AdminBookingsPage() {
+// Page component receives searchParams as a prop
+export default async function AdminBookingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+
+  // Build query object for getAllBooking from URL params
+  const query: AdminBookingSearchParams = {
+    status:
+      (typeof params.status === "string" ? params.status : undefined) ||
+      undefined,
+    paymentStatus:
+      (typeof params.paymentStatus === "string"
+        ? params.paymentStatus
+        : undefined) || undefined,
+    customerId:
+      (typeof params.customerId === "string" ? params.customerId : undefined) ||
+      undefined,
+    serviceId:
+      (typeof params.serviceId === "string" ? params.serviceId : undefined) ||
+      undefined,
+    startDate:
+      (typeof params.startDate === "string" ? params.startDate : undefined) ||
+      undefined,
+    endDate:
+      (typeof params.endDate === "string" ? params.endDate : undefined) ||
+      undefined,
+    page:
+      typeof params.page === "string" ? Number(params.page) : undefined,
+    limit:
+      typeof params.limit === "string" ? Number(params.limit) : undefined,
+    sortBy:
+      (params.sortBy as "scheduledAt" | "createdAt" | undefined) || "createdAt",
+    sortOrder: (params.sortOrder as "asc" | "desc" | undefined) || "desc",
+  };
+
   return (
     <Suspense fallback={<AdminBookingsSkeleton />}>
-      <AdminBookingsContent />
+      <AdminBookingsContent query={query} />
     </Suspense>
   );
 }
 
-async function AdminBookingsContent() {
-  const result = await getAllBooking();
+async function AdminBookingsContent({
+  query,
+}: {
+  query: AdminBookingSearchParams;
+}) {
+  const result = await getAllBooking(query);
 
   if (!result.success) {
     return (
@@ -51,7 +97,7 @@ async function AdminBookingsContent() {
   const bookingResult: BookingResult = result.data ?? {
     meta: {
       currentPage: 1,
-      limit: 0,
+      limit: 10,
       totalRow: 0,
       totalPage: 0,
     },
@@ -61,13 +107,9 @@ async function AdminBookingsContent() {
   const bookings = bookingResult.data;
   const meta = bookingResult.meta;
 
-  const totalPaid = bookings.filter((booking) => booking.status === "PAID").length;
-  const totalCompleted = bookings.filter(
-    (booking) => booking.status === "COMPLETED",
-  ).length;
-  const totalPending = bookings.filter(
-    (booking) => booking.status === "REQUESTED",
-  ).length;
+  const totalPaid = bookings.filter((b) => b.status === "PAID").length;
+  const totalCompleted = bookings.filter((b) => b.status === "COMPLETED").length;
+  const totalPending = bookings.filter((b) => b.status === "REQUESTED").length;
 
   return (
     <div className="space-y-6">
@@ -82,6 +124,9 @@ async function AdminBookingsContent() {
         <StatCard label="Completed" value={totalCompleted} />
         <StatCard label="Pending" value={totalPending} />
       </div>
+
+      {/* Filter bar + pagination (client component) */}
+      <BookingsFilterBar currentPage={meta.currentPage} totalPage={meta.totalPage} />
 
       <SectionCard
         title="Booking List"
@@ -124,7 +169,10 @@ async function AdminBookingsContent() {
                       value={formatDateTime(booking.scheduledAt)}
                     />
                     <Info label="Location" value={booking.location} />
-                    <Info label="Customer Note" value={booking.customerNote!} />
+                    <Info
+                      label="Customer Note"
+                      value={booking.customerNote ?? "—"}
+                    />
                     <Info
                       label="Created At"
                       value={formatDateTime(booking.createdAt)}
