@@ -1,24 +1,72 @@
 import { Suspense } from "react";
 import { getAllPaymentDetailsFromLoginUser } from "@/actions/payment.action";
+
 import DashboardPageHeader from "@/components/dashboard/dashboard-page-header";
 import SectionCard from "@/components/dashboard/section-card";
 import { Badge, badgeVariants } from "@/components/ui/badge";
-import { Payment } from "@/types/payment";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { VariantProps } from "class-variance-authority";
 
+import { Payment } from "@/types/payment";
+import PaymentFilters from "@/components/dashboard/filters/admin/payment-filter";
+import { PaymentSearchParams } from "@/schema/payment/payment";
+
 type PaymentStatus = "SUCCEEDED" | "PENDING" | "FAILED";
 
-export default function CustomerPaymentsPage() {
+type PaymentResult = {
+  meta: {
+    currentPage: number;
+    limit: number;
+    totalRow: number;
+    totalPage: number;
+  };
+  data: Payment[];
+};
+
+export default function CustomerPaymentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   return (
     <Suspense fallback={<CustomerPaymentsSkeleton />}>
-      <CustomerPaymentsContent />
+      <CustomerPaymentsContent searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function CustomerPaymentsContent() {
-  const result = await getAllPaymentDetailsFromLoginUser();
+async function CustomerPaymentsContent({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+
+  const query: PaymentSearchParams = {
+    transactionId:
+      typeof params.transactionId === "string"
+        ? params.transactionId
+        : undefined,
+    status: (params.status as PaymentStatus | undefined) || undefined,
+    provider:
+      (params.provider as "STRIPE" | "SSLCOMMERZ" | undefined) || undefined,
+    minAmount:
+      typeof params.minAmount === "string"
+        ? Number(params.minAmount)
+        : undefined,
+    maxAmount:
+      typeof params.maxAmount === "string"
+        ? Number(params.maxAmount)
+        : undefined,
+    page: typeof params.page === "string" ? Number(params.page) : 1,
+    limit: typeof params.limit === "string" ? Number(params.limit) : 10,
+    sortBy:
+      (params.sortBy as "amount" | "createdAt" | "status" | undefined) ||
+      "createdAt",
+    sortOrder: (params.sortOrder as "asc" | "desc" | undefined) || "desc",
+  };
+
+  const result = await getAllPaymentDetailsFromLoginUser(query);
 
   if (!result.success) {
     return (
@@ -43,14 +91,25 @@ async function CustomerPaymentsContent() {
     );
   }
 
-  const payments = result.data;
-  const meta = result.meta;
+  const paymentResult: PaymentResult = {
+    meta: result.meta,
+    data: result.data as Payment[],
+  };
+
+  const payments = paymentResult.data;
+  const meta = paymentResult.meta;
 
   return (
     <div className="space-y-6">
       <DashboardPageHeader
         title="Payments"
         description="Your payment history and transaction records."
+      />
+
+     
+      <PaymentFilters
+        currentPage={meta.currentPage}
+        totalPage={meta.totalPage}
       />
 
       <SectionCard
@@ -63,7 +122,7 @@ async function CustomerPaymentsContent() {
       >
         {payments.length > 0 ? (
           <div className="space-y-4">
-            {payments.map((payment: Payment) => (
+            {payments.map((payment) => (
               <div
                 key={payment.id}
                 className="rounded-xl border bg-card p-4 shadow-sm transition-colors hover:bg-muted/30"

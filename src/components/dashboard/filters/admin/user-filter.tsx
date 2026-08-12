@@ -1,7 +1,5 @@
 "use client";
 
-
-
 import { UserRole } from "@/types/admin";
 import { UserStatus } from "@/types/api";
 import FilterBar from "../filter-bar";

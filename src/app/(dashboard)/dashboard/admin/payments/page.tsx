@@ -1,4 +1,3 @@
-// app/admin/payments/page.tsx
 import { Suspense } from "react";
 import { getAllPayments } from "@/actions/admin.action";
 
@@ -10,7 +9,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Payment } from "@/types/payment";
 import { PaymentSearchParams } from "@/schema/payment/payment";
 import PaymentFilters from "@/components/dashboard/filters/admin/payment-filter";
-
 
 type PaymentStatus = "SUCCEEDED" | "PENDING" | "FAILED";
 

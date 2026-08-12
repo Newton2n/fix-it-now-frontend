@@ -1,4 +1,3 @@
-// components/dashboard/filters/admin/payment-filters.tsx
 "use client";
 
 import ClearFilters from "../clear-filter";
@@ -7,7 +6,7 @@ import NumberRangeFilter from "../number-range-filter";
 import SelectFilter from "../search-filter";
 import SearchInput from "../search-input";
 import SortFilter from "../sort-filter";
-import DashboardPagination from "../pagination/dashboard-pagination"; // ← this is your pagination
+import DashboardPagination from "../pagination/dashboard-pagination";
 
 interface PaymentFiltersProps {
   currentPage: number;
@@ -43,10 +42,7 @@ export default function PaymentFilters({
           <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Transaction ID
           </p>
-          <SearchInput
-            placeholder="Search by ID..."
-            param="transactionId"
-          />
+          <SearchInput placeholder="Search by ID..." param="transactionId" />
         </div>
 
         {/* Status */}
@@ -105,7 +101,7 @@ export default function PaymentFilters({
         </div>
       </FilterBar>
 
-      {/* Pagination is implemented here */}
+
       <DashboardPagination currentPage={currentPage} totalPage={totalPage} />
     </div>
   );
