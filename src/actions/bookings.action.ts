@@ -156,7 +156,9 @@ export const getAllBookingsFromLoginUser = async (
 
 // Get bookings assigned to the currently logged-in technician.
 
-export const getAllBookingsFromLoginTechnician = async () => {
+export const getAllBookingsFromLoginTechnician = async (
+  query: Partial<UserBookingSearchParams> = {},
+) => {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -165,6 +167,13 @@ export const getAllBookingsFromLoginTechnician = async () => {
       success: false,
       message: "You are not authenticated.",
       data: [],
+      meta: {
+        currentPage: 1,
+        limit: 10,
+        totalRow: 0,
+        totalPage: 0,
+      },
+      errorDetails: [],
     };
   }
 
@@ -178,17 +187,45 @@ export const getAllBookingsFromLoginTechnician = async () => {
       success: false,
       message: "You do not have permission to view these bookings.",
       data: [],
+      meta: {
+        currentPage: 1,
+        limit: 10,
+        totalRow: 0,
+        totalPage: 0,
+      },
+      errorDetails: [],
     };
   }
 
   try {
-    const res = await fetch(`${backendUrl}/api/technicians/bookings`, {
-      method: "GET",
-      headers: {
-        Cookie: `accessToken=${accessToken}`,
+    const params = new URLSearchParams();
+
+    if (query.status) params.set("status", query.status);
+    if (query.paymentStatus) params.set("paymentStatus", query.paymentStatus);
+    if (query.serviceId) params.set("serviceId", query.serviceId);
+
+    if (query.startDate) {
+      params.set("startDate", (query.startDate as Date).toISOString());
+    }
+    if (query.endDate) {
+      params.set("endDate", (query.endDate as Date).toISOString());
+    }
+
+    params.set("page", String(query.page ?? 1));
+    params.set("limit", String(query.limit ?? 10));
+    params.set("sortBy", query.sortBy ?? "createdAt");
+    params.set("sortOrder", query.sortOrder ?? "desc");
+
+    const res = await fetch(
+      `${backendUrl}/api/technicians/bookings?${params.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          Cookie: `accessToken=${accessToken}`,
+        },
+        cache: "no-store",
       },
-      cache: "no-store",
-    });
+    );
 
     const result = await res.json();
 
@@ -197,14 +234,29 @@ export const getAllBookingsFromLoginTechnician = async () => {
         success: false,
         message: result.message || "Unable to load bookings.",
         data: [],
+        meta: {
+          currentPage: 1,
+          limit: 10,
+          totalRow: 0,
+          totalPage: 0,
+        },
         errorDetails: result.errorDetails || [],
       };
     }
 
+    const bookingsResult = result.data?.result;
+
     return {
       success: true,
       message: result.message || "Bookings fetched successfully.",
-      data: result.data || [],
+      data: bookingsResult?.data || [],
+      meta: bookingsResult?.meta || {
+        currentPage: 1,
+        limit: 10,
+        totalRow: 0,
+        totalPage: 0,
+      },
+      errorDetails: [],
     };
   } catch (error) {
     console.error("Get technician bookings error:", error);
@@ -213,6 +265,12 @@ export const getAllBookingsFromLoginTechnician = async () => {
       success: false,
       message: "Unable to connect to the server. Please try again.",
       data: [],
+      meta: {
+        currentPage: 1,
+        limit: 10,
+        totalRow: 0,
+        totalPage: 0,
+      },
       errorDetails: [],
     };
   }
