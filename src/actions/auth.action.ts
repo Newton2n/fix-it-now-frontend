@@ -48,11 +48,9 @@ export const login = async (data: TLoginFormData) => {
       });
     }
 
-    console.log("login result", result);
 
     return result;
   } catch (error) {
-    console.error("Login action error:", error);
 
     return {
       success: false,
@@ -91,7 +89,6 @@ export const register = async (data: TRegistrationFormData) => {
       data: result.data,
     };
   } catch (error) {
-    console.error("Register action error:", error);
 
     return {
       success: false,
@@ -124,10 +121,8 @@ export const getMe = async () => {
         errorDetails: result.errorDetails || [],
       };
     }
-    console.log("get Me",result)
     return result;
   } catch (error) {
-    console.error("Login action error:", error);
 
     return {
       success: false,
@@ -153,11 +148,7 @@ interface GoogleAuthInput {
 }
 
 export async function googleLogin({ idToken }: GoogleAuthInput) {
-  console.log(
-    "google id token received in server action:",
-    typeof idToken,
-    idToken,
-  );
+  
 
   try {
     if (!idToken || typeof idToken !== "string") {
@@ -203,7 +194,7 @@ export async function googleLogin({ idToken }: GoogleAuthInput) {
       user: result.data?.user,
     };
   } catch (error) {
-    console.error("Google login error:", error);
+   
     return {
       success: false,
       message: "Server error occurred during Google authentication",

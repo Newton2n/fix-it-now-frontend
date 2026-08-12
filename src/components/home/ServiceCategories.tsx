@@ -73,6 +73,7 @@ export async function ServiceCategories() {
                   key={category.id}
                   id={category.id}
                   name={category.name}
+                  imageUrl={category.imageUrl}
                   description={
                     category.description ||
                     "Get service by category with professional technicians ready to assist."

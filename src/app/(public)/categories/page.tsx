@@ -165,6 +165,7 @@ async function CategoriesContent({
                   key={category.id}
                   id={category.id}
                   name={category.name}
+                  imageUrl={category.imageUrl}
                   description={category.description}
                 />
               );

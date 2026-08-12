@@ -1,7 +1,7 @@
-// app/admin/categories/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MoreVertical, Plus, Trash2, Edit, Eye } from "lucide-react";
@@ -60,40 +60,55 @@ export default function AdminCategoriesPage() {
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null,
-  );
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
-  // Derive query from URL on each render
+  const [selectedCategory, setSelectedCategory] =
+    useState<Category | null>(null);
+
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] =
+    useState<string | null>(null);
+
   const query = {
     search: searchParams.get("search") || undefined,
+
     page: searchParams.get("page")
       ? Number(searchParams.get("page"))
       : 1,
+
     limit: searchParams.get("limit")
       ? Number(searchParams.get("limit"))
       : 10,
-    sortBy: (searchParams.get("sortBy") as "name" | "createdAt" | null) || "createdAt",
-    sortOrder: (searchParams.get("sortOrder") as "asc" | "desc" | null) || "desc",
+
+    sortBy:
+      (searchParams.get("sortBy") as "name" | "createdAt" | null) ||
+      "createdAt",
+
+    sortOrder:
+      (searchParams.get("sortOrder") as "asc" | "desc" | null) ||
+      "desc",
   };
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         setLoading(true);
+
         const response = await getAllCategory(query);
 
         if (!response.success) {
-          toast.error(response.message || "Failed to load categories");
+          toast.error(
+            response.message || "Failed to load categories",
+          );
+
           setCategories([]);
+
           setMeta({
             currentPage: 1,
             limit: 10,
             totalRow: 0,
             totalPage: 0,
           });
+
           return;
         }
 
@@ -118,7 +133,7 @@ export default function AdminCategoriesPage() {
     };
 
     fetchCategories();
-  }, [searchParams]); // re-run when URL changes
+  }, [searchParams]);
 
   const handleEditCategory = (category: Category) => {
     setSelectedCategory(category);
@@ -130,13 +145,21 @@ export default function AdminCategoriesPage() {
 
     try {
       setIsDeleting(true);
+
       const result = await deleteCategory(categoryToDelete);
 
       if (result.success) {
-        toast.success(result.message || "Category deleted successfully");
-        setCategories((prev) => prev.filter((c) => c.id !== categoryToDelete));
+        toast.success(
+          result.message || "Category deleted successfully",
+        );
+
+        setCategories((prev) =>
+          prev.filter((category) => category.id !== categoryToDelete),
+        );
+
         setDeleteConfirmOpen(false);
         setCategoryToDelete(null);
+
         router.refresh();
       } else {
         toast.error(result.message || "Failed to delete category");
@@ -166,27 +189,36 @@ export default function AdminCategoriesPage() {
         title="Categories"
         description="Create and manage service categories."
         action={
-          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+          <Dialog
+            open={createDialogOpen}
+            onOpenChange={setCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="h-4 w-4" />
                 Add Category
               </Button>
             </DialogTrigger>
+
             <DialogContent className="max-h-screen overflow-y-auto sm:max-w-lg">
               <DialogHeader>
                 <DialogTitle>Create New Category</DialogTitle>
+
                 <DialogDescription>
                   Add a new service category to the platform
                 </DialogDescription>
               </DialogHeader>
-              <CategoryForm mode="create" onSuccess={handleCreateSuccess} />
+
+              <CategoryForm
+                mode="create"
+                onSuccess={handleCreateSuccess}
+              />
             </DialogContent>
           </Dialog>
         }
       />
 
-      {/* Filters + pagination */}
+      {/* Filters */}
       <CategoriesFilterBar
         currentPage={meta.currentPage}
         totalPage={meta.totalPage}
@@ -203,7 +235,10 @@ export default function AdminCategoriesPage() {
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-28 rounded-xl" />
+              <Skeleton
+                key={i}
+                className="h-36 rounded-xl"
+              />
             ))}
           </div>
         ) : categories.length > 0 ? (
@@ -211,56 +246,94 @@ export default function AdminCategoriesPage() {
             {categories.map((category) => (
               <div
                 key={category.id}
-                className="rounded-xl border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                className="rounded-xl border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:p-5"
               >
                 <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="min-w-0 flex-1 space-y-3 pr-10 lg:pr-0">
-                    <div className="space-y-1">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                        Category
-                      </p>
-                      <h3 className="text-lg font-semibold text-foreground">
-                        {category.name}
-                      </h3>
+                  {/* Main Content */}
+                  <div className="min-w-0 flex-1 space-y-4 pr-10 lg:pr-0">
+                    <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start">
+                      {/* Category Image */}
+                      <div className="relative h-24 w-full shrink-0 overflow-hidden rounded-xl border bg-muted sm:h-24 sm:w-32 lg:h-28 lg:w-40">
+                        {category.imageUrl ? (
+                          <Image
+                            src={category.imageUrl}
+                            alt={`${category.name} category`}
+                            fill
+                            sizes="(max-width: 640px) 100vw, 160px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <span className="px-2 text-center text-xs text-muted-foreground">
+                              No image
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Name + Description */}
+                      <div className="min-w-0 flex-1 space-y-3">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            Category
+                          </p>
+
+                          <h3 className="break-words text-lg font-semibold text-foreground sm:text-xl">
+                            {category.name}
+                          </h3>
+                        </div>
+
+                        {category.description ? (
+                          <p className="max-w-3xl whitespace-pre-wrap break-words text-sm leading-6 text-foreground/70 sm:text-base">
+                            {category.description}
+                          </p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            No description added.
+                          </p>
+                        )}
+                      </div>
                     </div>
 
-                    {category.description ? (
-                      <p className="max-w-3xl whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground">
-                        {category.description}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        No description added.
-                      </p>
-                    )}
-
+                    {/* Metadata */}
                     <div className="grid gap-2 sm:grid-cols-2 lg:max-w-2xl">
                       <Info
                         label="Created"
                         value={formatDateTime(category.createdAt)}
                       />
+
                       <Info
                         label="Updated"
                         value={formatDateTime(category.updatedAt)}
                       />
                     </div>
 
-                    <div className="pt-1">
-                      <Button asChild variant="outline" size="sm">
+                    {/* Actions */}
+                    <div className="flex flex-col items-start gap-3 pt-1 sm:flex-row sm:items-center">
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                      >
                         <Link href={`/categories/${category.id}`}>
                           <Eye className="mr-2 h-4 w-4" />
                           View services
                         </Link>
                       </Button>
-                    </div>
 
-                    <p className="text-xs text-amber-600">
-                      You can’t delete this category if it already has services.
-                    </p>
+                      <p className="text-xs leading-5 text-amber-600 dark:text-amber-500">
+                        You can&apos;t delete this category if it already
+                        has services.
+                      </p>
+                    </div>
                   </div>
 
+                  {/* Status + Menu */}
                   <div className="absolute right-0 top-0 flex shrink-0 flex-col items-end gap-3 lg:static lg:items-end">
-                    <Badge variant="secondary" className="rounded-full px-3">
+                    <Badge
+                      variant="secondary"
+                      className="rounded-full px-3"
+                    >
                       Active
                     </Badge>
 
@@ -272,16 +345,23 @@ export default function AdminCategoriesPage() {
                           className="h-9 w-9 p-0"
                         >
                           <MoreVertical className="h-4 w-4" />
+                          <span className="sr-only">
+                            Category actions
+                          </span>
                         </Button>
                       </DropdownMenuTrigger>
+
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => handleEditCategory(category)}
+                          onClick={() =>
+                            handleEditCategory(category)
+                          }
                           className="cursor-pointer gap-2"
                         >
                           <Edit className="h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
+
                         <DropdownMenuItem
                           onClick={() => {
                             setCategoryToDelete(category.id);
@@ -304,6 +384,7 @@ export default function AdminCategoriesPage() {
             <h3 className="text-lg font-semibold text-foreground">
               No categories found
             </h3>
+
             <p className="mt-2 text-sm text-muted-foreground">
               Create your first category to get started.
             </p>
@@ -311,15 +392,21 @@ export default function AdminCategoriesPage() {
         )}
       </SectionCard>
 
+      {/* Edit Dialog */}
       {selectedCategory && (
-        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <Dialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+        >
           <DialogContent className="max-h-screen overflow-y-auto sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>Edit Category</DialogTitle>
+
               <DialogDescription>
                 Update category information
               </DialogDescription>
             </DialogHeader>
+
             <CategoryForm
               mode="edit"
               initialData={selectedCategory}
@@ -329,10 +416,13 @@ export default function AdminCategoriesPage() {
         </Dialog>
       )}
 
+      {/* Delete Confirmation */}
       <ConfirmDialog
         title="Delete category?"
         description="Are you sure you want to delete this category? This action cannot be undone."
-        confirmText={isDeleting ? "Deleting..." : "Delete Category"}
+        confirmText={
+          isDeleting ? "Deleting..." : "Delete Category"
+        }
         cancelText="Cancel"
         isDestructive
         open={deleteConfirmOpen}
@@ -343,12 +433,19 @@ export default function AdminCategoriesPage() {
   );
 }
 
-function Info({ label, value }: { label: string; value: string }) {
+function Info({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
   return (
     <div className="rounded-lg border bg-background p-3">
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
+
       <p className="mt-1 break-all text-sm font-medium leading-6 text-foreground">
         {value}
       </p>

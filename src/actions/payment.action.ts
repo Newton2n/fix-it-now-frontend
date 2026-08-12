@@ -113,7 +113,7 @@ export const getAllPaymentDetailsFromLoginUser = async (
       errorDetails: [],
     };
   } catch (error) {
-    console.error("Get user payment history error:", error);
+    
 
     return {
       success: false,
@@ -173,7 +173,7 @@ export const createCheckoutSession = async (
       },
     };
   } catch (error) {
-    console.error("Create checkout session error:", error);
+    
 
     return {
       success: false,
@@ -224,7 +224,7 @@ export const getPaymentDetailsByBookingId = async (
       data: result.data,
     };
   } catch (error) {
-    console.error("Get payment details error:", error);
+    
 
     return {
       success: false,
