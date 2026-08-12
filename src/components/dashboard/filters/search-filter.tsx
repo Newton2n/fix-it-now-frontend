@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
 import {
   Select,
   SelectContent,
@@ -37,7 +36,7 @@ export default function SelectFilter({
   function handleChange(value: string) {
     const params = new URLSearchParams(searchParams);
 
-    if (value === "all") {
+    if (value === "all" || value === "") {
       params.delete(param);
     } else {
       params.set(param, value);
@@ -49,10 +48,7 @@ export default function SelectFilter({
   }
 
   return (
-    <Select
-      value={currentValue || "all"}
-      onValueChange={handleChange}
-    >
+    <Select value={currentValue || "all"} onValueChange={handleChange}>
       <SelectTrigger className={width}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>

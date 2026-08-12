@@ -1,4 +1,3 @@
-// components/dashboard/filters/resource-filters/technician-filter.tsx
 "use client";
 
 import ClearFilters from "../clear-filter";
@@ -7,8 +6,7 @@ import NumberRangeFilter from "../number-range-filter";
 import SelectFilter from "../search-filter";
 import SearchInput from "../search-input";
 import SortFilter from "../sort-filter";
-import DashboardPagination from "../pagination/dashboard-pagination"; // adjust path
-
+import DashboardPagination from "../pagination/dashboard-pagination"; 
 interface TechnicianFiltersProps {
   currentPage: number;
   totalPage: number;

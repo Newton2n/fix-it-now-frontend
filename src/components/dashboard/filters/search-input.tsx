@@ -1,4 +1,3 @@
-// components/dashboard/filters/search-input.tsx
 "use client";
 
 import { Search } from "lucide-react";
