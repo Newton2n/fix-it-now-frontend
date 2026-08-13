@@ -19,10 +19,9 @@ export const getTechnicianProfileById = async (id: string) => {
     return { success: false, message: "technician id required" };
   }
 
-
   try {
     const res = await fetch(`${backendUrl}/api/technicians/profile/${id}`, {
-      method:"GET",
+      method: "GET",
       cache: "no-store",
     });
 
@@ -37,8 +36,6 @@ export const getTechnicianProfileById = async (id: string) => {
     }
     return result;
   } catch (error) {
-    
-
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -85,8 +82,6 @@ export const getLoginTechnicianProfile = async () => {
     }
     return result;
   } catch (error) {
-  
-
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -99,7 +94,6 @@ export const getLoginTechnicianProfile = async () => {
 export const createTechnicianProfile = async (
   data: TCreateTechnicianProfile,
 ): Promise<ActionResponse<TCreateTechnicianProfile>> => {
- 
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -146,8 +140,6 @@ export const createTechnicianProfile = async (
       data: result.data,
     };
   } catch (error) {
-   
-
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -164,7 +156,6 @@ export const updateTechnicianProfile = async (data: {
   serviceArea: string[];
   yearsOfExperience: number;
 }): Promise<ActionResponse<TechnicianProfile>> => {
-  
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -211,8 +202,6 @@ export const updateTechnicianProfile = async (data: {
       data: result.data,
     };
   } catch (error) {
-  
-
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -225,7 +214,6 @@ export const updateTechnicianProfile = async (data: {
 export const updateTechnicianAvailability = async (
   payload: TChangeAvailabilityPayload,
 ): Promise<ActionResponse<TechnicianProfile>> => {
-
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
@@ -262,8 +250,6 @@ export const updateTechnicianAvailability = async (
 
     const result = await res.json();
 
-  
-
     if (!result.success) {
       return {
         success: false,
@@ -285,8 +271,6 @@ export const updateTechnicianAvailability = async (
       data: result.data,
     };
   } catch (error) {
-  
-
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -295,11 +279,19 @@ export const updateTechnicianAvailability = async (
   }
 };
 
-type TechnicianFilters = {
+//get all technician public
+
+export type TechnicianStatus =
+  | "PENDING_APPROVAL"
+  | "VERIFIED"
+  | "SUSPENDED";
+
+export type TechnicianSearchParams = {
   search?: string;
   page?: number;
   limit?: number;
   minExperience?: number;
+  status?: TechnicianStatus;
   isAvailable?: string;
   skills?: string;
   serviceArea?: string;
@@ -307,9 +299,9 @@ type TechnicianFilters = {
   sortOrder?: "asc" | "desc";
 };
 
-//get all technician public
-
-export const getAllTechnicians = async (filters: TechnicianFilters = {}) => {
+export const getAllTechnicians = async (
+  filters: TechnicianSearchParams,
+) => {
   try {
     const params = new URLSearchParams();
 
@@ -326,11 +318,21 @@ export const getAllTechnicians = async (filters: TechnicianFilters = {}) => {
     }
 
     if (filters.minExperience !== undefined) {
-      params.set("minExperience", String(filters.minExperience));
+      params.set(
+        "minExperience",
+        String(filters.minExperience),
+      );
+    }
+
+    if (filters.status) {
+      params.set("status", filters.status);
     }
 
     if (filters.isAvailable) {
-      params.set("isAvailable", filters.isAvailable);
+      params.set(
+        "isAvailable",
+        filters.isAvailable,
+      );
     }
 
     if (filters.skills) {
@@ -338,7 +340,10 @@ export const getAllTechnicians = async (filters: TechnicianFilters = {}) => {
     }
 
     if (filters.serviceArea) {
-      params.set("serviceArea", filters.serviceArea);
+      params.set(
+        "serviceArea",
+        filters.serviceArea,
+      );
     }
 
     if (filters.sortBy) {
@@ -346,7 +351,10 @@ export const getAllTechnicians = async (filters: TechnicianFilters = {}) => {
     }
 
     if (filters.sortOrder) {
-      params.set("sortOrder", filters.sortOrder);
+      params.set(
+        "sortOrder",
+        filters.sortOrder,
+      );
     }
 
     const url = `${backendUrl}/api/technicians?${params.toString()}`;
@@ -365,7 +373,9 @@ export const getAllTechnicians = async (filters: TechnicianFilters = {}) => {
     if (!res.ok || !result.success) {
       return {
         success: false,
-        message: result.message || "Unable to fetch technicians.",
+        message:
+          result.message ||
+          "Unable to fetch technicians.",
         data: [],
         meta: {
           page: 1,
@@ -378,18 +388,19 @@ export const getAllTechnicians = async (filters: TechnicianFilters = {}) => {
 
     return {
       success: true,
-      message: result.message || "Technicians retrieved successfully.",
+      message:
+        result.message ||
+        "Technicians retrieved successfully.",
       data: result.data?.result?.data || [],
-      meta: result.data?.result?.meta || {
-        page: 1,
-        limit: 10,
-        totalRow: 0,
-        totalPage: 0,
-      },
+      meta:
+        result.data?.result?.meta || {
+          page: 1,
+          limit: 10,
+          totalRow: 0,
+          totalPage: 0,
+        },
     };
   } catch (error) {
-   
-
     return {
       success: false,
       message: "Unable to connect to the server.",

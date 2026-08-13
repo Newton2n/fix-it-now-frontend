@@ -150,7 +150,7 @@ export default function ServiceSearchFilters({
               <button
                 type="button"
                 onClick={clearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm text-muted-foreground hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-sm text-muted-foreground hover:text-foreground"
                 aria-label="Clear search"
               >
                 <X className="size-4" />
@@ -162,7 +162,7 @@ export default function ServiceSearchFilters({
           <Button
             type="button"
             variant="outline"
-            className="h-11 w-full sm:w-auto"
+            className="h-11 w-full cursor-pointer sm:w-auto"
             onClick={() => setShowFilters(!showFilters)}
           >
             <SlidersHorizontal className="mr-2 size-4" />
@@ -194,12 +194,12 @@ export default function ServiceSearchFilters({
               )
             }
           >
-            <SelectTrigger className="h-10 w-full sm:w-64">
+            <SelectTrigger className="h-10 w-full cursor-pointer sm:w-64">
               <SelectValue placeholder="All categories" />
             </SelectTrigger>
 
             <SelectContent>
-              <SelectItem value="all">
+              <SelectItem value="all" className="cursor-pointer">
                 All categories
               </SelectItem>
 
@@ -207,6 +207,7 @@ export default function ServiceSearchFilters({
                 <SelectItem
                   key={category.id}
                   value={category.id}
+                  className="cursor-pointer"
                 >
                   {category.name}
                 </SelectItem>
@@ -283,20 +284,20 @@ export default function ServiceSearchFilters({
                   )
                 }
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full cursor-pointer">
                   <SelectValue placeholder="All services" />
                 </SelectTrigger>
 
                 <SelectContent>
-                  <SelectItem value="all">
+                  <SelectItem value="all" className="cursor-pointer">
                     All services
                   </SelectItem>
 
-                  <SelectItem value="true">
+                  <SelectItem value="true" className="cursor-pointer">
                     Available
                   </SelectItem>
 
-                  <SelectItem value="false">
+                  <SelectItem value="false" className="cursor-pointer">
                     Unavailable
                   </SelectItem>
                 </SelectContent>
@@ -315,16 +316,16 @@ export default function ServiceSearchFilters({
                   updateParams("sortBy", value)
                 }
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full cursor-pointer">
                   <SelectValue />
                 </SelectTrigger>
 
                 <SelectContent>
-                  <SelectItem value="date">
+                  <SelectItem value="date" className="cursor-pointer">
                     Date
                   </SelectItem>
 
-                  <SelectItem value="price">
+                  <SelectItem value="price" className="cursor-pointer">
                     Price
                   </SelectItem>
                 </SelectContent>
@@ -340,7 +341,7 @@ export default function ServiceSearchFilters({
                 updateParams("sortOrder", value)
               }
             >
-              <SelectTrigger className="w-full sm:w-52">
+              <SelectTrigger className="w-full cursor-pointer sm:w-52">
                 {defaultValues.sortOrder === "asc" ? (
                   <ArrowUpAZ className="mr-2 size-4" />
                 ) : (
@@ -351,11 +352,11 @@ export default function ServiceSearchFilters({
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="desc">
+                <SelectItem value="desc" className="cursor-pointer">
                   Newest / Highest
                 </SelectItem>
 
-                <SelectItem value="asc">
+                <SelectItem value="asc" className="cursor-pointer">
                   Oldest / Lowest
                 </SelectItem>
               </SelectContent>
@@ -366,7 +367,7 @@ export default function ServiceSearchFilters({
                 type="button"
                 variant="ghost"
                 onClick={clearFilters}
-                className="w-full sm:w-auto"
+                className="w-full cursor-pointer sm:w-auto"
               >
                 <X className="mr-2 size-4" />
                 Clear filters

@@ -41,6 +41,7 @@ export default function CategoryPagination({
           size="sm"
           disabled={currentPage <= 1}
           onClick={() => changePage(currentPage - 1)}
+          className="cursor-pointer"
         >
           Previous
         </Button>
@@ -59,7 +60,7 @@ export default function CategoryPagination({
                   : "outline"
               }
               onClick={() => changePage(page)}
-              className="hidden sm:inline-flex"
+              className="hidden cursor-pointer sm:inline-flex"
             >
               {page}
             </Button>
@@ -71,6 +72,7 @@ export default function CategoryPagination({
           size="sm"
           disabled={currentPage >= totalPage}
           onClick={() => changePage(currentPage + 1)}
+          className="cursor-pointer"
         >
           Next
         </Button>

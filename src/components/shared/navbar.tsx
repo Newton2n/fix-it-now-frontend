@@ -377,7 +377,7 @@ function MobileMenu({
     ? ROLE_CONFIG[role].dashboardHref
     : null;
 
-  const profileLink = getProfileLink(role);
+  const profileLink = getProfileLink(role as Role);
 
   const dashboardActive =
     dashboardHref !== null

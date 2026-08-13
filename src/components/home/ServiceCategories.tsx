@@ -19,12 +19,8 @@ export async function ServiceCategories() {
     return null;
   }
 
-  const rawCategories: Category[] = result.data ?? [];
-
-  const categories =
-    rawCategories.length >= 6
-      ? rawCategories.slice(0, 6)
-      : rawCategories.slice(0, 3);
+  // Always grab up to 6 categories, we will handle the display logic with CSS
+  const categories: Category[] = result.data ? result.data.slice(0, 6) : [];
 
   if (categories.length === 0) {
     return null;
@@ -64,9 +60,13 @@ export async function ServiceCategories() {
                 key={category.id}
                 delay={Math.min(i, 3) * 60}
                 className={cn(
-                  "min-w-0 h-full flex",
-                  // Hides items past index 2 on mobile and tablet screens, showing all 6 on large/desktop screens
-                  i >= 3 && "hidden lg:flex",
+                  "min-w-0 h-full",
+                  // 1. Mobile (grid-cols-1): Show indices 0, 1, 2 (3 cards total), hide the rest
+                  i < 3 ? "flex" : "hidden",
+                  // 2. Tablet (grid-cols-2): Reveal index 3 (makes 4 cards total)
+                  i === 3 && "sm:flex",
+                  // 3. Desktop (grid-cols-3): Reveal indices 4 and 5 (makes 6 cards total)
+                  i >= 4 && "lg:flex"
                 )}
               >
                 <CategoryCard
@@ -78,7 +78,7 @@ export async function ServiceCategories() {
                     category.description ||
                     "Get service by category with professional technicians ready to assist."
                   }
-                  className="h-full flex flex-col justify-between"
+                  className="h-full flex flex-col justify-between w-full"
                 />
               </Reveal>
             );

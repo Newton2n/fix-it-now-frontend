@@ -193,7 +193,7 @@ export default function ServiceFilters({
           <button
             type="button"
             onClick={() => handleSearchChange("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
             aria-label="Clear search"
           >
             <X className="size-4" />
@@ -214,12 +214,12 @@ export default function ServiceFilters({
               }
               onValueChange={handleCategoryChange}
             >
-              <SelectTrigger>
+              <SelectTrigger className="cursor-pointer">
                 <SelectValue placeholder="All categories" />
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="all">
+                <SelectItem value="all" className="cursor-pointer">
                   All categories
                 </SelectItem>
 
@@ -227,6 +227,7 @@ export default function ServiceFilters({
                   <SelectItem
                     key={category.id}
                     value={category.id}
+                    className="cursor-pointer"
                   >
                     {category.name}
                   </SelectItem>
@@ -279,20 +280,20 @@ export default function ServiceFilters({
               }
               onValueChange={handleAvailabilityChange}
             >
-              <SelectTrigger>
+              <SelectTrigger className="cursor-pointer">
                 <SelectValue placeholder="All services" />
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="all">
+                <SelectItem value="all" className="cursor-pointer">
                   All services
                 </SelectItem>
 
-                <SelectItem value="true">
+                <SelectItem value="true" className="cursor-pointer">
                   Available
                 </SelectItem>
 
-                <SelectItem value="false">
+                <SelectItem value="false" className="cursor-pointer">
                   Unavailable
                 </SelectItem>
               </SelectContent>
@@ -307,16 +308,16 @@ export default function ServiceFilters({
               value={searchParams.get("sortBy") || "date"}
               onValueChange={handleSortByChange}
             >
-              <SelectTrigger>
+              <SelectTrigger className="cursor-pointer">
                 <SelectValue />
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="date">
+                <SelectItem value="date" className="cursor-pointer">
                   Date
                 </SelectItem>
 
-                <SelectItem value="price">
+                <SelectItem value="price" className="cursor-pointer">
                   Price
                 </SelectItem>
               </SelectContent>
@@ -333,16 +334,16 @@ export default function ServiceFilters({
               }
               onValueChange={handleSortOrderChange}
             >
-              <SelectTrigger>
+              <SelectTrigger className="cursor-pointer">
                 <SelectValue />
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="desc">
+                <SelectItem value="desc" className="cursor-pointer">
                   Descending
                 </SelectItem>
 
-                <SelectItem value="asc">
+                <SelectItem value="asc" className="cursor-pointer">
                   Ascending
                 </SelectItem>
               </SelectContent>
@@ -356,7 +357,7 @@ export default function ServiceFilters({
               variant="ghost"
               size="sm"
               onClick={resetFilters}
-              className="gap-2"
+              className="gap-2 cursor-pointer"
             >
               <X className="size-4" />
               Clear filters
@@ -371,7 +372,7 @@ export default function ServiceFilters({
           <SheetTrigger asChild>
             <Button
               variant="outline"
-              className="flex-1 gap-2 sm:flex-none"
+              className="flex-1 gap-2 sm:flex-none cursor-pointer"
             >
               <SlidersHorizontal className="size-4" />
               Filters
@@ -406,12 +407,12 @@ export default function ServiceFilters({
                   }
                   onValueChange={handleCategoryChange}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="cursor-pointer">
                     <SelectValue placeholder="All categories" />
                   </SelectTrigger>
 
                   <SelectContent>
-                    <SelectItem value="all">
+                    <SelectItem value="all" className="cursor-pointer">
                       All categories
                     </SelectItem>
 
@@ -419,6 +420,7 @@ export default function ServiceFilters({
                       <SelectItem
                         key={category.id}
                         value={category.id}
+                        className="cursor-pointer"
                       >
                         {category.name}
                       </SelectItem>
@@ -463,6 +465,7 @@ export default function ServiceFilters({
                   variant="secondary"
                   size="sm"
                   onClick={applyPriceFilter}
+                  className="cursor-pointer"
                 >
                   Apply price
                 </Button>
@@ -480,20 +483,20 @@ export default function ServiceFilters({
                   }
                   onValueChange={handleAvailabilityChange}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="cursor-pointer">
                     <SelectValue />
                   </SelectTrigger>
 
                   <SelectContent>
-                    <SelectItem value="all">
+                    <SelectItem value="all" className="cursor-pointer">
                       All services
                     </SelectItem>
 
-                    <SelectItem value="true">
+                    <SelectItem value="true" className="cursor-pointer">
                       Available
                     </SelectItem>
 
-                    <SelectItem value="false">
+                    <SelectItem value="false" className="cursor-pointer">
                       Unavailable
                     </SelectItem>
                   </SelectContent>
@@ -513,16 +516,16 @@ export default function ServiceFilters({
                     }
                     onValueChange={handleSortByChange}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="cursor-pointer">
                       <SelectValue />
                     </SelectTrigger>
 
                     <SelectContent>
-                      <SelectItem value="date">
+                      <SelectItem value="date" className="cursor-pointer">
                         Date
                       </SelectItem>
 
-                      <SelectItem value="price">
+                      <SelectItem value="price" className="cursor-pointer">
                         Price
                       </SelectItem>
                     </SelectContent>
@@ -538,16 +541,16 @@ export default function ServiceFilters({
                     }
                     onValueChange={handleSortOrderChange}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="cursor-pointer">
                       <SelectValue />
                     </SelectTrigger>
 
                     <SelectContent>
-                      <SelectItem value="desc">
+                      <SelectItem value="desc" className="cursor-pointer">
                         Descending
                       </SelectItem>
 
-                      <SelectItem value="asc">
+                      <SelectItem value="asc" className="cursor-pointer">
                         Ascending
                       </SelectItem>
                     </SelectContent>
@@ -557,7 +560,7 @@ export default function ServiceFilters({
 
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full cursor-pointer"
                 onClick={resetFilters}
               >
                 Reset all filters
@@ -571,7 +574,7 @@ export default function ServiceFilters({
             variant="ghost"
             size="sm"
             onClick={resetFilters}
-            className="gap-2"
+            className="gap-2 cursor-pointer"
           >
             <X className="size-4" />
             Clear

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useRef, useState } from "react";
@@ -12,11 +11,7 @@ import {
   X,
 } from "lucide-react";
 
-import {
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -33,6 +28,7 @@ type TechnicianSearchFiltersProps = {
   defaultValues: {
     search: string;
     minExperience: string;
+    status: string;
     isAvailable: string;
     skills: string;
     serviceArea: string;
@@ -45,38 +41,27 @@ export default function TechnicianSearchFilters({
   defaultValues,
 }: TechnicianSearchFiltersProps) {
   const router = useRouter();
+
   const pathname = usePathname();
+
   const searchParams = useSearchParams();
 
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [search, setSearch] = useState(
-    defaultValues.search,
-  );
+  const [search, setSearch] = useState(defaultValues.search);
 
   const [minExperience, setMinExperience] = useState(
     defaultValues.minExperience,
   );
 
-  const [skills, setSkills] = useState(
-    defaultValues.skills,
-  );
+  const [skills, setSkills] = useState(defaultValues.skills);
 
-  const [serviceArea, setServiceArea] = useState(
-    defaultValues.serviceArea,
-  );
+  const [serviceArea, setServiceArea] = useState(defaultValues.serviceArea);
 
   const [showFilters, setShowFilters] = useState(false);
 
-  const updateParams = (
-    key: string,
-    value: string,
-  ) => {
-    const params = new URLSearchParams(
-      searchParams.toString(),
-    );
+  const updateParams = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
 
     if (value) {
       params.set(key, value);
@@ -84,18 +69,12 @@ export default function TechnicianSearchFilters({
       params.delete(key);
     }
 
-    // Any filter change starts from page 1
     params.set("page", "1");
 
-    router.replace(
-      `${pathname}?${params.toString()}`,
-    );
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
-  const handleDebouncedChange = (
-    key: string,
-    value: string,
-  ) => {
+  const handleDebouncedChange = (key: string, value: string) => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
@@ -108,43 +87,25 @@ export default function TechnicianSearchFilters({
   const handleSearch = (value: string) => {
     setSearch(value);
 
-    handleDebouncedChange(
-      "search",
-      value,
-    );
+    handleDebouncedChange("search", value);
   };
 
-  const handleMinExperience = (
-    value: string,
-  ) => {
+  const handleMinExperience = (value: string) => {
     setMinExperience(value);
 
-    handleDebouncedChange(
-      "minExperience",
-      value,
-    );
+    handleDebouncedChange("minExperience", value);
   };
 
-  const handleSkills = (
-    value: string,
-  ) => {
+  const handleSkills = (value: string) => {
     setSkills(value);
 
-    handleDebouncedChange(
-      "skills",
-      value,
-    );
+    handleDebouncedChange("skills", value);
   };
 
-  const handleServiceArea = (
-    value: string,
-  ) => {
+  const handleServiceArea = (value: string) => {
     setServiceArea(value);
 
-    handleDebouncedChange(
-      "serviceArea",
-      value,
-    );
+    handleDebouncedChange("serviceArea", value);
   };
 
   const clearFilters = () => {
@@ -161,32 +122,19 @@ export default function TechnicianSearchFilters({
   };
 
   const filterCount =
-    Number(
-      Boolean(defaultValues.minExperience),
-    ) +
-    Number(
-      Boolean(defaultValues.isAvailable),
-    ) +
-    Number(
-      Boolean(defaultValues.skills),
-    ) +
-    Number(
-      Boolean(defaultValues.serviceArea),
-    ) +
-    Number(
-      defaultValues.sortBy !== "date",
-    ) +
-    Number(
-      defaultValues.sortOrder !== "desc",
-    );
+    Number(Boolean(defaultValues.minExperience)) +
+    Number(Boolean(defaultValues.status)) +
+    Number(Boolean(defaultValues.isAvailable)) +
+    Number(Boolean(defaultValues.skills)) +
+    Number(Boolean(defaultValues.serviceArea)) +
+    Number(defaultValues.sortBy !== "date") +
+    Number(defaultValues.sortOrder !== "desc");
 
-  const hasFilters =
-    Boolean(defaultValues.search) ||
-    filterCount > 0;
+  const hasFilters = Boolean(defaultValues.search) || filterCount > 0;
 
   return (
     <div className="space-y-4">
-      {/* Search + Filter Button */}
+      {/* Search + Filter button */}
       <div className="flex flex-col gap-3 sm:flex-row">
         {/* Search */}
         <div className="relative flex-1">
@@ -194,9 +142,7 @@ export default function TechnicianSearchFilters({
 
           <Input
             value={search}
-            onChange={(event) =>
-              handleSearch(event.target.value)
-            }
+            onChange={(event) => handleSearch(event.target.value)}
             placeholder="Search technicians..."
             className="h-11 pl-9 pr-10"
           />
@@ -204,9 +150,7 @@ export default function TechnicianSearchFilters({
           {search && (
             <button
               type="button"
-              onClick={() =>
-                handleSearch("")
-              }
+              onClick={() => handleSearch("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm text-muted-foreground transition-colors hover:text-foreground"
               aria-label="Clear search"
             >
@@ -219,49 +163,35 @@ export default function TechnicianSearchFilters({
         <Button
           type="button"
           variant="outline"
-          className="h-11 w-full sm:w-auto"
-          onClick={() =>
-            setShowFilters(
-              (previous) => !previous,
-            )
-          }
+          className="h-11 w-full sm:w-auto cursor-pointer"
+          onClick={() => setShowFilters((previous) => !previous)}
         >
           <SlidersHorizontal className="mr-2 size-4" />
-
           Filters
-
           {filterCount > 0 && (
             <span className="ml-2 flex size-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
               {filterCount}
             </span>
           )}
-
           <ChevronDown
             className={`ml-2 size-4 transition-transform ${
-              showFilters
-                ? "rotate-180"
-                : ""
+              showFilters ? "rotate-180" : ""
             }`}
           />
         </Button>
       </div>
 
-      {/* Filters */}
+      {/* Filter Panel */}
       {showFilters && (
         <div className="rounded-lg border bg-card p-4 sm:p-5">
-          {/* Heading */}
           <div className="mb-5">
-            <h2 className="text-base font-semibold">
-              Filter technicians
-            </h2>
+            <h2 className="text-base font-semibold">Filter technicians</h2>
 
             <p className="mt-1 text-xs text-muted-foreground">
-              Find technicians based on your
-              requirements.
+              Find technicians based on your requirements.
             </p>
           </div>
 
-          {/* Filter Inputs */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Minimum Experience */}
             <div className="space-y-2">
@@ -277,11 +207,7 @@ export default function TechnicianSearchFilters({
                 type="number"
                 min="0"
                 value={minExperience}
-                onChange={(event) =>
-                  handleMinExperience(
-                    event.target.value,
-                  )
-                }
+                onChange={(event) => handleMinExperience(event.target.value)}
                 placeholder="e.g. 5"
                 className="h-10"
               />
@@ -289,21 +215,14 @@ export default function TechnicianSearchFilters({
 
             {/* Skills */}
             <div className="space-y-2">
-              <label
-                htmlFor="skills"
-                className="text-sm font-medium"
-              >
+              <label htmlFor="skills" className="text-sm font-medium">
                 Skill
               </label>
 
               <Input
                 id="skills"
                 value={skills}
-                onChange={(event) =>
-                  handleSkills(
-                    event.target.value,
-                  )
-                }
+                onChange={(event) => handleSkills(event.target.value)}
                 placeholder="e.g. plumbing"
                 className="h-10"
               />
@@ -311,21 +230,14 @@ export default function TechnicianSearchFilters({
 
             {/* Service Area */}
             <div className="space-y-2">
-              <label
-                htmlFor="service-area"
-                className="text-sm font-medium"
-              >
+              <label htmlFor="service-area" className="text-sm font-medium">
                 Service Area
               </label>
 
               <Input
                 id="service-area"
                 value={serviceArea}
-                onChange={(event) =>
-                  handleServiceArea(
-                    event.target.value,
-                  )
-                }
+                onChange={(event) => handleServiceArea(event.target.value)}
                 placeholder="e.g. Dhaka"
                 className="h-10"
               />
@@ -333,22 +245,12 @@ export default function TechnicianSearchFilters({
 
             {/* Availability */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Availability
-              </label>
+              <label className="text-sm font-medium">Availability</label>
 
               <Select
-                value={
-                  defaultValues.isAvailable ||
-                  "all"
-                }
+                value={defaultValues.isAvailable || "all"}
                 onValueChange={(value) =>
-                  updateParams(
-                    "isAvailable",
-                    value === "all"
-                      ? ""
-                      : value,
-                  )
+                  updateParams("isAvailable", value === "all" ? "" : value)
                 }
               >
                 <SelectTrigger className="h-10 w-full">
@@ -356,17 +258,37 @@ export default function TechnicianSearchFilters({
                 </SelectTrigger>
 
                 <SelectContent>
-                  <SelectItem value="all">
-                    All technicians
+                  <SelectItem value="all">All technicians</SelectItem>
+
+                  <SelectItem value="true">Available</SelectItem>
+
+                  <SelectItem value="false">Unavailable</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Status */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Status</label>
+
+              <Select
+                value={defaultValues.status || "VERIFIED"}
+                onValueChange={(value) => updateParams("status", value)}
+              >
+                <SelectTrigger className="h-10 w-full">
+                  <SelectValue placeholder="All status" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+
+                  <SelectItem value="PENDING_APPROVAL">
+                    Pending Approval
                   </SelectItem>
 
-                  <SelectItem value="true">
-                    Available
-                  </SelectItem>
+                  <SelectItem value="VERIFIED">Verified</SelectItem>
 
-                  <SelectItem value="false">
-                    Unavailable
-                  </SelectItem>
+                  <SelectItem value="SUSPENDED">Suspended</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -374,20 +296,13 @@ export default function TechnicianSearchFilters({
 
           {/* Sorting */}
           <div className="mt-5 border-t pt-5">
-            <h2 className="mb-3 text-sm font-semibold">
-              Sort results
-            </h2>
+            <h2 className="mb-3 text-sm font-semibold">Sort results</h2>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {/* Sort By */}
               <Select
                 value={defaultValues.sortBy}
-                onValueChange={(value) =>
-                  updateParams(
-                    "sortBy",
-                    value,
-                  )
-                }
+                onValueChange={(value) => updateParams("sortBy", value)}
               >
                 <SelectTrigger className="h-10 w-full">
                   <SlidersHorizontal className="mr-2 size-4 shrink-0" />
@@ -396,29 +311,19 @@ export default function TechnicianSearchFilters({
                 </SelectTrigger>
 
                 <SelectContent>
-                  <SelectItem value="date">
-                    Newest
-                  </SelectItem>
+                  <SelectItem value="date">Newest</SelectItem>
 
-                  <SelectItem value="experience">
-                    Experience
-                  </SelectItem>
+                  <SelectItem value="experience">Experience</SelectItem>
                 </SelectContent>
               </Select>
 
               {/* Sort Order */}
               <Select
                 value={defaultValues.sortOrder}
-                onValueChange={(value) =>
-                  updateParams(
-                    "sortOrder",
-                    value,
-                  )
-                }
+                onValueChange={(value) => updateParams("sortOrder", value)}
               >
                 <SelectTrigger className="h-10 w-full">
-                  {defaultValues.sortOrder ===
-                  "asc" ? (
+                  {defaultValues.sortOrder === "asc" ? (
                     <ArrowUpAZ className="mr-2 size-4 shrink-0" />
                   ) : (
                     <ArrowDownAZ className="mr-2 size-4 shrink-0" />
@@ -428,19 +333,15 @@ export default function TechnicianSearchFilters({
                 </SelectTrigger>
 
                 <SelectContent>
-                  <SelectItem value="desc">
-                    Descending
-                  </SelectItem>
+                  <SelectItem value="desc">Descending</SelectItem>
 
-                  <SelectItem value="asc">
-                    Ascending
-                  </SelectItem>
+                  <SelectItem value="asc">Ascending</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          {/* Clear */}
+          {/* Clear Filters */}
           {hasFilters && (
             <div className="mt-5 flex justify-end border-t pt-4">
               <Button
@@ -450,7 +351,6 @@ export default function TechnicianSearchFilters({
                 className="w-full sm:w-auto"
               >
                 <X className="mr-2 size-4" />
-
                 Clear filters
               </Button>
             </div>
@@ -460,4 +360,3 @@ export default function TechnicianSearchFilters({
     </div>
   );
 }
-

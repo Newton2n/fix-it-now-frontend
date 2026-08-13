@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  ArrowRight,
-  CheckCircle2,
-  Clock,
-  FileCheck,
-  UserPlus,
-  Wrench,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Clock, FileCheck, UserPlus, Wrench } from "lucide-react";
 import { Reveal } from "./Reveal";
 import Image from "next/image";
 
@@ -18,15 +10,12 @@ const POINTS = [
   { icon: Clock, text: "Submit your profile for admin verification" },
 ];
 
-/** Technician CTA section reflecting the official onboarding and admin verification workflow. */
 export function TechnicianCTA() {
   return (
     <section className="w-full border-b border-border bg-background py-20 lg:py-28">
-      {/* Expanded container matching ultra-wide 4K display widths (max-w-[1920px]) while preserving responsive padding alignment */}
       <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8">
         <Reveal>
           <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-primary via-primary/95 to-primary/90 text-primary-foreground shadow-xl dark:border-primary/30 dark:from-card dark:via-card dark:to-background dark:text-foreground">
-            {/* Background ambient light styling adhering strictly to theme palette */}
             <div
               aria-hidden="true"
               className="pointer-events-none absolute -right-24 -top-24 size-96 rounded-full bg-primary-foreground/10 blur-3xl dark:bg-primary/10"

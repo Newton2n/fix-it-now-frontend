@@ -32,7 +32,7 @@ export default function CategorySearch({
   const searchParams = useSearchParams();
 
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const updateParams = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -106,7 +106,7 @@ export default function CategorySearch({
           <button
             type="button"
             onClick={clearSearch}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
             aria-label="Clear search"
           >
             <X className="size-4" />
@@ -116,24 +116,22 @@ export default function CategorySearch({
 
       {/* Filters */}
       <div className="mt-4 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="grid w-full gap-3 sm:grid-cols-2 sm:max-w-md">
+        <div className="grid w-full gap-3 sm:max-w-md sm:grid-cols-2">
           {/* Sort By */}
           <Select
             value={defaultSortBy}
-            onValueChange={(value) =>
-              updateParams("sortBy", value)
-            }
+            onValueChange={(value) => updateParams("sortBy", value)}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full cursor-pointer">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
 
             <SelectContent>
-              <SelectItem value="createdAt">
+              <SelectItem value="createdAt" className="cursor-pointer">
                 Date
               </SelectItem>
 
-              <SelectItem value="name">
+              <SelectItem value="name" className="cursor-pointer">
                 Name
               </SelectItem>
             </SelectContent>
@@ -142,11 +140,9 @@ export default function CategorySearch({
           {/* Sort Order */}
           <Select
             value={defaultSortOrder}
-            onValueChange={(value) =>
-              updateParams("sortOrder", value)
-            }
+            onValueChange={(value) => updateParams("sortOrder", value)}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full cursor-pointer">
               {defaultSortOrder === "asc" ? (
                 <ArrowUpAZ className="mr-2 size-4" />
               ) : (
@@ -157,11 +153,11 @@ export default function CategorySearch({
             </SelectTrigger>
 
             <SelectContent>
-              <SelectItem value="desc">
+              <SelectItem value="desc" className="cursor-pointer">
                 Descending
               </SelectItem>
 
-              <SelectItem value="asc">
+              <SelectItem value="asc" className="cursor-pointer">
                 Ascending
               </SelectItem>
             </SelectContent>
@@ -172,7 +168,7 @@ export default function CategorySearch({
           <Button
             variant="ghost"
             onClick={clearAll}
-            className="w-full sm:w-auto"
+            className="w-full cursor-pointer sm:w-auto"
           >
             <X className="mr-2 size-4" />
             Clear

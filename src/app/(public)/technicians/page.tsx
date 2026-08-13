@@ -1,6 +1,10 @@
 import { Suspense } from "react";
 
-import { getAllTechnicians } from "@/actions/technician.action";
+import {
+  getAllTechnicians,
+  type TechnicianStatus,
+} from "@/actions/technician.action";
+
 import { getUserById } from "@/actions/user.action";
 
 import TechnicianCard from "@/components/technicians/technician-card";
@@ -13,6 +17,7 @@ type SearchParams = {
   page?: string;
   limit?: string;
   minExperience?: string;
+  status?: TechnicianStatus;
   isAvailable?: string;
   skills?: string;
   serviceArea?: string;
@@ -28,7 +33,7 @@ type Technician = {
   isAvailable: boolean;
   yearsOfExperience: string;
   serviceArea: string[];
-  status: string;
+  status: TechnicianStatus;
 };
 
 export default async function TechniciansPage({
@@ -39,17 +44,33 @@ export default async function TechniciansPage({
   const params = await searchParams;
 
   const search = params.search || "";
+
   const page = Number(params.page) || 1;
+
   const limit = Number(params.limit) || 10;
 
-  const minExperience = params.minExperience || "";
-  const isAvailable = params.isAvailable || "";
+  const minExperience =
+    params.minExperience || "";
+
+  const status = params.status || "";
+
+  const isAvailable =
+    params.isAvailable || "";
+
   const skills = params.skills || "";
-  const serviceArea = params.serviceArea || "";
 
-  const sortBy = params.sortBy === "experience" ? "experience" : "date";
+  const serviceArea =
+    params.serviceArea || "";
 
-  const sortOrder = params.sortOrder === "asc" ? "asc" : "desc";
+  const sortBy =
+    params.sortBy === "experience"
+      ? "experience"
+      : "date";
+
+  const sortOrder =
+    params.sortOrder === "asc"
+      ? "asc"
+      : "desc";
 
   return (
     <main>
@@ -57,14 +78,17 @@ export default async function TechniciansPage({
       <section className="border-b">
         <div className="w-full px-4 py-12 md:px-6">
           <div className="max-w-4xl">
-            <p className="text-sm font-medium text-primary">Our Technicians</p>
+            <p className="text-sm font-medium text-primary">
+              Our Technicians
+            </p>
 
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Find a trusted technician
             </h1>
 
             <p className="mt-2 max-w-2xl text-muted-foreground">
-              Search and filter technicians by skills, experience, availability,
+              Search and filter technicians by
+              skills, experience, availability,
               and service area.
             </p>
           </div>
@@ -77,6 +101,7 @@ export default async function TechniciansPage({
           defaultValues={{
             search,
             minExperience,
+            status,
             isAvailable,
             skills,
             serviceArea,
@@ -87,14 +112,28 @@ export default async function TechniciansPage({
 
         <div className="mt-8">
           <Suspense
-            key={`${search}-${page}-${minExperience}-${isAvailable}-${skills}-${serviceArea}-${sortBy}-${sortOrder}`}
-            fallback={<TechnicianSkeleton />}
+            key={[
+              search,
+              page,
+              minExperience,
+              status,
+              isAvailable,
+              skills,
+              serviceArea,
+              sortBy,
+              sortOrder,
+            ].join("-")}
+            fallback={
+              <TechnicianSkeleton />
+            }
           >
             <TechniciansContent
               search={search}
               page={page}
+              
               limit={limit}
               minExperience={minExperience}
+              status={status}
               isAvailable={isAvailable}
               skills={skills}
               serviceArea={serviceArea}
@@ -113,6 +152,7 @@ async function TechniciansContent({
   page,
   limit,
   minExperience,
+  status,
   isAvailable,
   skills,
   serviceArea,
@@ -123,6 +163,7 @@ async function TechniciansContent({
   page: number;
   limit: number;
   minExperience: string;
+  status: string;
   isAvailable: string;
   skills: string;
   serviceArea: string;
@@ -134,13 +175,21 @@ async function TechniciansContent({
     page,
     limit,
 
-    minExperience: minExperience ? Number(minExperience) : undefined,
+    minExperience: minExperience
+      ? Number(minExperience)
+      : undefined,
 
-    isAvailable: isAvailable || undefined,
+    status: status
+      ? (status as TechnicianStatus)
+      : undefined,
+
+    isAvailable:
+      isAvailable || undefined,
 
     skills: skills || undefined,
 
-    serviceArea: serviceArea || undefined,
+    serviceArea:
+      serviceArea || undefined,
 
     sortBy,
     sortOrder,
@@ -149,26 +198,34 @@ async function TechniciansContent({
   if (!result.success) {
     return (
       <div className="rounded-lg border p-8 text-center">
-        <h2 className="text-lg font-semibold">Unable to load technicians</h2>
+        <h2 className="text-lg font-semibold">
+          Unable to load technicians
+        </h2>
 
-        <p className="mt-2 max-w-md mx-auto text-sm text-muted-foreground">
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
           {result.message}
         </p>
       </div>
     );
   }
 
-  const technicians: Technician[] = result.data ?? [];
+  const technicians: Technician[] =
+    result.data ?? [];
 
-  const totalTechnicians = result.meta?.totalRow ?? technicians.length;
+  const totalTechnicians =
+    result.meta?.totalRow ??
+    technicians.length;
 
   if (technicians.length === 0) {
     return (
       <div className="rounded-lg border p-8 text-center">
-        <h2 className="text-lg font-semibold">No technicians found</h2>
+        <h2 className="text-lg font-semibold">
+          No technicians found
+        </h2>
 
-        <p className="mt-2 max-w-md mx-auto text-sm text-muted-foreground">
-          Try changing your search or filter options.
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+          Try changing your search or filter
+          options.
         </p>
       </div>
     );
@@ -180,37 +237,62 @@ async function TechniciansContent({
       <div className="mb-6">
         <p className="text-sm text-muted-foreground">
           {totalTechnicians}{" "}
-          {totalTechnicians === 1 ? "technician" : "technicians"} found
+          {totalTechnicians === 1
+            ? "technician"
+            : "technicians"}{" "}
+          found
         </p>
       </div>
 
       {/* Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {technicians.map((technician) => (
-          <TechnicianWithUser key={technician.id} technician={technician} />
+          <TechnicianWithUser
+            key={technician.id}
+            technician={technician}
+          />
         ))}
       </div>
 
       {/* Pagination */}
       <div className="mt-8">
         <TechnicianPagination
-          currentPage={result.meta?.page || result.meta?.currentPage || 1}
-          totalPages={result.meta?.totalPage || 1}
+          currentPage={
+            result.meta?.page ||
+            result.meta?.currentPage ||
+            1
+          }
+          totalPages={
+            result.meta?.totalPage || 1
+          }
         />
       </div>
     </>
   );
 }
 
-async function TechnicianWithUser({ technician }: { technician: Technician }) {
-  const userResult = await getUserById(technician.userId);
+async function TechnicianWithUser({
+  technician,
+}: {
+  technician: Technician;
+}) {
+  const userResult = await getUserById(
+    technician.userId,
+  );
 
-  const user = userResult?.success ? userResult.data : null;
+  const user = userResult?.success
+    ? userResult.data
+    : null;
 
-  const name = user?.name || "Professional Technician";
+  const name =
+    user?.name ||
+    "Professional Technician";
 
   const profileImage =
-    user?.profileImage || user?.image || user?.profilePicture || null;
+    user?.profileImage ||
+    user?.image ||
+    user?.profilePicture ||
+    null;
 
   return (
     <TechnicianCard
@@ -219,9 +301,13 @@ async function TechnicianWithUser({ technician }: { technician: Technician }) {
       profileImage={profileImage}
       bio={technician.bio}
       skills={technician.skills}
-      yearsOfExperience={technician.yearsOfExperience}
+      yearsOfExperience={
+        technician.yearsOfExperience
+      }
       serviceArea={technician.serviceArea}
-      isAvailable={technician.isAvailable}
+      isAvailable={
+        technician.isAvailable
+      }
       status={technician.status}
     />
   );

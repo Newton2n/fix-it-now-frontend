@@ -19,19 +19,20 @@ export async function FeaturedServices() {
     limit: 6,
   });
 
-  const rawServices: MinimalService[] = servicesResult?.data?.result?.data || [];
+  const rawServices: MinimalService[] =
+    servicesResult?.data?.result?.data || [];
 
-  const services = rawServices.length >= 6 
-    ? rawServices.slice(0, 6) 
-    : rawServices.slice(0, 3);
+  const services: MinimalService[] = rawServices.slice(0, 6);
 
   if (services.length === 0) {
     return null;
   }
 
   return (
-    <section id="services" className="w-full border-b border-border bg-background py-16 lg:py-24">
-      {/* Expanded container to match ultra-wide 4K display widths (max-w-[1920px]) while preserving internal padding alignment */}
+    <section
+      id="services"
+      className="w-full border-b border-border bg-background py-16 lg:py-24"
+    >
       <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-6 lg:px-8">
         <Reveal className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
@@ -39,7 +40,11 @@ export async function FeaturedServices() {
             title="Popular jobs booked on FixItNow"
             description="Clear scope, clear service area, and a professional attached to every booking."
           />
-          <Button asChild variant="outline" className="shrink-0 gap-2 self-start sm:self-auto">
+          <Button
+            asChild
+            variant="outline"
+            className="shrink-0 gap-2 self-start sm:self-auto"
+          >
             <Link href="/services">
               View all services
               <ArrowRight aria-hidden="true" className="size-4" />
@@ -47,16 +52,20 @@ export async function FeaturedServices() {
           </Button>
         </Reveal>
 
-        <ul className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+        <ul className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 items-stretch">
           {services.map((service, i) => (
-            <Reveal 
-              as="li" 
-              key={service.id} 
-              delay={Math.min(i, 3) * 70} 
+            <Reveal
+              as="li"
+              key={service.id}
+              delay={Math.min(i, 3) * 70}
               className={cn(
-                "min-w-0",
-                // Hides items past index 2 on mobile and tablet screens, showing all on large/desktop screens
-                i >= 3 && "hidden lg:block"
+                "min-w-0 h-full",
+
+                i < 3 ? "block" : "hidden",
+
+                i === 3 && "sm:block",
+
+                i >= 4 && "lg:block",
               )}
             >
               <ServiceCard

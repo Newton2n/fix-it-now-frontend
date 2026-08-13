@@ -55,6 +55,7 @@ export default function ServicePagination({
         size="sm"
         disabled={currentPage <= 1}
         onClick={() => goToPage(currentPage - 1)}
+        className="cursor-pointer"
       >
         <ChevronLeft className="mr-1 size-4" />
         Previous
@@ -71,6 +72,7 @@ export default function ServicePagination({
             }
             size="sm"
             onClick={() => goToPage(page)}
+            className="cursor-pointer"
           >
             {page}
           </Button>
@@ -82,6 +84,7 @@ export default function ServicePagination({
         size="sm"
         disabled={currentPage >= totalPages}
         onClick={() => goToPage(currentPage + 1)}
+        className="cursor-pointer"
       >
         Next
         <ChevronRight className="ml-1 size-4" />
