@@ -44,6 +44,16 @@ interface ServiceFormProps {
 const fallbackImage =
   "https://images.unsplash.com/photo-1605152276897-4f618f831968?w=1200&auto=format&fit=crop&q=85";
 
+// Helper function to validate if a string is a valid URL
+const isValidUrl = (urlString: string) => {
+  try {
+    new URL(urlString);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
 export function ServiceForm({
   mode,
   initialData,
@@ -76,9 +86,10 @@ export function ServiceForm({
   const isAvailable = watch("isAvailable");
   const thumbnailImage = watch("thumbnailImage");
 
+  const trimmedUrl = thumbnailImage?.trim() || "";
   const previewImage =
-    thumbnailImage?.trim() && !imageError
-      ? thumbnailImage.trim()
+    trimmedUrl && !imageError && isValidUrl(trimmedUrl)
+      ? trimmedUrl
       : fallbackImage;
 
   const onSubmit = async (data: ServiceFormData) => {
@@ -170,7 +181,7 @@ export function ServiceForm({
 
             <div className="mt-3 overflow-hidden rounded-xl border bg-muted/30">
               <div className="relative aspect-video w-full">
-                {thumbnailImage?.trim() ? (
+                {trimmedUrl && isValidUrl(trimmedUrl) ? (
                   <Image
                     key={previewImage}
                     src={previewImage}
@@ -186,11 +197,14 @@ export function ServiceForm({
                     onError={() => setImageError(true)}
                   />
                 ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                  <div className="flex h-full flex-col items-center justify-center gap-2 p-4 text-center text-muted-foreground">
                     <ImageIcon className="size-8" />
-
+                    
+                    {/* Added dynamic text check here */}
                     <span className="text-sm">
-                      Image preview will appear here
+                      {trimmedUrl && !isValidUrl(trimmedUrl) 
+                        ? "Invalid URL format. Please enter a valid web address." 
+                        : "Image preview will appear here"}
                     </span>
                   </div>
                 )}
