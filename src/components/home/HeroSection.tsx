@@ -332,49 +332,7 @@ export function HeroSection() {
         </div>
       </section>
 
-      {/* ================= PLATFORM ARCHITECTURE & TECH HIGHLIGHTS ================= */}
-      <section className="w-full border-b border-border bg-background py-12 sm:py-24 lg:py-32">
-        <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-16 xl:px-24">
-          
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-primary">
-              <Sparkles className="size-3.5 sm:size-4 shrink-0" />
-              <span>Full-Stack Architecture</span>
-            </div>
-            <h2 className="mt-3 sm:mt-5 text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground text-balance">
-              Engineered for absolute reliability & scale
-            </h2>
-            <p className="mt-2.5 sm:mt-4 text-xs sm:text-lg lg:text-xl text-muted-foreground text-pretty">
-              FixItNow is built with modern full-stack workflows, ensuring secure authentication, automated webhooks, and streamlined booking mechanics.
-            </p>
-          </div>
-
-          <div className="mt-10 sm:mt-20 grid grid-cols-1 gap-4 sm:gap-8 md:grid-cols-3">
-            {PLATFORM_FEATURES.map((feature, idx) => {
-              const FeatureIcon = feature.icon;
-              return (
-                <motion.div 
-                  key={feature.title}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.3, delay: idx * 0.1 }}
-                  className="group relative flex flex-col justify-between rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-5 sm:p-10 shadow-sm transition-all duration-200 hover:border-primary/50 hover:shadow-lg backdrop-blur-md"
-                >
-                  <div className="flex flex-col gap-3 sm:gap-5">
-                    <div className="grid size-11 sm:size-16 place-items-center rounded-xl sm:rounded-2xl bg-secondary text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground shadow-inner">
-                      <FeatureIcon className="size-5 sm:size-8" />
-                    </div>
-                    <h3 className="text-lg sm:text-2xl font-semibold tracking-tight text-foreground">{feature.title}</h3>
-                    <p className="text-xs sm:text-lg leading-relaxed text-muted-foreground">{feature.description}</p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-
-        </div>
-      </section>
+    
     </div>
   );
 }
