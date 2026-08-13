@@ -4,10 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   ChevronDown,
+  FileText,
+  Info,
   LayoutDashboard,
   LogIn,
   LogOut,
+  Mail,
   Menu,
+  ShieldCheck,
   User as UserIcon,
   UserPlus,
 } from "lucide-react";
@@ -62,8 +66,10 @@ type NavLink = {
   href: string;
   label: string;
   exact?: boolean;
+  icon?: React.ElementType;
 };
 
+// Core navigation links
 const BASE_LINKS: NavLink[] = [
   {
     href: "/",
@@ -84,6 +90,25 @@ const BASE_LINKS: NavLink[] = [
   },
 ];
 
+// Secondary / Info links grouped in dropdown & mobile section
+const SECONDARY_LINKS: NavLink[] = [
+  {
+    href: "/about",
+    label: "About Us",
+    icon: Info,
+  },
+  {
+    href: "/contact",
+    label: "Contact",
+    icon: Mail,
+  },
+  {
+    href: "/privacy",
+    label: "Privacy Policy",
+    icon: ShieldCheck,
+  },
+];
+
 const ROLE_CONFIG: Record<
   Exclude<Role, null>,
   {
@@ -93,7 +118,6 @@ const ROLE_CONFIG: Record<
 > = {
   CUSTOMER: {
     dashboardHref: "/dashboard/customer",
-
     links: [
       {
         href: "/dashboard/customer",
@@ -105,7 +129,6 @@ const ROLE_CONFIG: Record<
 
   TECHNICIAN: {
     dashboardHref: "/dashboard/technician",
-
     links: [
       {
         href: "/dashboard/technician",
@@ -117,7 +140,6 @@ const ROLE_CONFIG: Record<
 
   ADMIN: {
     dashboardHref: "/dashboard/admin",
-
     links: [
       {
         href: "/dashboard/admin",
@@ -203,7 +225,7 @@ function AuthButtons({
         variant="outline"
         className={cn(
           "cursor-pointer",
-          mobile && "w-full",
+          mobile && "w-full justify-center",
         )}
       >
         <Link
@@ -219,7 +241,7 @@ function AuthButtons({
         asChild
         className={cn(
           "cursor-pointer",
-          mobile && "w-full",
+          mobile && "w-full justify-center",
         )}
       >
         <Link
@@ -368,7 +390,6 @@ function MobileMenu({
   onLogout: () => void;
 }) {
   const pathname = usePathname();
-
   const [open, setOpen] = useState(false);
 
   const isLoggedIn = Boolean(userName);
@@ -381,18 +402,10 @@ function MobileMenu({
 
   const dashboardActive =
     dashboardHref !== null
-      ? isRouteActive(
-          pathname,
-          dashboardHref,
-          false,
-        )
+      ? isRouteActive(pathname, dashboardHref, false)
       : false;
 
-  const profileActive = isRouteActive(
-    pathname,
-    profileLink,
-    true,
-  );
+  const profileActive = isRouteActive(pathname, profileLink, true);
 
   const handleNavigation = () => {
     setOpen(false);
@@ -450,15 +463,16 @@ function MobileMenu({
               </div>
             </div>
           ) : (
-            <SheetTitle>
-              Navigation
-            </SheetTitle>
+            <SheetTitle>Navigation</SheetTitle>
           )}
         </SheetHeader>
 
         <div className="flex h-[calc(100vh-81px)] flex-col overflow-y-auto">
           {/* Main navigation */}
-          <nav className="flex flex-col gap-1 px-4 py-5">
+          <nav className="flex flex-col gap-1 px-4 py-4">
+            <span className="px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Menu
+            </span>
             {links.map((item) => {
               const active = isRouteActive(
                 pathname,
@@ -480,13 +494,44 @@ function MobileMenu({
                 >
                   <Link
                     href={item.href}
-                    aria-current={
-                      active
-                        ? "page"
-                        : undefined
-                    }
+                    aria-current={active ? "page" : undefined}
                     onClick={handleNavigation}
                   >
+                    {item.label}
+                  </Link>
+                </Button>
+              );
+            })}
+
+            {/* Secondary / Company Links Section in Mobile */}
+            <div className="my-2 border-t pt-3" />
+
+            <span className="px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Company & Legal
+            </span>
+
+            {SECONDARY_LINKS.map((item) => {
+              const Icon = item.icon;
+              const active = isRouteActive(pathname, item.href);
+
+              return (
+                <Button
+                  key={item.href}
+                  asChild
+                  variant="ghost"
+                  className={cn(
+                    "h-10 cursor-pointer justify-start rounded-md px-3 text-sm transition-colors",
+                    active
+                      ? "font-semibold text-primary"
+                      : "font-medium text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <Link
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    onClick={handleNavigation}
+                  >
+                    {Icon && <Icon className="mr-2 size-4" />}
                     {item.label}
                   </Link>
                 </Button>
@@ -505,16 +550,13 @@ function MobileMenu({
                     variant="outline"
                     className={cn(
                       "h-10 w-full cursor-pointer justify-start rounded-md",
-                      dashboardActive &&
-                        "font-semibold text-primary",
+                      dashboardActive && "font-semibold text-primary",
                     )}
                   >
                     <Link
                       href={dashboardHref}
                       aria-current={
-                        dashboardActive
-                          ? "page"
-                          : undefined
+                        dashboardActive ? "page" : undefined
                       }
                       onClick={handleNavigation}
                     >
@@ -537,11 +579,7 @@ function MobileMenu({
                 >
                   <Link
                     href={profileLink}
-                    aria-current={
-                      profileActive
-                        ? "page"
-                        : undefined
-                    }
+                    aria-current={profileActive ? "page" : undefined}
                     onClick={handleNavigation}
                   >
                     <UserIcon className="size-4" />
@@ -591,14 +629,10 @@ export default function Navbar({
       const res = await logout();
 
       if (res?.success) {
-        toast.success(
-          "Logged out successfully.",
-        );
+        toast.success("Logged out successfully.");
       }
     } catch (error) {
-      toast.error(
-        "Failed to logout. Please try again.",
-      );
+      toast.error("Failed to logout. Please try again.");
     } finally {
       window.location.href = "/login";
     }
@@ -606,10 +640,13 @@ export default function Navbar({
 
   const links = [
     ...BASE_LINKS,
-    ...(role
-      ? ROLE_CONFIG[role].links
-      : []),
+    ...(role ? ROLE_CONFIG[role].links : []),
   ];
+
+  // Checks if any of the secondary pages (About, Contact, etc.) are active
+  const isSecondaryActive = SECONDARY_LINKS.some((item) =>
+    isRouteActive(pathname, item.href),
+  );
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -634,7 +671,7 @@ export default function Navbar({
         </Link>
 
         {/* Desktop navigation */}
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 min-[950px]:flex">
           {links.map((item) => {
             const active = isRouteActive(
               pathname,
@@ -656,17 +693,60 @@ export default function Navbar({
               >
                 <Link
                   href={item.href}
-                  aria-current={
-                    active
-                      ? "page"
-                      : undefined
-                  }
+                  aria-current={active ? "page" : undefined}
                 >
                   {item.label}
                 </Link>
               </Button>
             );
           })}
+
+          {/* Desktop "More" Dropdown for About, Contact, Legal pages */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "group h-9 cursor-pointer rounded-md px-3 text-sm font-medium transition-colors",
+                  isSecondaryActive
+                    ? "font-semibold text-primary"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                More
+                <ChevronDown className="ml-1 size-3.5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent
+              align="start"
+              sideOffset={8}
+              className="w-48 rounded-xl p-1.5"
+            >
+              {SECONDARY_LINKS.map((item) => {
+                const Icon = item.icon;
+                const active = isRouteActive(pathname, item.href);
+
+                return (
+                  <DropdownMenuItem
+                    key={item.href}
+                    asChild
+                  >
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "cursor-pointer",
+                        active && "font-semibold text-primary",
+                      )}
+                    >
+                      {Icon && <Icon className="size-4" />}
+                      {item.label}
+                    </Link>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
 
         {/* Right side */}
@@ -679,9 +759,7 @@ export default function Navbar({
               <AccountMenu
                 role={role}
                 userName={userName}
-                profilePicture={
-                  profilePicture
-                }
+                profilePicture={profilePicture}
                 onLogout={handleLogout}
               />
             ) : (
@@ -690,14 +768,12 @@ export default function Navbar({
           </div>
 
           {/* Mobile menu */}
-          <div className="md:hidden">
+          <div className="min-[950px]:hidden">
             <MobileMenu
               links={links}
               role={role}
               userName={userName}
-              profilePicture={
-                profilePicture
-              }
+              profilePicture={profilePicture}
               onLogout={handleLogout}
             />
           </div>
