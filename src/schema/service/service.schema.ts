@@ -58,6 +58,7 @@ export const updateServiceSchema = z.object({
     .min(3, "title must be at least 3 letters long")
     .max(100, "title must be less than 101 letters")
     .optional(),
+  categoryId: z.uuid("Invalid category ID").optional(),
   description: z
     .string()
     .min(6, "Description must be at least 6 letters long")
@@ -70,9 +71,6 @@ export const updateServiceSchema = z.object({
   galleryImages: z.array(z.url({ error: "Valid url required" })).optional(),
 });
 
-
-
-
 export const ServiceSearchFiltersSchema = z.object({
   search: z.string().optional(),
   page: z.coerce.number().int().positive().default(1),
@@ -84,7 +82,5 @@ export const ServiceSearchFiltersSchema = z.object({
   sortBy: z.enum(["price", "date"]).default("date"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
-
-
 
 export type ServiceSearchFilters = z.infer<typeof ServiceSearchFiltersSchema>;

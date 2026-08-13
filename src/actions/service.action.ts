@@ -5,7 +5,10 @@ import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 
 const backendUrl = process.env.BACKEND_API;
-import { ServiceSearchFilters, ServiceSearchFiltersSchema } from "@/schema/service/service.schema";
+import {
+  ServiceSearchFilters,
+  ServiceSearchFiltersSchema,
+} from "@/schema/service/service.schema";
 
 type GetAllServiceParams = {
   search?: string;
@@ -77,8 +80,6 @@ export const getAllService = async (params: GetAllServiceParams = {}) => {
 
     return result;
   } catch (error) {
-    
-
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -134,9 +135,12 @@ export const getAllServiceByLoginTechnician = async (
 
     if (query.search) params.set("search", query.search);
     if (query.categoryId) params.set("categoryId", query.categoryId);
-    if (query.minPrice !== undefined) params.set("minPrice", String(query.minPrice));
-    if (query.maxPrice !== undefined) params.set("maxPrice", String(query.maxPrice));
-    if (query.isAvailable !== undefined) params.set("isAvailable", query.isAvailable);
+    if (query.minPrice !== undefined)
+      params.set("minPrice", String(query.minPrice));
+    if (query.maxPrice !== undefined)
+      params.set("maxPrice", String(query.maxPrice));
+    if (query.isAvailable !== undefined)
+      params.set("isAvailable", query.isAvailable);
     params.set("page", String(query.page ?? 1));
     params.set("limit", String(query.limit ?? 10));
     params.set("sortBy", query.sortBy ?? "date");
@@ -166,7 +170,6 @@ export const getAllServiceByLoginTechnician = async (
 
     const servicesResult = result.data?.result;
 
-
     return {
       success: true,
       message: result.message || "Services fetched successfully.",
@@ -175,7 +178,6 @@ export const getAllServiceByLoginTechnician = async (
       errorDetails: [],
     };
   } catch (error) {
-    
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -196,12 +198,10 @@ export const getSingleService = async (id: string) => {
   }
 
   const res = await fetch(`${backendUrl}/api/service/${id}`, {
-    method :"GET",
+    method: "GET",
     cache: "no-store",
   });
   const result = await res.json();
-
-
 
   if (result.success) {
     return result;
@@ -259,7 +259,6 @@ export const createService = async (data: TCreateService) => {
       data: result.data,
     };
   } catch (error) {
-    
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -327,7 +326,6 @@ export const updateService = async (id: string, data: TUpdateService) => {
       data: result.data,
     };
   } catch (error) {
-    
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
@@ -393,7 +391,6 @@ export const deleteService = async (id: string) => {
       data: result.data,
     };
   } catch (error) {
-    
     return {
       success: false,
       message: "Unable to connect to the server. Please try again.",
