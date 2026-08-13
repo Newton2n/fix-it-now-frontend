@@ -201,6 +201,8 @@ export const getSingleService = async (id: string) => {
   });
   const result = await res.json();
 
+
+
   if (result.success) {
     return result;
   }

@@ -31,10 +31,10 @@ async function BookingPageContent({ params }: PageProps) {
     notFound();
   }
 
-  const service = serviceResponse.data.result;
+  const service = serviceResponse?.data?.result?.service;
 
   const technicianResponse = await getTechnicianProfileById(
-    service.technicianId,
+    service?.technicianId,
   );
 
   if (!technicianResponse.success || !technicianResponse.data?.result) {
